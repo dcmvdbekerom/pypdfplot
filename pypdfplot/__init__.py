@@ -99,8 +99,7 @@ def pack(fnames,cleanup = False):
     return                
 
 
-def publish(cleanup = ['all','none','individual'][2],
-            inplace = True,
+def publish(inplace = True,
             do_show = True
             ):
 
