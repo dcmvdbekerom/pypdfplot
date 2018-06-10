@@ -9,6 +9,7 @@ import pickle
 import binascii
 
 LINE_LENGTH = 128
+MAX_SIZE = 10
 
 cleanup_list = []
 packed_files = []
@@ -110,12 +111,54 @@ def publish(inplace = True,
             do_show = True
             ):
 
-    global file_table,file_package
+    global file_table,file_package,py_file
 
     py_file = fbuf[:eos]
 
     while(py_file[-2] != '\n'):
         py_file += '\n'
+
+    if len(py_file)>MAX_SIZE:
+        new_file = '# -*- coding: utf-8 -*-\n'
+
+        i = py_file.find('pypdfplot')
+        print i
+        begin = max(py_file[:i].rfind('\n'),0)
+        end   = py_file[i:].find('\n')+i
+        print py_file[begin:end]
+        new_file += py_file[begin:end]
+
+
+        new_file += '\nfrom plot_script import *\n'
+        i = py_file.find('.pack(')
+        while i != -1:
+            begin = py_file[:i].rfind('\n')
+            mid   = py_file[i:].find(')')+i
+            end   = py_file[mid:].find('\n')+mid
+
+            new_file += py_file[begin:end]
+            py_file = py_file[:begin]+py_file[end:]
+            i = py_file.find('.pack(')
+
+        i = py_file.find('.publish(')
+        begin = py_file[:i].rfind('\n')
+        mid   = py_file[i:].find(')')+i #TODO: not safe for tuples or strange filenames
+        end   = py_file[mid:].find('\n')+mid
+
+        publish_line = py_file[begin:end]
+        py_file = py_file[:begin]+py_file[end:].replace('\n','\n##')
+
+        #TODO: check if name is available
+        with open('plot_script.py','wb') as f:
+            f.write(py_file)
+        pack('plot_script.py',True)
+        
+        new_file += "\nplt.pack('plot_script.py',True)"
+        new_file += '\n#'+publish_line[1:]
+        new_file += publish_line[:publish_line.find('.')+1]+'show()'+'\n\n'
+
+        py_file = new_file
+
 
 ##    for fname in trim_list:
 ##        py_file.replace(fname,os.path.basename(fname))
@@ -192,3 +235,8 @@ def publish(inplace = True,
     if do_show:
         show()
     return
+
+mpl_show = show
+def show(*varg,**kwarg):
+    print '[WARNING] Preview only, not published!'
+    mpl_show(*varg,**kwarg)
