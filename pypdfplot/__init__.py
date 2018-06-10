@@ -12,6 +12,7 @@ LINE_LENGTH = 128
 
 cleanup_list = []
 packed_files = []
+trim_list = []
 collision_list = []
 file_package = ''
 file_table   = ''
@@ -22,7 +23,7 @@ base,ext = os.path.splitext(pyname)
 
 if pyname != '':
     with open(pyname,'rb') as f:
-        fbuf = f.read()
+        fbuf = f.read().replace('\r\n','\n')#.replace('\r','\n')
 
         ## Find revision
         eos = fbuf.find('')
@@ -74,7 +75,7 @@ if pyname != '':
 else:
     print "[WARNING] Python must be run from script, not from interpreter..."
 
-def pack(fnames,cleanup = False):
+def pack(fnames,cleanup = False):#,trim_path = True):
     global file_package,file_table,file_ptr
 
     if type(fnames) == type(''):
@@ -86,14 +87,20 @@ def pack(fnames,cleanup = False):
 
         crc   = binascii.crc32(buf)
         pibuf = chop(pickle.dumps(buf,0),LINE_LENGTH)
-        file_package += pibuf
-        packed_files.append(fname)
 
+##        if trim_path:
+##            trim_list.append(fname)
+##            fname = os.path.basename(fname)
+        
+        file_package += pibuf
         file_table += '%{:s}|{:d}|{:d}|{:d}\n'.format(fname,file_ptr,len(pibuf),crc)
         file_ptr   += len(pibuf)
+        packed_files.append(fname)
         
         if cleanup:
             cleanup_list.append(fname)
+
+
 
         print 'File "'+fname+'" marked for packaging'+(' & deletion in folder' if cleanup else '')+'...'
     return                
@@ -109,6 +116,9 @@ def publish(inplace = True,
 
     while(py_file[-2] != '\n'):
         py_file += '\n'
+
+##    for fname in trim_list:
+##        py_file.replace(fname,os.path.basename(fname))
 
     now = datetime.datetime.now()
     version_info = " ### -+- Don't remove this line -+- ###\n"+\
@@ -157,16 +167,20 @@ def publish(inplace = True,
             if fname in collision_list:
                 close_editor_warning = True
             os.remove(fname)
+            if os.path.splitext(fname)[1] == '.py':
+                if os.path.exists(fname+'c'):
+                    os.remove(fname+'c')
 
         if inplace:
             if ext == '.py':
                 os.remove(pyname)
 
     ## Output:
-    print '~~~\nPublished file: "'+savename+'"...!'
+    print '~~~'
+    print 'Published file: "'+savename+'"...!'
     print 'Packed {:d} file'.format(len(packed_files))+('s...' if len(packed_files) >1 else '...')
     print 'Revision: '+str(rev)
-    print '~~~\n'
+    print '~~~'
     if close_editor_warning:
         #TODO: Use warnings module for warnings
         print '[WARNING] Packed files have been updated and deleted in folder.'
