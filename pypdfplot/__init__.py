@@ -10,6 +10,7 @@ LINE_LENGTH = 128
 
 cleanup_list = []
 packed_files = []
+existing_files  = []
 file_package = ''
 file_table   = ''
 file_ptr = 0
@@ -19,7 +20,7 @@ base,ext = os.path.splitext(pyname)
 
 if pyname != '':
     with open(pyname,'rb') as f:
-        fbuf = f.read().replace('\r\n','\n')
+        fbuf = f.read().replace('\n','\n')
         __fbuf = fbuf
 
         ## find revision
@@ -56,38 +57,47 @@ if pyname != '':
                         f.write(pickle.loads(pibuf))
                     print 'File "'+fname+'" unpacked...'
                 else:
+                    existing_files.append(fname)
                     print 'File "'+fname+'" already exists, skip unpacking...'
 
         except(ValueError):
             print 'No packed files found...'
-            pass
+
+        except Exception as e:
+            print e
     print '~~~'
-
+else:
+    print "[WARNING] Python must be run from script, not from interpreter..."
         
-def pack(fname,cleanup = False):
+def pack(fnames,cleanup = False):
     global file_package,file_table,file_ptr
-    with open(fname,'rb') as f:
-        buf = f.read()
-    temp_buf = pickle.dumps(buf,0)
-    pibuf = ''
-    while len(temp_buf)>LINE_LENGTH:
-        pibuf    += temp_buf[:LINE_LENGTH ]+'\n'
-        temp_buf  = temp_buf[ LINE_LENGTH:]
-    
-    pibuf += temp_buf+'\n'
-    pibuf = '%'+pibuf.replace('\n','\n%')[:-1]
 
-    file_package += pibuf
-    packed_files.append(fname)
+    if type(fnames) == type(''):
+        fnames = [fnames]
 
-    file_table += '%{:s}|{:d}|{:d}\r\n'.format(fname,file_ptr,len(pibuf))
-    file_ptr   += len(pibuf)
-    
-    if cleanup:
-        cleanup_list.append(fname)
+    for fname in fnames:
+        with open(fname,'rb') as f:
+            buf = f.read()
+        temp_buf = pickle.dumps(buf,0)
+        pibuf = ''
+        while len(temp_buf)>LINE_LENGTH:
+            pibuf    += temp_buf[:LINE_LENGTH ]+'\n'
+            temp_buf  = temp_buf[ LINE_LENGTH:]
+        
+        pibuf += temp_buf+'\n'
+        pibuf = '%'+pibuf.replace('\n','\n%')[:-1]
 
-    print 'File "'+fname+'" marked for packaging'+(' & deletion in folder' if cleanup else '')+'...'
-            
+        file_package += pibuf
+        packed_files.append(fname)
+
+        file_table += '%{:s}|{:d}|{:d}\n'.format(fname,file_ptr,len(pibuf))
+        file_ptr   += len(pibuf)
+        
+        if cleanup:
+            cleanup_list.append(fname)
+
+        print 'File "'+fname+'" marked for packaging'+(' & deletion in folder' if cleanup else '')+'...'
+                
 
 def __append_pdf(fbuf,extra_bytes):
     
@@ -133,15 +143,15 @@ def publish(cleanup = ['all','none','individual'][2],
     py_file = __fbuf[:eos]
         
     now = datetime.datetime.now()
-    version_info = " ### -+- Don't remove this line -+- ###\r\n"+\
-                   " ###  |    Date:    {:}   |  ###\r\n".format(now.strftime("%Y-%m-%d"))+\
-                   " ###  |    Time:         {:}   |  ###\r\n".format(now.strftime("%H:%M"))+\
-                   " ###  |    Revision: {:9d}   |  ###\r\n".format(rev)+\
-                   " ### -+--------------------------+- ###\r\n\r\n"+\
-                   '"""\r\n'
+    version_info = " ### -+- Don't remove this line -+- ###\n"+\
+                   " ###  |    Date:    {:}   |  ###\n".format(now.strftime("%Y-%m-%d"))+\
+                   " ###  |    Time:         {:}   |  ###\n".format(now.strftime("%H:%M"))+\
+                   " ###  |    Revision: {:9d}   |  ###\n".format(rev)+\
+                   " ### -+--------------------------+- ###\n\n"+\
+                   '"""\n'
 
     ## Prepare packing: 
-    file_table = '%{:010} {:010d}\r\n'.format(len(file_table),len(packed_files)) + file_table
+    file_table = '%{:010} {:010d}\n'.format(len(file_table),len(packed_files)) + file_table
     file_package = file_table + file_package
 
     ## Save the plot:
@@ -187,7 +197,8 @@ def publish(cleanup = ['all','none','individual'][2],
     print '~~~\nPublished file: "'+savename+'"...!'
     print 'Packed {:d} file'.format(len(packed_files))+('s...' if len(packed_files) >1 else '...')
     print 'Revision: '+str(rev)
-    print '~~~\nYou can now close the Python editor...'
+    print '~~~\n'
+    print 'You can now close the Python editor...'
 
     if do_show:
         show()
