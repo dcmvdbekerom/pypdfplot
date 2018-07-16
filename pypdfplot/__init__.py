@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from matplotlib.pyplot import *
-from .formatting import *
+mpl_show = show
+
+from formatting import *
 
 import os
 import sys
@@ -8,12 +10,14 @@ import datetime
 import pickle
 import binascii
 
-LINE_LENGTH = 128
-MAX_SIZE = 10
+LINE_LENGTH = 80
+PF_FTR1 = '# END OF PYTHON SCRIPT #\n"""\n'
+FT_HDR1 = '%FILETABLE\n'
+FT_HDR2 = '%{:010} {:010d} {:010d}\n'
+TERMINATOR = '\n%"""' + bytearray([0x00,0xbf])
 
 cleanup_list = []
 packed_files = []
-trim_list = []
 collision_list = []
 file_package = ''
 file_table   = ''
@@ -24,38 +28,30 @@ base,ext = os.path.splitext(pyname)
 
 if pyname != '':
     with open(pyname,'rb') as f:
-        fbuf = f.read().replace('\r\n','\n')#.replace('\r','\n')
-
-        ## Find revision
-        eos = fbuf.find('')
-        rev_str = fbuf[eos+1:].split('\n')[3]
-
-        if rev_str[12:21] == 'Revision:':
-            rev = int(rev_str[21:31])+1
-        else:
-            rev = 1
+        fbuf = f.read().replace('\r\n','\n').replace('\r','\n')
+        eos = fbuf.find(PF_FTR1)
 
         ## Unpack files
         try:
-            ipdf = fbuf[eos+1:].find('%PDF') + eos + 1
-            i1   = fbuf[ipdf:].find('\n')+ipdf+2
-            i2   = i1 + 32
-            table_size  = int(fbuf[i1   :i1+10])
-            n_files     = int(fbuf[i1+11:i1+21])
-            line_length = int(fbuf[i1+22:i1+32])
-            
-            table = fbuf[i2:i2+table_size].split('\n')[1:]
-            
+            i0 = fbuf[eos+1:].find(FT_HDR1) + eos + 1
+            i1 = i0 + len(FT_HDR1)
+            i2 = i1 + len(FT_HDR2.format(0,0,0))
+
+            table_hdr = fbuf[i1:i1+len(FT_HDR2.format(0,0,0))]
+            table_size,n_files,line_length = map(int,table_hdr.replace('%','').split(' '))
+            table = fbuf[i2:i2+table_size-1].split('\n')
+
             for line in table:
                 cols   = line.split('|')
                 fname  = cols[0][1:]
-                begin    = int(cols[1]) + i2 + 1 + table_size
+                begin    = int(cols[1]) + i2 + table_size
                 end      = int(cols[2]) + begin
                 crc_pack = int(cols[3])
                 
                 if not os.path.exists(fname):
-                    buf   = fbuf[begin:end] 
-                    pibuf = glue(buf,line_length)
+                    buf   = fbuf[begin:end]
+
+                    pibuf = glue(buf,line_length).replace('\\X','\\x')
                     with open(fname,'wb') as f:
                         f.write(pickle.loads(pibuf))
                     print 'File "'+fname+'" unpacked...'
@@ -72,11 +68,15 @@ if pyname != '':
 
         except Exception as e:
             print e
+            
     print '~~~'
 else:
     print "[WARNING] Python must be run from script, not from interpreter..."
 
-def pack(fnames,cleanup = False):#,trim_path = True):
+def pack_pypdfplot():
+    print __name__,__file__
+
+def pack(fnames,cleanup = False):
     global file_package,file_table,file_ptr
 
     if type(fnames) == type(''):
@@ -87,12 +87,8 @@ def pack(fnames,cleanup = False):#,trim_path = True):
             buf = f.read()
 
         crc   = binascii.crc32(buf)
-        pibuf = chop(pickle.dumps(buf,0),LINE_LENGTH)
+        pibuf = chop(pickle.dumps(buf,0).replace('\\x','\\X'),LINE_LENGTH)
 
-##        if trim_path:
-##            trim_list.append(fname)
-##            fname = os.path.basename(fname)
-        
         file_package += pibuf
         file_table += '%{:s}|{:d}|{:d}|{:d}\n'.format(fname,file_ptr,len(pibuf),crc)
         file_ptr   += len(pibuf)
@@ -100,8 +96,6 @@ def pack(fnames,cleanup = False):#,trim_path = True):
         
         if cleanup:
             cleanup_list.append(fname)
-
-
 
         print 'File "'+fname+'" marked for packaging'+(' & deletion in folder' if cleanup else '')+'...'
     return                
@@ -114,66 +108,36 @@ def publish(inplace = True,
     global file_table,file_package,py_file
 
     py_file = fbuf[:eos]
+    py_lines = py_file.splitlines()
+    coding_header = '#'
+    
+    for i in range(len(py_lines)):
+        line = py_lines[i]
+        if line != '':
+            if line[0] == '#':
+                if 'coding:' in line:
+                    coding_header = line +'\n#'
+                elif not '%PDF' in line:
+                    break
+            else:
+                break
 
-    while(py_file[-2] != '\n'):
-        py_file += '\n'
+    for j in range(1,len(py_lines)):
+        line = py_lines[-j]
+        if line != '':
+            if line != PF_FTR1:
+                break
+            
+    j = (len(py_lines) if j == 1 else 1-j)        
+                
+    py_file = '\n'+'\n'.join(py_lines[i:j]) + '\n\n'
 
-    if len(py_file)>MAX_SIZE:
-        new_file = '# -*- coding: utf-8 -*-\n'
-
-        i = py_file.find('pypdfplot')
-        print i
-        begin = max(py_file[:i].rfind('\n'),0)
-        end   = py_file[i:].find('\n')+i
-        print py_file[begin:end]
-        new_file += py_file[begin:end]
-
-
-        new_file += '\nfrom plot_script import *\n'
-        i = py_file.find('.pack(')
-        while i != -1:
-            begin = py_file[:i].rfind('\n')
-            mid   = py_file[i:].find(')')+i
-            end   = py_file[mid:].find('\n')+mid
-
-            new_file += py_file[begin:end]
-            py_file = py_file[:begin]+py_file[end:]
-            i = py_file.find('.pack(')
-
-        i = py_file.find('.publish(')
-        begin = py_file[:i].rfind('\n')
-        mid   = py_file[i:].find(')')+i #TODO: not safe for tuples or strange filenames
-        end   = py_file[mid:].find('\n')+mid
-
-        publish_line = py_file[begin:end]
-        py_file = py_file[:begin]+py_file[end:].replace('\n','\n##')
-
-        #TODO: check if name is available
-        with open('plot_script.py','wb') as f:
-            f.write(py_file)
-        pack('plot_script.py',True)
-        
-        new_file += "\nplt.pack('plot_script.py',True)"
-        new_file += '\n#'+publish_line[1:]
-        new_file += publish_line[:publish_line.find('.')+1]+'show()'+'\n\n'
-
-        py_file = new_file
-
-
-##    for fname in trim_list:
-##        py_file.replace(fname,os.path.basename(fname))
-
-    now = datetime.datetime.now()
-    version_info = " ### -+- Don't remove this line -+- ###\n"+\
-                   " ###  |    Date:    {:}   |  ###\n".format(now.strftime("%Y-%m-%d"))+\
-                   " ###  |    Time:         {:}   |  ###\n".format(now.strftime("%H:%M"))+\
-                   " ###  |    Revision: {:9d}   |  ###\n".format(rev)+\
-                   " ### -+--------------------------+- ###\n\n"+\
-                   '"""\n'
 
     ## Prepare packing: 
-    file_table = '%{:010} {:010d} {:010d}\n'.format(len(file_table),len(packed_files),LINE_LENGTH) + file_table
-    file_package = file_table + file_package
+    file_table = (FT_HDR1 + 
+                  FT_HDR2.format(len(file_table),len(packed_files),LINE_LENGTH) + 
+                  file_table)
+    file_package = py_file + PF_FTR1 + file_table + file_package + TERMINATOR
 
     ## Save the plot:
     plotname = base + '_plot.pdf'
@@ -197,10 +161,9 @@ def publish(inplace = True,
         os.remove(savename)
 
     with open(savename,'wb') as f:
-        sbuf  = ''
-        sbuf += py_file 
-        sbuf += version_info
+        sbuf  = coding_header
         sbuf += plot_file
+        sbuf += '"""\n'
         f.write(sbuf)
 
     ## Cleanup:
@@ -222,7 +185,7 @@ def publish(inplace = True,
     print '~~~'
     print 'Published file: "'+savename+'"...!'
     print 'Packed {:d} file'.format(len(packed_files))+('s...' if len(packed_files) >1 else '...')
-    print 'Revision: '+str(rev)
+##    print 'Revision: '+str(rev)
     print '~~~'
     if close_editor_warning:
         #TODO: Use warnings module for warnings
@@ -233,10 +196,10 @@ def publish(inplace = True,
         print 'You can now close the Python editor...'
 
     if do_show:
-        show()
+        mpl_show()
     return
 
-mpl_show = show
+
 def show(*varg,**kwarg):
-    print '[WARNING] Preview only, not published!'
+##    print '[WARNING] Preview only, not published!'
     mpl_show(*varg,**kwarg)

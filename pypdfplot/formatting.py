@@ -32,8 +32,9 @@ def append_pdf(fbuf,extra_bytes):
 
     return fbuf2
 
-def chop(buf,line_length):
+def chop(buf,line_len):
     rbuf = ''
+    line_length = line_len-1
     temp_buf = buf[:-5]
     trailer  = buf[-5:].replace('\n','\n%')
     while len(temp_buf)>line_length:
@@ -43,8 +44,9 @@ def chop(buf,line_length):
     rbuf += '%' + temp_buf + trailer
     return rbuf
 
-def glue(buf,line_length):
+def glue(buf,line_len):
     rbuf = ''
+    line_length = line_len-1
     temp_buf = buf[:-7]
     trailer  = buf[-7:].replace('%','')
     while len(temp_buf)>line_length:
