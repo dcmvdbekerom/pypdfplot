@@ -1,5 +1,5 @@
 from matplotlib.pyplot import *
-from classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError
 import sys
 import os
 import binascii
@@ -10,7 +10,7 @@ base,ext = os.path.splitext(pyname)
 
 _pack_list = []
 _filespacked = False
-_pyfile = ''
+_pyfile = b_('')
 
 if pyname != '':
     with open(pyname,'rb') as fr:

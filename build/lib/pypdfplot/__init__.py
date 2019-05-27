@@ -16,7 +16,7 @@ if pyname != '':
     with open(pyname,'rb') as fr:
         try:
             pr = PyPdfFileReader(fr)
-            print('Reading as mixed PyPDF file...')
+            #print('Reading as mixed PyPDF file...')
             _pyfile = pr.pyObj.getData()[:-4]
 
             root_obj = pr.trailer['/Root']
@@ -33,7 +33,7 @@ if pyname != '':
                             fw.write(fdata)
 
         except(PdfReadError):
-            print('Reading as Python-only file...')
+            #print('Reading as Python-only file...')
             fr.seek(0)
             _pyfile = fr.read()
 

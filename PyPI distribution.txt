@@ -3,7 +3,7 @@ pip install -e .
 
 from https://packaging.python.org/tutorials/packaging-projects/:
 (clear dist first)
-python setup.py sdist bdist_wheel
+python setup.py sdist bdist_wheel --universal
 python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 for PyPI:
