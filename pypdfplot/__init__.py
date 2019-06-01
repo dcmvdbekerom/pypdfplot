@@ -11,6 +11,7 @@ base,ext = os.path.splitext(pyname)
 _pack_list = []
 _filespacked = False
 _pyfile = b_('')
+_revision = 0
 
 if pyname != '':
     with open(pyname,'rb') as fr:
@@ -18,6 +19,7 @@ if pyname != '':
             pr = PyPdfFileReader(fr)
             #print('Reading as mixed PyPDF file...')
             _pyfile = pr.pyObj.getData()[:-4]
+            _revision = pr.revision + 1
 
             root_obj = pr.trailer['/Root']
             file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
@@ -61,7 +63,7 @@ def publish(show_plot = True, **kwargs):
     savefig(temp_plot)
         
     with open(temp_plot,'rb') as fr, open(temp_pypdfplot,'wb+') as fw:
-        pw = PyPdfFileWriter(fr)
+        pw = PyPdfFileWriter(fr,_revision)
         
         for fname in _pack_list:
             with open(fname,'rb') as fa:

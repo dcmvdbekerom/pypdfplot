@@ -32,9 +32,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PyPDF2 import PdfFileWriter,PdfFileReader
-from PyPDF2.generic import *
-from PyPDF2.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+from PyPDF4 import PdfFileWriter,PdfFileReader
+from PyPDF4.generic import *
+from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
 from binascii import hexlify
 
 COL_WIDTH = 80
@@ -152,7 +152,7 @@ class PyPdfFileReader(PdfFileReader):
             eof_addr = stream.tell()
             stream.readline()
             stream.readline()
-            old_size = int(stream.readline())
+            old_size,self.revision = map(int,stream.readline().split())
             stream.seek(eof_addr)
             self.offset_diff = file_end + 1 - old_size
             
@@ -519,7 +519,7 @@ class PyPdfFileReader(PdfFileReader):
 
 
 class PyPdfFileWriter(PdfFileWriter):
-    def __init__(self, stream, after_page_append=None):
+    def __init__(self, stream, revision = 0, after_page_append=None):
 
         super(PyPdfFileWriter,self).__init__()
 
@@ -630,6 +630,7 @@ class PyPdfFileWriter(PdfFileWriter):
             # page's tree was bumped off
 
             self._info = newInfoRef
+            self.revision = revision
 
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
@@ -754,8 +755,9 @@ class PyPdfFileWriter(PdfFileWriter):
             trailer[NameObject("/Encrypt")] = self._encrypt
         trailer.writeToStream(stream, None)
 
-        stream.write(b_('\nstartxref\n{:d}\n%%EOF'.format(xref_location)))
-        stream.write(b_('\n{:010d}\n"""\n'.format(stream.tell()+16)))
+        eof  = b_('\nstartxref\n{:d}\n%%EOF'.format(xref_location))
+        eof += b_('\n{:010d} {:05d} \n"""\n'.format(stream.tell()+44,self.revision))
+        stream.write(eof)
 
 
 
