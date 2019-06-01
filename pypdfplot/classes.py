@@ -756,7 +756,8 @@ class PyPdfFileWriter(PdfFileWriter):
         trailer.writeToStream(stream, None)
 
         eof  = b_('\nstartxref\n{:d}\n%%EOF'.format(xref_location))
-        eof += b_('\n{:010d} {:05d} \n"""\n'.format(stream.tell()+44,self.revision))
+        eof += b_('\n{:00010d} {:05d} \n"""\n')
+        eof = eof.format(stream.tell()+len(eof),self.revision)
         stream.write(eof)
 
 
