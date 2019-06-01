@@ -8,5 +8,5 @@ setup(name='pypdfplot',
       license='MIT',
       url = 'https://github.com/dcmvdbekerom/pypdfplot',
       packages=['pypdfplot'],
-      install_requires=['matplotlib','PyPDF2'],
+      install_requires=['matplotlib','PyPDF4'],
       zip_safe=False)
