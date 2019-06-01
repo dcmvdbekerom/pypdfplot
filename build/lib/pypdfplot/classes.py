@@ -691,7 +691,7 @@ class PyPdfFileWriter(PdfFileWriter):
         # Begin writing:
         object_positions = {}
         stream.write(b_('#') + self._header + b_("\n"))
-        obji = range(len(self._objects))
+        obji = list(range(len(self._objects)))
         for i in obji[-1:]+obji[:-1]:
             idnum = (i + 1)
             obj = self._objects[i]

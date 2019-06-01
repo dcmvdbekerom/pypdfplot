@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pypdfplot',
-      version='0.3.2',
+      version='0.3.3',
       description="Saves plots as PDF with embedded generating script",
       author='Dirk van den Bekerom',
       author_email='dcmvdbekerom@gmail.com',
