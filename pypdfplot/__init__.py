@@ -29,15 +29,17 @@ if pyname != '':
             for fname,obj in zip(fnames,fobjs):
                 if obj != pr.pyObj:
                     sname = fname
+                    ##if not os.path.isfile(sname):
+                    print(fname,obj)
+                    fdata = obj.getData()
                     if not os.path.isfile(sname):
-                        fdata = obj.getData()
                         with open(sname,'wb') as fw:
                             fw.write(fdata)
 
         except(PdfReadError):
             #print('Reading as Python-only file...')
             fr.seek(0)
-            _pyfile = fr.read()
+            _pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
 
       
 def pack(pack_list):
@@ -54,15 +56,13 @@ def publish(show_plot = True, **kwargs):
         temp_plot = 'temp_plot{:d}.pdf'.format(i)
         i += 1
 
-    temp_pypdfplot = 'temp_pypdfplot.pdf'
-    i = 2
-    while os.path.isfile(temp_pypdfplot):
-        temp_pypdfplot = 'temp_pypdfplot{:d}.pdf'.format(i)
-        i += 1
-
     savefig(temp_plot)
+
+    output = base+'.pdf'
+    if os.path.isfile(output):
+        os.remove(output)
         
-    with open(temp_plot,'rb') as fr, open(temp_pypdfplot,'wb+') as fw:
+    with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
         pw = PyPdfFileWriter(fr,_revision)
         
         for fname in _pack_list:
@@ -74,20 +74,18 @@ def publish(show_plot = True, **kwargs):
         pw.addAttachment(pyname,fdata)
 
         pw.write(fw)
-    
+
+    _filespacked = True    
+
     os.remove(temp_plot)
-    if pyname != 'pypdfplot3.py':   
-        os.remove(pyname)
-        output = base+'.pdf'
-        if os.path.isfile(output):
-            os.remove(output)
-        os.rename(temp_pypdfplot,output)
-
-    _filespacked = True
-
+    if pyname != 'pypdfplot3.py':  
+        try:
+            os.remove(pyname)
+        except:
+            pass
+        
     if show_plot:
         show(**kwargs)
-
 
 def cleanup():
     if _filespacked:

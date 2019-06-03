@@ -32,12 +32,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PyPDF4 import PdfFileWriter,PdfFileReader
-from PyPDF4.generic import *
-from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
-from binascii import hexlify
+from PyPDF2 import PdfFileWriter,PdfFileReader
+from PyPDF2.generic import *
+from PyPDF2.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+from binascii import hexlify,unhexlify
+from PyPDF2.filters import ASCIIHexDecode
 
-COL_WIDTH = 80
+COL_WIDTH = 79
 
 def ASCIIHexEncode(self):
     
@@ -62,6 +63,12 @@ def ASCIIHexEncode(self):
     self[NameObject("/Filter")] = f
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
+
+def decode(data, decodeParms=None):
+    bdata = data[:-1].replace(b_('\n'),b_(''))
+    return unhexlify(bdata)
+
+ASCIIHexDecode.decode = staticmethod(decode)
 
 class PyPdfFileReader(PdfFileReader):
     """
@@ -755,9 +762,9 @@ class PyPdfFileWriter(PdfFileWriter):
             trailer[NameObject("/Encrypt")] = self._encrypt
         trailer.writeToStream(stream, None)
 
-        eof  = b_('\nstartxref\n{:d}\n%%EOF'.format(xref_location))
-        eof += b_('\n{:00010d} {:05d} \n"""\n')
-        eof = eof.format(stream.tell()+len(eof),self.revision)
+        eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
+        eof += '\n{:00010d} {:05d} \n"""\n'
+        eof = b_(eof.format(stream.tell()+len(eof),self.revision))
         stream.write(eof)
 
 
