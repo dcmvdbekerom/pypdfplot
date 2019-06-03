@@ -52,7 +52,7 @@ The code now looks as follows:
     plt.publish()
 
 After running this script, if we look in the folder where our ``example.py`` file once was, we notice it has been replaced by a new file ``example.pdf``.
-Of course the fact that the ``example.py`` file disappeared doesn't mean the script is gone -- it is now embedded in the PyPDF file (``example.pdf``)!
+Of course the fact that the ``example.py`` file disappeared doesn't mean the script is gone -- it is now embedded in the PyPDF file ``example.pdf``!
 
 We can find evidence of this by opening the ``example.pdf`` file:
 
