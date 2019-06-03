@@ -32,11 +32,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PyPDF2 import PdfFileWriter,PdfFileReader
-from PyPDF2.generic import *
-from PyPDF2.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+from PyPDF4 import PdfFileWriter,PdfFileReader
+from PyPDF4.generic import *
+from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
 from binascii import hexlify,unhexlify
-from PyPDF2.filters import ASCIIHexDecode
+from PyPDF4.filters import ASCIIHexDecode
 
 COL_WIDTH = 79
 
