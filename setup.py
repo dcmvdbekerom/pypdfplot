@@ -31,7 +31,7 @@ with open('README.rst','w') as f:
 
 
 setup(name='pypdfplot',
-      version='0.3.4',
+      version='0.3.5',
       description="Saves plots as PDF with embedded generating script",
       author='Dirk van den Bekerom',
       author_email='dcmvdbekerom@gmail.com',
