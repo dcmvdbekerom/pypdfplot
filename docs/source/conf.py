@@ -24,11 +24,9 @@ copyright = '2019, Dirk van den Bekerom'
 author = 'Dirk van den Bekerom'
 
 # The short X.Y version
-from setup import version
+version = 0.3
 # The full version, including alpha/beta/rc tags
-release = version
-version = version[:-2]
-
+release = 0.3.6
 
 # -- General configuration ---------------------------------------------------
 
