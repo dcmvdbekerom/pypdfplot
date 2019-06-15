@@ -12,6 +12,12 @@ with open(doc_folder + 'index.rst','r') as f:
     
     while line != '\n':
         line = f.readline()
+
+    while line == '\n':
+        line = f.readline()
+    
+    while line != '\n':
+        line = f.readline()
     
     for line in f:
         if line != '\n':
@@ -33,7 +39,7 @@ with open('README.rst','w') as f:
 
 
 setup(name='pypdfplot',
-      version = version
+      version = version,
       description="Saves plots as PDF with embedded generating script",
       author='Dirk van den Bekerom',
       author_email='dcmvdbekerom@gmail.com',
