@@ -1,9 +1,3 @@
-import sys
-from setup import version
-print version
-sys.exit()
-
-
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
@@ -30,9 +24,10 @@ copyright = '2019, Dirk van den Bekerom'
 author = 'Dirk van den Bekerom'
 
 # The short X.Y version
-version = ''
+from setup import version
 # The full version, including alpha/beta/rc tags
-release = '0.3.5'
+release = version
+version = version[:-2]
 
 
 # -- General configuration ---------------------------------------------------
