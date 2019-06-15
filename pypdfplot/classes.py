@@ -712,6 +712,7 @@ class PyPdfFileWriter(PdfFileWriter):
 
         # Begin writing:
         object_positions = {}
+        self._header = b_("%PDF-1.4")
         stream.write(b_('#') + self._header + b_("\n"))
         obji = list(range(len(self._objects)))
         for i in obji[-1:]+obji[:-1]:
