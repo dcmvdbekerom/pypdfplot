@@ -102,7 +102,7 @@ def publish(output           = None,
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
-    with open(temp_plot,'rb') as fr, open(output,'wb+') as fw: #T: Why wb+ again?
+    with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
         pw = PyPdfFileWriter(fr,_revision)
         
         for fname in _pack_list:

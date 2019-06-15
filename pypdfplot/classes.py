@@ -659,11 +659,14 @@ class PyPdfFileWriter(PdfFileWriter):
         
         super(PyPdfFileWriter,self).addAttachment(fname,fdata)
         
-        new_list = self._root_object["/Names"]["/EmbeddedFiles"]["/Names"]
+        new_list = self._root_object["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
+        if not isinstance(new_list[1],IndirectObject):
+            new_list[1] = self._addObject(new_list[1])
         file_list = ArrayObject(old_list + new_list)
         self._root_object[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
         self._root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
-          
+
+
     def write(self, stream):
         """
         Writes the collection of pages added to this object out as a PDF file.
