@@ -1,5 +1,5 @@
 ************
- PyPdfPlot Documentation
+ Pypdfplot Documentation
 ************
 
 .. toctree::
