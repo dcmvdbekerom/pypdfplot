@@ -1,5 +1,30 @@
 from setuptools import setup
 
+files = []
+doc_folder = 'docs/source/'
+with open(doc_folder + 'index.rst','r') as f:
+    line = f.readline()
+    while line == '\n':
+        line = f.readline()
+    
+    while line != '\n':
+        line = f.readline()
+    
+    for line in f:
+        if line != '\n':
+            files.append(line.strip()+'.rst')
+
+doc = ''
+for fname in files:
+    with open(doc_folder + fname,'r') as f:
+       doc += f.read()
+       doc += '\n'
+
+with open('README.rst','w') as f:
+    f.write(doc)
+
+
+
 setup(name='pypdfplot',
       version='0.3.4',
       description="Saves plots as PDF with embedded generating script",
@@ -18,4 +43,6 @@ setup(name='pypdfplot',
           "Intended Audience :: Science/Research",
           "Programming Language :: Python",
           "Topic :: Multimedia :: Graphics",
-          "Topic :: Scientific/Engineering :: Visualization"])
+          "Topic :: Scientific/Engineering :: Visualization"],
+      long_description=doc,
+      long_description_content_type='text/x-rst')
