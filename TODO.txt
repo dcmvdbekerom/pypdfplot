@@ -1,5 +1,3 @@
-- add README.md
-- add title to readthedocs
 - finish documentation on readthedocs
 - Read CR LF as LF, but only if document cannot be read otherwise.
 - Add /PyFile key in trailer so that it can be found even after PDF is linearized.

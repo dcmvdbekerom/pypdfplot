@@ -1,42 +1,47 @@
 from setuptools import setup
 
-version = '0.3.6'
+version = '0.3.7'
 
-files = []
-doc_folder = 'docs/source/'
 
-with open(doc_folder + 'index.rst','r') as f:
-    line = f.readline()
-    while line == '\n':
-        line = f.readline()
+try:
+    #Building the README.rst
+    files = []
+    doc_folder = 'docs/source/'
     
-    while line != '\n':
+    with open(doc_folder + 'index.rst','r') as f:
         line = f.readline()
+        while line == '\n':
+            line = f.readline()
+        
+        while line != '\n':
+            line = f.readline()
 
-    while line == '\n':
-        line = f.readline()
-    
-    while line != '\n':
-        line = f.readline()
-    
-    for line in f:
-        if line != '\n':
-            files.append(line.strip()+'.rst')
+        while line == '\n':
+            line = f.readline()
+        
+        while line != '\n':
+            line = f.readline()
+        
+        for line in f:
+            if line != '\n':
+                files.append(line.strip()+'.rst')
 
-doc = ''
-for fname in files:
-    with open(doc_folder + fname,'r') as f:
-       doc += f.read()
-       doc += '\n'
+    doc = ''
+    for fname in files:
+        with open(doc_folder + fname,'r') as f:
+           doc += f.read()
+           doc += '\n'
 
-img_link = 'https://pypdfplot.readthedocs.io/en/latest/_images/'
-doc = doc.replace('.. image:: _static/',
-                  '.. image:: ' + img_link)
+    img_link = 'https://pypdfplot.readthedocs.io/en/latest/_images/'
+    doc = doc.replace('.. image:: _static/',
+                      '.. image:: ' + img_link)
 
-with open('README.rst','w') as f:
-    f.write(doc)
-
-
+    with open('README.rst','w') as f:
+        f.write(doc)
+except:
+    # User installation
+    with open('README.rst','r') as f:
+        doc = f.read()
 
 setup(name='pypdfplot',
       version = version,
