@@ -1,5 +1,7 @@
 from setuptools import setup
 
+version = '0.3.6'
+
 files = []
 doc_folder = 'docs/source/'
 
@@ -31,7 +33,7 @@ with open('README.rst','w') as f:
 
 
 setup(name='pypdfplot',
-      version='0.3.5',
+      version = version
       description="Saves plots as PDF with embedded generating script",
       author='Dirk van den Bekerom',
       author_email='dcmvdbekerom@gmail.com',

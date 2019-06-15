@@ -1,3 +1,9 @@
+import sys
+from setup import version
+print version
+sys.exit()
+
+
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
