@@ -22,8 +22,8 @@ for fname in files:
        doc += '\n'
 
 img_link = 'https://pypdfplot.readthedocs.io/en/latest/_images/'
-doc.replace('.. image:: _static/',
-            '.. image:: ' + img_link)
+doc = doc.replace('.. image:: _static/',
+                  '.. image:: ' + img_link)
 
 with open('README.rst','w') as f:
     f.write(doc)

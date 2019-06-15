@@ -67,7 +67,7 @@ Open the file and enter the following script:
 	
 After running this script, we should get the following figure:
 
-.. image:: _static/plot.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot.png
 
 Next, we will use ``pypdfplot`` to publish this plot as a PyPDF file. 
 In order to do this we need to make two changes to the script:
@@ -94,7 +94,7 @@ Of course the fact that the ``example.py`` file disappeared doesn't mean the scr
 
 We can find evidence of this by opening the ``example.pdf`` file:
 
-.. image:: _static/plot_pdf.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot_pdf.png
 
 The table on the left shows all files that are embedded, and clearly ``example.py`` is there.
 
@@ -167,7 +167,7 @@ For example, let's give the plot a title and change the color to blue:
 Again, after running the script the ``example.py`` file is replaced by the ``example.pdf`` file.
 When we open ``example.pdf``, we should find the updated blue plot with caption:
 
-.. image:: _static/plot_pdf2.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot_pdf2.png
 
 
 Embedding Files
@@ -182,11 +182,11 @@ We will write a script that opens data from an external excel file and reads the
 Create an excel file called ``data.xlsx``.
 For this example, we will fill the file with the first 10 numbers of the Fibonacci sequence:
 
-.. image:: _static/excel_data.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/excel_data.png
 
 Then we create a text file with our title and axis labels called ``title.txt``:
 
-.. image:: _static/notepad_title.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/notepad_title.png
 
 Finally, we create a new python file called ``packing.py``. 
 
@@ -215,7 +215,7 @@ Open ``packing.py`` and enter the following script:
 
 After running this script, the following figure should pop up:
 
-.. image:: _static/plot2.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot2.png
 
 In order to use ``pyplotpdf`` to publish this as a PyPDF file, we change *matplotlib.pyplot* to *pypdfplot* and *show()* to *publish()* as before.
 
@@ -251,7 +251,7 @@ The script now looks as follows:
 After running the script, the output file ``packing.pdf`` is generated and all three files ``packing.py``, ``data.xlsx``, and ``title.txt`` are deleted after being embedded in ``packing.pdf``.
 This can be confirmed by opening ``packing.pdf``:
 
-.. image:: _static/plot_pdf3.png
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot_pdf3.png
 
 To maximize integration with ``Matplotlib``, the PyPDF file is checked for embedded files at the time the ``pypdfplot`` package is imported. If embedded files are found, they are extracted provided there are no local files with the same filename. If a local file is found with the same filename, it is assumed this is a more recent version (e.g. a file that was extracted and then updated), and should therefore have precedence over the embedded file.
 
