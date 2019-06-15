@@ -32,12 +32,24 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PyPDF2 import PdfFileWriter,PdfFileReader
-from PyPDF2.generic import *
-from PyPDF2.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
-from binascii import hexlify
+from PyPDF4 import PdfFileWriter,PdfFileReader
+from PyPDF4.generic import *
+from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+from binascii import hexlify,unhexlify
+from PyPDF4.filters import ASCIIHexDecode
+import os
 
-COL_WIDTH = 80
+COL_WIDTH = 79
+
+def available_filename(fname):
+    base,ext = os.path.splitext(fname)
+    i = 1
+    fname = base + ext
+    while os.path.isfile(fname):
+        fname = base + '({:1d})'.format(i) + ext
+        i += 1
+
+    return fname
 
 def ASCIIHexEncode(self):
     
@@ -62,6 +74,12 @@ def ASCIIHexEncode(self):
     self[NameObject("/Filter")] = f
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
+
+def decode(data, decodeParms=None):
+    bdata = data[:-1].replace(b_('\n'),b_(''))
+    return unhexlify(bdata)
+
+ASCIIHexDecode.decode = staticmethod(decode)
 
 class PyPdfFileReader(PdfFileReader):
     """
@@ -152,7 +170,7 @@ class PyPdfFileReader(PdfFileReader):
             eof_addr = stream.tell()
             stream.readline()
             stream.readline()
-            old_size = int(stream.readline())
+            old_size,self.revision = map(int,stream.readline().split())
             stream.seek(eof_addr)
             self.offset_diff = file_end + 1 - old_size
             
@@ -519,7 +537,7 @@ class PyPdfFileReader(PdfFileReader):
 
 
 class PyPdfFileWriter(PdfFileWriter):
-    def __init__(self, stream, after_page_append=None):
+    def __init__(self, stream, revision = 0, after_page_append=None):
 
         super(PyPdfFileWriter,self).__init__()
 
@@ -630,6 +648,7 @@ class PyPdfFileWriter(PdfFileWriter):
             # page's tree was bumped off
 
             self._info = newInfoRef
+            self.revision = revision
 
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
@@ -640,11 +659,14 @@ class PyPdfFileWriter(PdfFileWriter):
         
         super(PyPdfFileWriter,self).addAttachment(fname,fdata)
         
-        new_list = self._root_object["/Names"]["/EmbeddedFiles"]["/Names"]
+        new_list = self._root_object["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
+        if not isinstance(new_list[1],IndirectObject):
+            new_list[1] = self._addObject(new_list[1])
         file_list = ArrayObject(old_list + new_list)
         self._root_object[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
         self._root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
-          
+
+
     def write(self, stream):
         """
         Writes the collection of pages added to this object out as a PDF file.
@@ -690,6 +712,7 @@ class PyPdfFileWriter(PdfFileWriter):
 
         # Begin writing:
         object_positions = {}
+        self._header = b_("%PDF-1.4")
         stream.write(b_('#') + self._header + b_("\n"))
         obji = list(range(len(self._objects)))
         for i in obji[-1:]+obji[:-1]:
@@ -754,8 +777,10 @@ class PyPdfFileWriter(PdfFileWriter):
             trailer[NameObject("/Encrypt")] = self._encrypt
         trailer.writeToStream(stream, None)
 
-        stream.write(b_('\nstartxref\n{:d}\n%%EOF'.format(xref_location)))
-        stream.write(b_('\n{:010d}\n"""\n'.format(stream.tell()+16)))
+        eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
+        eof += '\n{:00010d} {:05d} \n"""\n'
+        eof = b_(eof.format(stream.tell()+len(eof),self.revision))
+        stream.write(eof)
 
 
 

@@ -2,6 +2,7 @@ from setuptools import setup
 
 files = []
 doc_folder = 'docs/source/'
+
 with open(doc_folder + 'index.rst','r') as f:
     line = f.readline()
     while line == '\n':
@@ -19,6 +20,10 @@ for fname in files:
     with open(doc_folder + fname,'r') as f:
        doc += f.read()
        doc += '\n'
+
+img_link = 'https://pypdfplot.readthedocs.io/en/latest/_images/'
+doc.replace('.. image:: _static/',
+            '.. image:: ' + img_link)
 
 with open('README.rst','w') as f:
     f.write(doc)
