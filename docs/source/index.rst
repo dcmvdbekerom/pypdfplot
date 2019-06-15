@@ -1,11 +1,10 @@
 ************
- Index
+ PyPdfPlot Documentation
 ************
 
 .. toctree::
     :maxdepth: 2
     :numbered:
-    :caption: Pypdfplot
 
     overview
     installation
