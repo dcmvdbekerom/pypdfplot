@@ -2,9 +2,14 @@ from setuptools import setup
 
 version = '0.3.7'
 
+try:
+    with open('VERSION','w') as f:
+        f.write(version)
+except:
+    pass
 
 try:
-    #Building the README.rst
+    #If building package, complile README.rst
     files = []
     doc_folder = 'docs/source/'
     
@@ -39,7 +44,7 @@ try:
     with open('README.rst','w') as f:
         f.write(doc)
 except:
-    # User installation
+    # Otherwise, just load the readme:
     with open('README.rst','r') as f:
         doc = f.read()
 
@@ -49,9 +54,8 @@ setup(name='pypdfplot',
       author='Dirk van den Bekerom',
       author_email='dcmvdbekerom@gmail.com',
       license='MIT',
-      #url = 'https://github.com/dcmvdbekerom/pypdfplot',
       packages=['pypdfplot'],
-      install_requires=['matplotlib','PyPDF4'],
+      install_requires=['matplotlib','PyPDF4','numpy'],
       project_urls={
         'Documentation': 'https://pypdfplot.readthedocs.io/',
         'GitHub': 'https://github.com/dcmvdbekerom/pypdfplot'}, 

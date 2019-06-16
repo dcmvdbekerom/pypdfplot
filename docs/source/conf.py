@@ -23,10 +23,22 @@ project = 'pypdfplot'
 copyright = '2019, Dirk van den Bekerom'
 author = 'Dirk van den Bekerom'
 
-# The short X.Y version
-version = '0.3'
-# The full version, including alpha/beta/rc tags
-release = '0.3.6'
+### The short X.Y version
+##version = '0.3'
+### The full version, including alpha/beta/rc tags
+##release = '0.3.6'
+
+version_url = 'https://raw.githubusercontent.com/dcmvdbekerom/pypdfplot/master/VERSION'
+if sys.version_info[0] < 3:
+    import urllib
+    response = urllib.urlopen(version_url)
+    release = response.read()
+else:
+    import urllib.request
+    response = urllib.request.urlopen(version_url)
+    release = response.read().decode()
+
+version = '.'.join(release.split('.')[:-1])
 
 # -- General configuration ---------------------------------------------------
 
