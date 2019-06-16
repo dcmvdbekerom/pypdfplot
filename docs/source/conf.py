@@ -29,9 +29,10 @@ author = 'Dirk van den Bekerom'
 ##release = '0.3.6'
 
 version_url = 'https://raw.githubusercontent.com/dcmvdbekerom/pypdfplot/master/VERSION'
-if sys.version_info[0] < 3:
-    import urllib
-    response = urllib.urlopen(version_url)
+from sys import version_info
+if version_info[0] < 3:
+    import urllib2
+    response = urllib2.urlopen(version_url)
     release = response.read()
 else:
     import urllib.request
