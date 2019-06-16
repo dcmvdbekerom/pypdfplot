@@ -10,6 +10,7 @@
     installation
     quickstart
     specification
+    functions
     classes
     changelog
 

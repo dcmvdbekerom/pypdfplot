@@ -36,7 +36,7 @@ In order to do this we need to make two changes to the script:
 
 1. Instead of importing *matplotlib.pyplot* we have to import *pypdfplot*. Note that ``pypdfplot`` wraps all ``Matplotlib``'s functions, so by importing *pypdfplot* as *plt* like before, no other modifications to the code are needed.
 
-2. Instead of calling *show()* we have to call *publish()*. Note that *publish()* can take all keywords that *show()* can, in addition to some new keywords (see XXX).
+2. Instead of calling *show()* we have to call *publish()*. Note that *publish()* can take all keywords that *show()* can, in addition to some new keywords (see `Classes`_).
 
 The code now looks as follows:
 
@@ -94,7 +94,7 @@ It also includes the object header for the EmbeddedFile object of our ``example.
 This line may not be altered, as it will result in coruption of the PyPDF file.
 
 What follows is our original python script, followed by a massive multiline string. 
-This multiline string contains all the PDF objects including the data for any remaining embedded files (see XXX).
+This multiline string contains all the PDF objects including the data for any remaining embedded files (see `PyPDF File specification`_).
 Making any edits in this string will again likely result in corruption of the file, so it is strongly discouraged as well.
 
 In between the first line and the multiline string is our original python script, which may be edited in any way.
