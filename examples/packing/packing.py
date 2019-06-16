@@ -16,5 +16,5 @@ plt.ylabel(ylabel)
 plt.pack(['data.xlsx',
           'title.txt'])
 
-plt.publish(in_place = True)
+plt.publish(in_place = False)
 #plt.cleanup()
