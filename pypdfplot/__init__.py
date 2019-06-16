@@ -1,5 +1,5 @@
 from matplotlib.pyplot import *
-from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject
 import sys
 import os
 from os.path import normcase,realpath
@@ -25,8 +25,18 @@ if pyname != '':
 
             root_obj = pr.trailer['/Root']
             file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
-            fnames = [fname for fname in file_dict[0::2]]
-            fobjs  = [fobj['/EF']['/F'] for fobj in file_dict[1::2]]
+
+            fnames = []
+            fobjs  = []
+            
+            file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
+
+            for i in range(0,len(file_dict),2):
+                fnames.append(file_dict[i])
+                fobj = file_dict[i+1]
+                if isinstance(fobj,IndirectObject):
+                    fobj = fobj.getObject()
+                fobjs.append(fobj['/EF']['/F'])
 
             for fname,obj in zip(fnames,fobjs):
                 if obj != pr.pyObj:
@@ -144,9 +154,9 @@ def publish(output           = None,
     if show_plot:
         show(**kwargs)
 
-def cleanup():
+def cleanup(verbose = True):
     if _filespacked:
-        if verbose: print('Cleaning up attached files:')
+        if verbose: print('\nCleaning up attached files:')
         for fname in _pack_list:
             if verbose: print('-> Removing ' + fname)
             try:
