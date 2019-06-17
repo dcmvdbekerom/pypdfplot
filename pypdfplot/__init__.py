@@ -67,11 +67,10 @@ def read(input_file,
     
 def pack(packfiles):
     global _packlist
-    try:
-        packlist = list(packfiles)
-    except(TypeError):
-        packlist = [packfiles]
-    _packlist += packlist
+    packlist = ([packfiles] if isinstance(packfiles,str) else packfiles)
+    for item in packlist:
+        if item not in _packlist:
+            _packlist.append(item)
     return packfiles
 
 
@@ -202,9 +201,14 @@ _pyfile = b_('')
 _revision = 0
 
 ## Lookup keyword arguments
-frame = inspect.stack()[0].frame
+try:
+    frame = inspect.stack()[0].frame
+except(AttributeError):
+    frame = inspect.stack()[0][0]
+    
 while(frame.f_globals['__name__'] != '__main__'):
     frame = frame.f_back
+    
 try:
     pypdfplot_kwargs = frame.f_globals['pypdfplot_kwargs']
 except(KeyError):

@@ -91,7 +91,7 @@ This is what we should find:
 
 The first line is the PDF header that helps the PDF reader to determine this is a valid PDF file.
 It also includes the object header for the EmbeddedFile object of our ``example.py`` file. 
-This line may not be altered, as it will result in coruption of the PyPDF file.
+This line may not be altered, as it will result in corruption of the PyPDF file.
 
 What follows is our original python script, followed by a massive multiline string. 
 This multiline string contains all the PDF objects including the data for any remaining embedded files (see `PyPDF File specification`_).
