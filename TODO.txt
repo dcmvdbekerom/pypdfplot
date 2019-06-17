@@ -1,5 +1,3 @@
-- finish documentation on readthedocs
+- Finish documentation on readthedocs
 - Read CR LF as LF, but only if document cannot be read otherwise.
-- Add /PyFile key in trailer so that it can be found even after PDF is linearized.
-- Identify PyFile by /PyFile key when writing output.
-- finish the fix_pdf function.
+- Finish the fix_pdf function.

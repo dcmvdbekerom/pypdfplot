@@ -650,6 +650,7 @@ class PyPdfFileWriter(PdfFileWriter):
             self._info = newInfoRef
             self.revision = revision
 
+
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
         try:
@@ -666,6 +667,8 @@ class PyPdfFileWriter(PdfFileWriter):
         self._root_object[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
         self._root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
 
+    def setPyFile(self,fname):
+        self._root_object[NameObject('/PyFile')] = createStringObject(fname)
 
     def write(self, stream):
         """
@@ -711,16 +714,25 @@ class PyPdfFileWriter(PdfFileWriter):
         del self.stack
 
         # Begin writing:
-        object_positions = {}
+        offsets = {}
         self._header = b_("%PDF-1.4")
-        stream.write(b_('#') + self._header + b_("\n"))
-        obji = list(range(len(self._objects)))
-        for i in obji[-1:]+obji[:-1]:
+        stream.write(b_('#') + self._header + b_(" "))
+
+        ## Find the object number of the Python script and rearrange write order
+        pyname = self._root_object['/PyFile']
+        name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
+        name_dict = dict(zip(name_list[0::2],name_list[1::2]))
+        py_oi = name_dict[pyname].getObject()['/EF'].values()[0].idnum - 1
+        oi = list(range(len(self._objects)))
+        oi.pop(py_oi)
+        oi = [py_oi] + oi
+ 
+        for i in oi:
             idnum = (i + 1)
             obj = self._objects[i]
-            object_positions[i] = stream.tell()
-            stream.write(b_(str(idnum) + " 0 obj\n"))
-            key = None
+            offsets[i] = stream.tell()
+            encryption_key = None
+            
 ##            if hasattr(self, "_encrypt") and idnum != self._encrypt.idnum:
 ##                pack1 = struct.pack("<i", i + 1)[:3]
 ##                pack2 = struct.pack("<i", 0)[:2]
@@ -729,8 +741,30 @@ class PyPdfFileWriter(PdfFileWriter):
 ##                md5_hash = md5(key).digest()
 ##                key = md5_hash[:min(16, len(self._encrypt_key) + 5)]
 
-            if i != obji[-1]:
+            if i == py_oi:
+                stream.write(b_(str(idnum) + " 0 obj "))
+
+                obj[NameObject("/Length")] = NumberObject(len(obj._data))
                 
+                stream.write(b_("<< "))
+                for key, value in list(obj.items()):
+                    key.writeToStream(stream, encryption_key)
+                    stream.write(b_(" "))
+                    value.writeToStream(stream, encryption_key)
+                    stream.write(b_(" "))
+                stream.write(b_(">>"))
+
+                del obj["/Length"]
+                stream.write(b_(" stream\n"))
+                data = obj._data
+                if encryption_key:
+                    data = RC4_encrypt(encryption_key, data)
+                stream.write(data)
+                stream.write(b_("\nendstream"))
+                stream.write(b_("\nendobj\n"))
+
+            else:
+                stream.write(b_(str(idnum) + " 0 obj\n"))
                 if type(obj) == DecodedStreamObject:
                     obj = obj.flateEncode()
                 
@@ -740,20 +774,11 @@ class PyPdfFileWriter(PdfFileWriter):
                         f = f[0]
 
                     if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
+                        #T: upgrade to /ASCII85Encode at some point
                         obj.ASCIIHexEncode()
             
-            obj.writeToStream(stream, key)
-
-            if i == obji[-1]:
-                stream.seek(0)
-                temp_buf = stream.read()
-                addr = temp_buf.find(b_('stream')) + len('stream')
-                temp_buf = temp_buf[:addr].replace(b_('\n'),b_(' ')) + temp_buf[addr:]
-
-                stream.seek(0)
-                stream.write(temp_buf)
-            
-            stream.write(b_("\nendobj\n"))
+                obj.writeToStream(stream, encryption_key)
+                stream.write(b_("\nendobj\n"))
 
         # xref table
         xref_location = stream.tell()-1
@@ -761,7 +786,7 @@ class PyPdfFileWriter(PdfFileWriter):
         stream.write(b_("0 %s\n" % (len(self._objects) + 1)))
         stream.write(b_("%010d %05d f \n" % (0, 65535)))
         for i in range(len(self._objects)):
-            stream.write(b_("%010d %05d n \n" % (object_positions[i]-1, 0)))
+            stream.write(b_("%010d %05d n \n" % (offsets[i]-1, 0)))
 
         # trailer
         stream.write(b_("trailer\n"))

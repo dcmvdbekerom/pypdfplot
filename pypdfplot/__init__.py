@@ -1,5 +1,5 @@
 from matplotlib.pyplot import *
-from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject,NameObject
 import sys
 import os
 from os.path import normcase,realpath
@@ -141,6 +141,7 @@ def publish(output           = None,
         if verbose: print('-> Attaching ' + pyname)
         fdata = _pyfile + b_('\n"""')
         pw.addAttachment(pyname,fdata)
+        pw.setPyFile(pyname)
 
         if verbose: print('-> Writing '+output+'\n')
         pw.write(fw)
@@ -187,7 +188,7 @@ def fix_pypdf(fname):
     ## Reads Class IIA PyPDF file and converts it to Class I
     base,ext = os.path.splitext(fname)
     output = base+'_fixed'+ext
-    with open(fname,'rb') as fr, open(output,'w+b') as fw:
+    with open(fname,'rb') as fr, open(output,'wb') as fw:
         pr = PyPdfFileReader(fr)
         pw = PyPdfFileWriter(pr).write(fw)
         
