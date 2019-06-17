@@ -1,56 +1,79 @@
+__version__ = '0.3.3'
+
 from matplotlib.pyplot import *
-from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject,NameObject
 import sys
 import os
 from os.path import normcase,realpath
 import binascii
 import zlib
+import inspect
 
-pyname   = os.path.basename(sys.argv[-1])
-base,ext = os.path.splitext(pyname)
+def read(input_file,
+         verbose = True,
+         skip = False):
+    if not skip:
+        with open(input_file,'rb') as fr:
+            try:
+                ## Extract generating Python script
+                #T: parse CR LF to LF
+                pr = PyPdfFileReader(fr)
+                if verbose: print('\nReading as mixed PyPDF file')
+                pyfile = pr.pyObj.getData()[:-4]
+                revision = pr.revision + 1
 
-_pack_list = []
-_filespacked = False
-_pyfile = b_('')
-_revision = 0
+                ## Extract other embedded files
+                root_obj = pr.trailer['/Root']
+                file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
 
-if pyname != '':
-    with open(pyname,'rb') as fr:
-        try:
-            #T: parse CR LF to LF
-            pr = PyPdfFileReader(fr)
-            #D: print('Reading as mixed PyPDF file...')
-            _pyfile = pr.pyObj.getData()[:-4]
-            _revision = pr.revision + 1
+                fnames = []
+                fobjs  = []
+                
+                file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
 
-            root_obj = pr.trailer['/Root']
-            file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
-            fnames = [fname for fname in file_dict[0::2]]
-            fobjs  = [fobj['/EF']['/F'] for fobj in file_dict[1::2]]
+                for i in range(0,len(file_dict),2):
+                    fnames.append(file_dict[i])
+                    fobj = file_dict[i+1]
+                    if isinstance(fobj,IndirectObject):
+                        fobj = fobj.getObject()
+                    fobjs.append(fobj['/EF']['/F'])
 
-            for fname,obj in zip(fnames,fobjs):
-                if obj != pr.pyObj:
-                    sname = fname
-                    ## in debug, all data is loaded.
-                    ## in release, data only needs to
-                    ## be loaded if file does not exist
-                    ## locally.
-                    
-                    #D: print(fname,obj)
-                    fdata = obj.getData()
-                    if not os.path.isfile(sname):
-                        with open(sname,'wb') as fw:
-                            fw.write(fdata)
+                if verbose: print('Extracting embedded files:')
+                for fname,obj in zip(fnames,fobjs):
+                    if obj != pr.pyObj:
+                        sname = fname                    
+                        if not os.path.isfile(sname):
+                            fdata = obj.getData()
+                            with open(sname,'wb') as fw:
+                                fw.write(fdata)
+                                if verbose: print('-> Extracing ' + sname)
+                        else:
+                            if verbose: print('-> ' + fname +' already exists, skipping')
 
-        except(PdfReadError):
-            #D: print('Reading as Python-only file...')
-            fr.seek(0)
-            _pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
+            except(PdfReadError):
+                ## Read as Python-only file
+                if verbose: print('Reading as Python-only file')
+                fr.seek(0)
+                pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
+                revision = 0
+                fnames = []
+                
+        return pyfile,revision
 
-      
-def pack(pack_list):
-    global _pack_list
-    _pack_list += pack_list
+    ## If reading is skipped:
+    else:
+        if verbose: print('Skip reading PyPDF file')
+        warnings.warn('PyPDF file not read, it must be read before file imports in main script')
+        return b_(''),0
+
+    
+def pack(packfiles):
+    global _packlist
+    packlist = ([packfiles] if isinstance(packfiles,str) else packfiles)
+    for item in packlist:
+        if item not in _packlist:
+            _packlist.append(item)
+    return packfiles
 
 
 def publish(output           = None,
@@ -60,11 +83,11 @@ def publish(output           = None,
             verbose          = True,
             **kwargs):
     
-    global _filespacked
+    global _packlist,_filespacked,_pyfile,_revision,_imported_packlist
 
     ## Save the matplotlib plot
     temp_plot = available_filename('temp_plot.pdf')
-    if verbose: print('Saving figure as temporary file: ' + temp_plot)
+    if verbose: print('\nSaving figure as temporary file: ' + temp_plot)
     savefig(temp_plot)
 
     ## Name the output file
@@ -81,7 +104,7 @@ def publish(output           = None,
     if os.path.isfile(output):
         do_overwrite = False
         if prompt_overwrite:
-            warnings.warn('Local duplicate of output file found')
+            warnings.warn('Local copy of ' + output + ' found')
             warnings.warn('Overwrite file? (y/n)')
             yes_no = raw_input('')
             if yes_no.strip().lower()[0] == 'y':
@@ -96,62 +119,105 @@ def publish(output           = None,
             try:
                 os.remove(output)
             except:
-                warnings.warn('Unable to overwrite local duplicate of output file')
+                warnings.warn('Unable to overwrite local file ' + output)
                 output = available_filename(output)
                 warnings.warn('Publishing as {:s} instead'.format(output))
+
+    ## If input PyPDF file hasn't been read yet, do that now
+    if _pyfile == b_(''):
+        new_kwargs = dict(pypdfplot_kwargs)
+        new_kwargs['skip'] = False
+        _pyfile,_revision = read(pyname,**new_kwargs)
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
     with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
         pw = PyPdfFileWriter(fr,_revision)
-        
-        for fname in _pack_list:
+                        
+        for fname in _packlist:
             if verbose: print('-> Attaching '+ fname)
             with open(fname,'rb') as fa:
                 fdata = fa.read()
                 pw.addAttachment(fname,fdata)
 
-        if verbose: print('-> Attaching Python file')
+        if verbose: print('-> Attaching ' + pyname)
         fdata = _pyfile + b_('\n"""')
         pw.addAttachment(pyname,fdata)
+        pw.setPyFile(pyname)
+        pw.setPyPDFVersion(__version__)
 
-        if verbose: print('-> Writing output\n')
+        if verbose: print('-> Writing '+output+'\n')
         pw.write(fw)
 
     _filespacked = True    
 
     ## Remove the temporary plot
-    if verbose: print('Cleaning up:\n-> Removing temporary plot')
+    if verbose: print('Cleaning up:\n-> Removing ' + temp_plot)
     try:
         os.remove(temp_plot)
     except:
-        warnings.warn('Unable to remove temporary plot file')
+        warnings.warn('Unable to remove ' + temp_plot)
         
     ## Remove the generating python file
     if in_place:
-        if verbose: print('-> Removing generating Python file')
-        if verbose: print('   (Caution: Saving Python file in editor will make it reappear!)')
+        if verbose: print('-> Removing ' + pyname)
         if normcase(realpath(pyname)) != normcase(realpath(__file__)): 
             try:
                 os.remove(pyname)
+                warnings.warn(pyname + ' removed, saving script in editor will make it reappear...!')
             except:
-                warnings.warn('Unable to remove generating Python file')
+                warnings.warn('Unable to remove ' + pyname)
         else:
-            warnings.warn('Attempt to delete library file was aborted')    
+            warnings.warn('Attempt to delete library file was prevented')    
 
     ## Show the plot:
     if verbose: print('\nShowing plot...')
     if show_plot:
         show(**kwargs)
 
-def cleanup():
+def cleanup(verbose = True):
     if _filespacked:
-        if verbose: print('Cleaning up attached files:')
-        for fname in _pack_list:
+        if verbose: print('\nCleaning up attached files:')
+        for fname in _packlist:
             if verbose: print('-> Removing ' + fname)
             try:
                 os.remove(fname)
             except:
                 warnings.warn('Unable to remove {:s}.'.format(fname))
     else:
-        warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup") 
+        warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
+
+def fix_pypdf(fname):
+    ## Reads Class IIA PyPDF file and converts it to Class I
+    base,ext = os.path.splitext(fname)
+    output = base+'_fixed'+ext
+    with open(fname,'rb') as fr, open(output,'wb') as fw:
+        pr = PyPdfFileReader(fr)
+        pw = PyPdfFileWriter(pr).write(fw)
+        
+## Initialize variables
+pyname   = os.path.basename(sys.argv[-1])
+base,ext = os.path.splitext(pyname)
+
+_packlist = []
+_filespacked = False
+_pyfile = b_('')
+_revision = 0
+
+## Lookup keyword arguments
+try:
+    frame = inspect.stack()[0].frame
+except(AttributeError):
+    frame = inspect.stack()[0][0]
+    
+while(frame.f_globals['__name__'] != '__main__'):
+    frame = frame.f_back
+    
+try:
+    pypdfplot_kwargs = frame.f_globals['pypdfplot_kwargs']
+except(KeyError):
+    pypdfplot_kwargs = {}
+
+## Read PyPDF file
+if pyname != '':
+    _pyfile,_revision = read(pyname,**pypdfplot_kwargs)

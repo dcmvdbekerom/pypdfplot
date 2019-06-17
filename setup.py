@@ -1,6 +1,6 @@
 from setuptools import setup
 
-version = '0.3.7'
+version = '0.3.8'
 
 try:
     with open('VERSION','w') as f:
@@ -43,6 +43,14 @@ try:
 
     with open('README.rst','w') as f:
         f.write(doc)
+
+##    ## Update version number in __init__ file:
+##    with open('pypdfplot/__init__.py','w+b') as f:
+##        buf = f.read()
+##        buf[15:21] = version
+##        f.seek(0)
+##        f.write(buf)
+    
 except:
     # Otherwise, just load the readme:
     with open('README.rst','r') as f:

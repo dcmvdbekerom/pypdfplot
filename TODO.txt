@@ -1,3 +1,4 @@
 - Finish documentation on readthedocs
 - Read CR LF as LF, but only if document cannot be read otherwise.
 - Finish the fix_pdf function.
+- Add PyPDF version in PyPDF documents

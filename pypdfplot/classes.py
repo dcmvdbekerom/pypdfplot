@@ -670,6 +670,9 @@ class PyPdfFileWriter(PdfFileWriter):
     def setPyFile(self,fname):
         self._root_object[NameObject('/PyFile')] = createStringObject(fname)
 
+    def setPyPDFVersion(self,version):
+        self._root_object[NameObject('/PyPDFVersion')] = createStringObject(version)
+
     def write(self, stream):
         """
         Writes the collection of pages added to this object out as a PDF file.

@@ -1,3 +1,5 @@
+__version__ = '0.3.8'
+
 from matplotlib.pyplot import *
 from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject,NameObject
 import sys
@@ -142,6 +144,7 @@ def publish(output           = None,
         fdata = _pyfile + b_('\n"""')
         pw.addAttachment(pyname,fdata)
         pw.setPyFile(pyname)
+        pw.setPyPDFVersion(__version__)
 
         if verbose: print('-> Writing '+output+'\n')
         pw.write(fw)
@@ -218,4 +221,3 @@ except(KeyError):
 ## Read PyPDF file
 if pyname != '':
     _pyfile,_revision = read(pyname,**pypdfplot_kwargs)
-
