@@ -56,7 +56,7 @@ def read(input_file,
                 revision = 0
                 fnames = []
                 
-        return pyfile,revision,fnames
+        return pyfile,revision
 
     ## If reading is skipped:
     else:
@@ -65,9 +65,14 @@ def read(input_file,
         return b_(''),0
 
     
-def pack(packlist):
+def pack(packfiles):
     global _packlist
+    try:
+        packlist = list(packfiles)
+    except(TypeError):
+        packlist = [packfiles]
     _packlist += packlist
+    return packfiles
 
 
 def publish(output           = None,
@@ -75,7 +80,6 @@ def publish(output           = None,
             show_plot        = True,
             prompt_overwrite = False,
             verbose          = True,
-            import_packlist  = False,
             **kwargs):
     
     global _packlist,_filespacked,_pyfile,_revision,_imported_packlist
@@ -122,15 +126,13 @@ def publish(output           = None,
     if _pyfile == b_(''):
         new_kwargs = dict(pypdfplot_kwargs)
         new_kwargs['skip'] = False
-        _pyfile,_revision,_imported_packlist = read(pyname,**new_kwargs)
+        _pyfile,_revision = read(pyname,**new_kwargs)
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
     with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
         pw = PyPdfFileWriter(fr,_revision)
-
-        if import_packlist:
-            _packlist = _imported_packlist
+                        
         for fname in _packlist:
             if verbose: print('-> Attaching '+ fname)
             with open(fname,'rb') as fa:
@@ -182,19 +184,19 @@ def cleanup(verbose = True):
     else:
         warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
 
-def fix_pypdf(fname,**kwargs):
-    global pyname,base,ext
-    pyname = fname
-    base,ext = os.path.splitext(pyname)
-    kwargs['import_packlist'] = True
-    publish(**kwargs)
-
+def fix_pypdf(fname):
+    ## Reads Class IIA PyPDF file and converts it to Class I
+    base,ext = os.path.splitext(fname)
+    output = base+'_fixed'+ext
+    with open(fname,'rb') as fr, open(output,'w+b') as fw:
+        pr = PyPdfFileReader(fr)
+        pw = PyPdfFileWriter(pr).write(fw)
+        
 ## Initialize variables
 pyname   = os.path.basename(sys.argv[-1])
 base,ext = os.path.splitext(pyname)
 
 _packlist = []
-_imported_packlist = []
 _filespacked = False
 _pyfile = b_('')
 _revision = 0
@@ -205,10 +207,10 @@ while(frame.f_globals['__name__'] != '__main__'):
     frame = frame.f_back
 try:
     pypdfplot_kwargs = frame.f_globals['pypdfplot_kwargs']
-except:
+except(KeyError):
     pypdfplot_kwargs = {}
 
 ## Read PyPDF file
 if pyname != '':
-    _pyfile,_revision,_imported_packlist = read(pyname,**pypdfplot_kwargs)
+    _pyfile,_revision = read(pyname,**pypdfplot_kwargs)
 
