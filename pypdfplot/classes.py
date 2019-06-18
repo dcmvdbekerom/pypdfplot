@@ -41,16 +41,6 @@ import os
 
 COL_WIDTH = 79
 
-def available_filename(fname):
-    base,ext = os.path.splitext(fname)
-    i = 1
-    fname = base + ext
-    while os.path.isfile(fname):
-        fname = base + '({:1d})'.format(i) + ext
-        i += 1
-
-    return fname
-
 def ASCIIHexEncode(self):
     
     hexdata = hexlify(self._data) + b_('>')

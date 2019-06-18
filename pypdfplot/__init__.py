@@ -8,6 +8,18 @@ import binascii
 import zlib
 import inspect
 
+
+def available_filename(fname):
+    base,ext = os.path.splitext(fname)
+    i = 1
+    fname = base + ext
+    while os.path.isfile(fname):
+        fname = base + '({:1d})'.format(i) + ext
+        i += 1
+
+    return fname
+
+
 def read(input_file,
          verbose = True,
          skip = False):
@@ -96,7 +108,7 @@ def publish(output           = None,
         output += '.pdf'
     elif os.splitext(output)[1] != '.pdf':
         output = os.splitext(output)[0] + '.pdf'
-        warnings.warn('Invalid extension, publishing as {:s}'.format(output))
+        warnings.warn('Invalid extension, saving as {:s}'.format(output))
     if verbose: print('Output filename: ' + output)
 
     ## If the output file already exists, try to remove it
