@@ -725,7 +725,7 @@ class PyPdfFileWriter(PdfFileWriter):
         pyname = self._root_object['/PyFile']
         name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
         name_dict = dict(zip(name_list[0::2],name_list[1::2]))
-        py_oi = name_dict[pyname].getObject()['/EF'].values()[0].idnum - 1
+        py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
         oi = list(range(len(self._objects)))
         oi.pop(py_oi)
         oi = [py_oi] + oi

@@ -165,9 +165,14 @@ def publish(output           = None,
                 os.remove(pyname)
                 warnings.warn(pyname + ' removed, saving script in editor will make it reappear...!')
             except:
-                warnings.warn('Unable to remove ' + pyname)
+                try:
+                    del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(pyname)
+                    subprocess.Popen(del_script)
+                    warnings.warn(pyname + ' removed, saving script in editor will make it reappear...!')
+                except:
+                    warnings.warn('Unable to remove ' + pyname)
         else:
-            warnings.warn('Attempt to delete __init__ file was prevented')    
+            warnings.warn('Attempt to delete __init__ file was prevented')
 
     ## Show the plot:
     if show_plot:
@@ -221,3 +226,5 @@ except(KeyError):
 ## Read PyPDF file
 if pyname != '':
     _pyfile,_revision = read(pyname,**pypdfplot_kwargs)
+
+
