@@ -4,6 +4,7 @@ from matplotlib.pyplot import *
 from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject,NameObject
 import sys
 import os
+import subprocess
 from os.path import normcase,realpath
 import binascii
 import zlib
