@@ -165,8 +165,11 @@ def publish(output           = None,
             try:
                 os.remove(pyname)
                 warnings.warn(pyname + ' removed, saving script in editor will make it reappear...!')
-            except:
-                warnings.warn('Unable to remove ' + pyname)
+            except(PermissionError):
+                try:
+                    subprocess.Popen("python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(sys.argv[0]))
+                except:
+                    warnings.warn('Unable to remove ' + pyname)
         else:
             warnings.warn('Attempt to delete library file was prevented')    
 
