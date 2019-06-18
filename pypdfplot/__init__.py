@@ -1,5 +1,4 @@
-__version__ = '0.3.8'
-
+from _version import __version__
 from matplotlib.pyplot import *
 from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject,NameObject
 import sys
@@ -168,11 +167,11 @@ def publish(output           = None,
             except:
                 warnings.warn('Unable to remove ' + pyname)
         else:
-            warnings.warn('Attempt to delete library file was prevented')    
+            warnings.warn('Attempt to delete __init__ file was prevented')    
 
     ## Show the plot:
-    if verbose: print('\nShowing plot...')
     if show_plot:
+        if verbose: print('\nShowing plot...')
         show(**kwargs)
 
 def cleanup(verbose = True):
@@ -187,10 +186,11 @@ def cleanup(verbose = True):
     else:
         warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
 
-def fix_pypdf(fname):
+def fix_pypdf(fname,output = None):
     ## Reads Class IIA PyPDF file and converts it to Class I
     base,ext = os.path.splitext(fname)
-    output = base+'_fixed'+ext
+    if output == None:
+        output = base+'_fixed'+ext
     with open(fname,'rb') as fr, open(output,'wb') as fw:
         pr = PyPdfFileReader(fr)
         pw = PyPdfFileWriter(pr).write(fw)
