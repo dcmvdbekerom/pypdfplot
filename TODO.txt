@@ -1,1 +1,1 @@
-- Finish documentation on readthedocs
+- Finish documentation
