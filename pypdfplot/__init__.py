@@ -32,7 +32,6 @@ def read(input_file,
                 pr = PyPdfFileReader(fr)
                 if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
                 pyfile = pr.pyObj.getData()[:-4]
-                revision = pr.revision + 1
 
                 ## Extract other embedded files
                 root_obj = pr.trailer['/Root']
@@ -67,10 +66,9 @@ def read(input_file,
                 if verbose: print('\nPypdfplot loaded from Python-only file')
                 fr.seek(0)
                 pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
-                revision = 0
                 fnames = []
                 
-        return pyfile,revision
+        return pyfile
 
     ## If reading is skipped:
     else:
@@ -95,7 +93,7 @@ def publish(output           = None,
             verbose          = True,
             **kwargs):
     
-    global _packlist,_filespacked,_pyfile,_revision,_imported_packlist
+    global _packlist,_filespacked,_pyfile,_imported_packlist
 
     ## Save the matplotlib plot
     temp_plot = available_filename('temp_plot.pdf')
@@ -105,10 +103,10 @@ def publish(output           = None,
     ## Name the output file
     if output == None:
         output = base + '.pdf'
-    elif os.splitext(output)[1] == '':
+    elif os.path.splitext(output)[1] == '':
         output += '.pdf'
-    elif os.splitext(output)[1] != '.pdf':
-        output = os.splitext(output)[0] + '.pdf'
+    elif os.path.splitext(output)[1] not in ['.pdf','.py']:
+        output = os.path.splitext(output)[0] + '.pdf'
         warnings.warn('Invalid extension, saving as {:s}'.format(output))
     if verbose: print('Output filename: ' + output)
 
@@ -139,12 +137,12 @@ def publish(output           = None,
     if _pyfile == b_(''):
         new_kwargs = dict(pypdfplot_kwargs)
         new_kwargs['skip'] = False
-        _pyfile,_revision = read(pyname,**new_kwargs)
+        _pyfile = read(pyname,**new_kwargs)
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
     with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
-        pw = PyPdfFileWriter(fr,_revision)
+        pw = PyPdfFileWriter(fr)
                         
         for fname in _packlist:
             if verbose: print('-> Attaching '+ fname)
@@ -247,7 +245,6 @@ base,ext = os.path.splitext(pyname)
 _packlist = []
 _filespacked = False
 _pyfile = b_('')
-_revision = 0
 
 ## Lookup keyword arguments
 try:
@@ -265,6 +262,6 @@ except(KeyError):
 
 ## Read PyPDF file
 if pyname != '':
-    _pyfile,_revision = read(pyname,**pypdfplot_kwargs)
+    _pyfile = read(pyname,**pypdfplot_kwargs)
 
 

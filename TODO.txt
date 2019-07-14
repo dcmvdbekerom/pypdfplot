@@ -1,3 +1,2 @@
 - Finish documentation on readthedocs
-- Finish the fix_pdf function.
 - Dynamic versioning
