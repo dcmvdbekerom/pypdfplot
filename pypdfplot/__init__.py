@@ -1,13 +1,15 @@
 from ._version import __version__
 from matplotlib.pyplot import *
-from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,IndirectObject,NameObject
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,IndirectObject
+from PyPDF4 import PdfFileReader
 import sys
 import os
 from os.path import normcase,realpath
-import binascii
-import zlib
 import inspect
+import subprocess
 
+if sys.version_info[0] < 3:
+    input = raw_input
 
 def available_filename(fname):
     base,ext = os.path.splitext(fname)
@@ -19,7 +21,6 @@ def available_filename(fname):
 
     return fname
 
-
 def read(input_file,
          verbose = True,
          skip = False):
@@ -29,7 +30,7 @@ def read(input_file,
                 ## Extract generating Python script
                 #T: parse CR LF to LF
                 pr = PyPdfFileReader(fr)
-                if verbose: print('\nReading as mixed PyPDF file')
+                if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
                 pyfile = pr.pyObj.getData()[:-4]
                 revision = pr.revision + 1
 
@@ -63,7 +64,7 @@ def read(input_file,
 
             except(PdfReadError):
                 ## Read as Python-only file
-                if verbose: print('Reading as Python-only file')
+                if verbose: print('\nPypdfplot loaded from Python-only file')
                 fr.seek(0)
                 pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
                 revision = 0
@@ -117,7 +118,7 @@ def publish(output           = None,
         if prompt_overwrite:
             warnings.warn('Local copy of ' + output + ' found')
             warnings.warn('Overwrite file? (y/n)')
-            yes_no = raw_input('')
+            yes_no = input('')
             if yes_no.strip().lower()[0] == 'y':
                 do_overwrite = True
             else:
@@ -203,14 +204,41 @@ def cleanup(verbose = True):
     else:
         warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
 
-def fix_pypdf(fname,output = None):
+def fix_pypdf(fname,
+              output           = None,
+              in_place         = True,
+              verbose          = True):
+    
     ## Reads Class IIA PyPDF file and converts it to Class I
     base,ext = os.path.splitext(fname)
     if output == None:
-        output = base+'_fixed'+ext
+        output = available_filename(base + '_FIXED' + ext)
+    else:
+        if output == fname:
+            if in_place == False:
+                warnings.warn('Output name same as input, in_place set to True')
+                in_place = True
+        
     with open(fname,'rb') as fr, open(output,'wb') as fw:
-        pr = PyPdfFileReader(fr)
-        pw = PyPdfFileWriter(pr).write(fw)
+        if verbose: print('-> Reading ' + fname)
+        pw = PyPdfFileWriter(fr,0)
+        if verbose: print('-> Saving as ' + output)
+        pw.write(fw)
+    
+    if in_place:
+        if verbose: print('-> Removing ' + fname)
+        try:
+            os.remove(fname)
+            if verbose: print('-> Renaming ' + output + ' to ' + fname)
+            os.rename(output,fname)
+        except:
+            try:
+                del_script = "python -c \"import os, time; time.sleep(1); os.remove('{:}'); os.rename('{:}','{:}');\"".format(fname,output,fname)
+                subprocess.Popen(del_script)
+                if verbose: print('-> Renaming ' + output + ' to ' + fname)
+            except:
+                warnings.warn('Unable to remove ' + fname + ', file saved as ' + output + 'instead')
+    
         
 ## Initialize variables
 pyname   = os.path.basename(sys.argv[-1])

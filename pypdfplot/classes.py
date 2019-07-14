@@ -37,7 +37,7 @@ from PyPDF4.generic import *
 from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
 from binascii import hexlify,unhexlify
 from PyPDF4.filters import ASCIIHexDecode
-import os
+import sys
 
 COL_WIDTH = 79
 
@@ -175,6 +175,8 @@ class PyPdfFileReader(PdfFileReader):
         except ValueError:
             # 'startxref' may be on the same line as the location
             if not line.startswith(b_("startxref")):
+                print(self.offset_diff)
+                print(line)
                 raise utils.PdfReadError("startxref not found")
             startxref = pdf_start + int(line[9:].strip())
             warnings.warn("startxref on same line as offset")
@@ -735,6 +737,12 @@ class PyPdfFileWriter(PdfFileWriter):
 ##                key = md5_hash[:min(16, len(self._encrypt_key) + 5)]
 
             if i == py_oi:
+                
+                ##decode if necessary:
+                if isinstance(obj,EncodedStreamObject):
+                    obj.getData()
+                    obj = obj.decodedSelf
+                
                 stream.write(b_(str(idnum) + " 0 obj "))
 
                 obj[NameObject("/Length")] = NumberObject(len(obj._data))
