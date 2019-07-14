@@ -1,6 +1,6 @@
-from _version import __version__
+from ._version import __version__
 from matplotlib.pyplot import *
-from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,available_filename,IndirectObject,NameObject
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,IndirectObject,NameObject
 import sys
 import os
 from os.path import normcase,realpath
