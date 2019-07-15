@@ -28,16 +28,16 @@ author = 'Dirk van den Bekerom'
 ### The full version, including alpha/beta/rc tags
 ##release = '0.3.6'
 
-version_url = 'https://raw.githubusercontent.com/dcmvdbekerom/pypdfplot/master/VERSION'
+version_url = 'https://raw.githubusercontent.com/dcmvdbekerom/pypdfplot/master/pypdfplot/_version.py'
 from sys import version_info
 if version_info[0] < 3:
     import urllib2
     response = urllib2.urlopen(version_url)
-    release = response.read()
+    release = response.read().split("'")[1]
 else:
     import urllib.request
     response = urllib.request.urlopen(version_url)
-    release = response.read().decode()
+    release = response.read().decode().split("'")[1]
 
 version = '.'.join(release.split('.')[:-1])
 

@@ -37,7 +37,7 @@ from PyPDF4.generic import *
 from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
 from binascii import hexlify,unhexlify
 from PyPDF4.filters import ASCIIHexDecode
-import os
+import sys
 
 COL_WIDTH = 79
 
@@ -160,9 +160,11 @@ class PyPdfFileReader(PdfFileReader):
             eof_addr = stream.tell()
             stream.readline()
             stream.readline()
-            old_size,self.revision = map(int,stream.readline().split())
+            old_size = int(stream.readline())
             stream.seek(eof_addr)
             self.offset_diff = file_end + 1 - old_size
+            print('Found filesize trailer')
+            print('Difference in offset is {}'.format(self.offset_diff))
             
         except:
             self.offset_diff = 0
@@ -527,7 +529,7 @@ class PyPdfFileReader(PdfFileReader):
 
 
 class PyPdfFileWriter(PdfFileWriter):
-    def __init__(self, stream, revision = 0, after_page_append=None):
+    def __init__(self, stream, after_page_append=None):
 
         super(PyPdfFileWriter,self).__init__()
 
@@ -638,7 +640,6 @@ class PyPdfFileWriter(PdfFileWriter):
             # page's tree was bumped off
 
             self._info = newInfoRef
-            self.revision = revision
 
 
     def addAttachment(self,fname,fdata):
@@ -735,6 +736,12 @@ class PyPdfFileWriter(PdfFileWriter):
 ##                key = md5_hash[:min(16, len(self._encrypt_key) + 5)]
 
             if i == py_oi:
+                
+                ##decode if necessary:
+                if isinstance(obj,EncodedStreamObject):
+                    obj.getData()
+                    obj = obj.decodedSelf
+                
                 stream.write(b_(str(idnum) + " 0 obj "))
 
                 obj[NameObject("/Length")] = NumberObject(len(obj._data))
@@ -796,8 +803,8 @@ class PyPdfFileWriter(PdfFileWriter):
         trailer.writeToStream(stream, None)
 
         eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
-        eof += '\n{:00010d} {:05d} \n"""\n'
-        eof = b_(eof.format(stream.tell()+len(eof),self.revision))
+        eof += '\n{:000010d}\n"""\n'
+        eof = b_(eof.format(stream.tell()+len(eof)))
         stream.write(eof)
 
 

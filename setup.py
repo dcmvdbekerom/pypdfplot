@@ -1,12 +1,7 @@
 from setuptools import setup
-
-version = '0.3.8'
-
-try:
-    with open('VERSION','w') as f:
-        f.write(version)
-except:
-    pass
+from sys import path
+path.append("pypdfplot")
+from _version import __version__
 
 try:
     #If building package, complile README.rst
@@ -57,7 +52,7 @@ except:
         doc = f.read()
 
 setup(name='pypdfplot',
-      version = version,
+      version = __version__,
       description="Saves plots as PDF with embedded generating script",
       author='Dirk van den Bekerom',
       author_email='dcmvdbekerom@gmail.com',
