@@ -13,11 +13,11 @@ Class I
 A PyPDF file that is unedited, and therefore compliant with both PDF and Python file specification.
 
 Class II-A
-=========
+==========
 A PyPDF file that has been saved (likely after edits) by a Python editor. It should be expected that the offsets in the xref table and the xrefstart address are not pointing to the right locations anymore. The *filesize* entry in the trailer must still be at the second to last line in order to qualify as Class II-A. It is assumed that only the Python script has been edited, so the offset difference can be retrieved from the difference between the *filesize* entry and the actual filesize.
 
 Class II-B
-=========
+==========
 A PyPDF file that has been saved (possibly after edits) by a PDF writer. The '#' at the start of the file will be absent and the generating script may not appear first in the file anymore and could be encoded. The *filesize* entry will also be absent, but the offsets in xref table will still be correct. This file can therefore not be read by a Python interpreter. The file can be restored to Class I by retrieving its Python script via the /PyFile key in the trailer. This fix can be applied by running *pypdf_fix <filename.pdf>*.
 
 A PyPDF compliant reader must be able to read Class I, Class II-A, and Class II-B files.
