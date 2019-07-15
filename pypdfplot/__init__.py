@@ -28,7 +28,6 @@ def read(input_file,
         with open(input_file,'rb') as fr:
             try:
                 ## Extract generating Python script
-                #T: parse CR LF to LF
                 pr = PyPdfFileReader(fr)
                 if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
                 pyfile = pr.pyObj.getData()[:-4]
@@ -236,8 +235,8 @@ def fix_pypdf(fname,
                 if verbose: print('-> Renaming ' + output + ' to ' + fname)
             except:
                 warnings.warn('Unable to remove ' + fname + ', file saved as ' + output + 'instead')
-    
-        
+
+       
 ## Initialize variables
 pyname   = os.path.basename(sys.argv[-1])
 base,ext = os.path.splitext(pyname)
