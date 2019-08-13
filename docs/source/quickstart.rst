@@ -136,7 +136,7 @@ When we open ``example.pdf``, we should find the updated blue plot with caption:
 The behaviour of the publish function can be altered through the use of the following keywords. 
 Default values are given in brackets.
 
-- output (*str*) default = *None*
+- **output** (*str*) default = *None*
 
   Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
 
