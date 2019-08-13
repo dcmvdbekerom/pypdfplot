@@ -263,7 +263,7 @@ The PDF way
 .. code:: python
 
     from pypdfplot import fix_pypdf
-	pypdf('pdf_file.pdf')
+    pypdf('pdf_file.pdf')
     
 
 
