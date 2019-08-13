@@ -131,6 +131,25 @@ When we open ``example.pdf``, we should find the updated blue plot with caption:
 
 .. image:: _static/plot_pdf2.png
 
+*publish()* keywords
+--------------------
+The behaviour of the publish function can be altered through the use of the following keywords. 
+Default values are given in brackets.
+
+- output *str* (=None)
+  Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
+
+- in_place *bool* (=True)
+  Whether or not to perform the publication 'in place'. If *True*, the Python file generating the plot will be deleted.
+  
+- show_plot *bool* (=True)
+  Whether or not to display the plot after publication.
+
+- prompt_overwrite *bool* (=False)
+  Wether or not to prompt when the output file already exists and is about to be overwritten. If *False* and the output file does already exist, ``pypdfplot`` will overwrite the file if possible.
+  
+- verbose *bool* (=True)
+  Wether or not to show verbose comments during publication.
 
 Embedding Files
 ===============
