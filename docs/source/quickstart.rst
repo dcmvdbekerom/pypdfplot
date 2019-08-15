@@ -241,11 +241,11 @@ There are two ways embedded files can be edited or updated: The Python way or th
 The Python way
 --------------
 
-#) Exctract all embedded files from the pypdf file by renaming the file to the .py extension, and running the Python script with the *cleanup()* function **disabled** (i.e. commented out or otherwise not present in the script).
+#) Exctract all embedded files from the PyPDF file by renaming the file to the .py extension, and running the Python script with the *cleanup()* function **disabled** (i.e. commented out or otherwise not present in the script).
 
 #) Edit the local file
 
-#) Run again to embed the updated files. If so desired, the *cleanup* function can be enabled again to remove all local files.
+#) Run again to embed the updated files. If so desired, the *cleanup()* function can be enabled again to remove all local files.
 
 When ``pypdfplot`` tries to exctract the outdated files from the pypdf file, it will check for local copies. If a local copy is present, it will assume it is a more recent version and will not extract the outdated embedded file.
 
