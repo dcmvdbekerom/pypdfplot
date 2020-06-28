@@ -1,3 +1,0 @@
-- Finish documentation
-- Get groceries
-- Do laundry
