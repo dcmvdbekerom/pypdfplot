@@ -27,7 +27,6 @@ def read(input_file,verbose = True,skip = False):
             read_buf = fr.read()
             first1k = read_buf[:1024]
             pdf_start = first1k.find(b_("%PDF"))
-            print('PDF start: ',pdf_start)
             
             if pdf_start >= 0:
                 

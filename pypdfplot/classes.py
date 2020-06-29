@@ -37,21 +37,19 @@ from pypdf.generic import *
 from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
 from binascii import hexlify,unhexlify
 import pypdf.utils as utils
-##from pypdf.filters import ASCIIHexDecode
+from pypdf.filters import ASCIIHexCodec
 import sys
 import io
 import os
 
-COL_WIDTH = 79
-
-def ASCIIHexEncode(self):
+def ASCIIHexEncode(self,col_width = 79):
     
     hexdata = hexlify(self._data) + b_('>')
 
     temp = b_('')
-    while len(hexdata) > COL_WIDTH:
-        temp += hexdata[:COL_WIDTH] + b_('\n')
-        hexdata = hexdata[COL_WIDTH:]
+    while len(hexdata) > col_width:
+        temp += hexdata[:col_width] + b_('\n')
+        hexdata = hexdata[col_width:]
     temp += hexdata
     self._data = temp
  
@@ -68,11 +66,13 @@ def ASCIIHexEncode(self):
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
-##def decode(data, decodeParms=None):
-##    bdata = data[:-1].replace(b_('\n'),b_(''))
-##    return unhexlify(bdata)
-##
-##ASCIIHexDecode.decode = staticmethod(decode)
+
+def decode(data, decodeParms=None):
+    bdata = data[:-1].replace(b_('\n'),b_(''))
+    return unhexlify(bdata)
+
+ASCIIHexCodec.decode = staticmethod(decode)
+
 
 class PyPdfFileReader(PdfFileReader):
     
@@ -83,7 +83,7 @@ class PyPdfFileReader(PdfFileReader):
         ##From this point we have a plain old regular PDF file
         super(PyPdfFileReader,self).__init__(in_stream)
 
-    def sanitizePDF(self,read_buf):
+    def sanitizePDF(self,read_buf,output = None):
         first1k = read_buf[:1024]
         py_obj = int(first1k.split()[1])
 
@@ -118,7 +118,6 @@ class PyPdfFileReader(PdfFileReader):
 
         for i in range(1,nobj):
             addr = br.tell()
-##            print(addr)
             obj_addr = int(br.read(10))
 
             if i != py_obj:
@@ -136,10 +135,12 @@ class PyPdfFileReader(PdfFileReader):
         br.truncate()
         br.seek(0,0)
 
-##        ## Save to output
-##        save_buf = br.read()
-##        with open('output.pdf','wb') as wwf:
-##            wwf.write(save_buf)
+        ## Save to output
+        if output != None:
+            
+            output_buf = br.read()
+            with open(output,'wb') as f:
+                f.write(output_buf)
 
         return br
 
