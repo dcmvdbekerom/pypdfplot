@@ -166,15 +166,14 @@ class PyPdfFileReader(PdfFileReader):
 
             if fname == pyname:
                 pyfile = fobj.getData()[:-4]
-                if verbose: print('-> Extracing generating script: ' + sname)
+                if verbose: print('-> Extracting generating script: ' + fname)
                 
-            else:
-                sname = fname   
-                if not os.path.isfile(sname):
+            else:  
+                if not os.path.isfile(fname):
                     fdata = fobj.getData()
-                    with open(sname,'wb') as fw:
+                    with open(fname,'wb') as fw:
                         fw.write(fdata)
-                        if verbose: print('-> Extracing ' + sname)
+                        if verbose: print('-> Extracing ' + fname)
                 else:
                     if verbose: print('-> ' + fname +' already exists, skipping')
         return pyfile
