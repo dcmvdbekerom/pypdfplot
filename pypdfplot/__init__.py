@@ -1,13 +1,11 @@
 from ._version import __version__
 from matplotlib.pyplot import *
-from .classes import PyPdfFileReader,PyPdfFileWriter,b_,PdfReadError,warnings,IndirectObject
-from pypdf import PdfFileReader
+from .classes import PyPdfFileReader,PyPdfFileWriter,b_,warnings
 import sys
 import os
 from os.path import normcase,realpath
 import inspect
 import subprocess
-import io
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -32,105 +30,14 @@ def read(input_file,verbose = True,skip = False):
             print('PDF start: ',pdf_start)
             
             if pdf_start >= 0:
- 
-                py_obj = int(first1k[pdf_start:].split()[1])
-
-                last1k = read_buf[-1024:]
-                startxref_addr = last1k.rfind(b_('startxref'))+len(b_('startxref\n'))
-                filesize_addr = last1k.rfind(b_('%%EOF'))+len(b_('%%EOF\n'))
-
-                old_size = int(last1k[filesize_addr:].split()[0])
-                offset = (len(read_buf) - pdf_start) - old_size + 1 
-                print(offset)
-                startxref = int(last1k[startxref_addr:].split()[0]) + offset
-                
-                br = io.BytesIO(read_buf[pdf_start:])
-
-                # Update object length:
-                br.seek(0,0)
-                line = br.readline()
-                i1 = line.rfind(b_('/Length'))+len(b_('/Length'))
-                i2 = line.rfind(b_('>>'))
-                length_len = i2-i1
-                br.seek(i1)
-                obj_length = int(br.read(length_len))
-                new_length = obj_length + offset
-                br.seek(i1)
-                length_str = b_((' {:'+'{:d}'.format(length_len-2)+'d} ').format(obj_length)) 
-                br.write(length_str)
-
-
-                #Update xref table:
-                br.seek(startxref,0)
-                br.readline()
-                nobj = int(br.readline().split()[1])
-                br.readline()
-                
-                for i in range(1,nobj):
-                    addr = br.tell()
-                    print(addr)
-                    obj_addr = int(br.read(10))
-
-                    if i != py_obj:
-                        obj_addr += offset
-                        br.seek(addr,0)
-                        br.write(b_("{:010d}".format(obj_addr)))
-
-                    br.readline()
-
-                #Update startxref:
-                br.seek(-1024,2)
-                br.seek(startxref_addr,1)
-                addr = br.tell()
-                br.write(b_("{:d}\n%%EOF\n".format(startxref)))
-                br.truncate()
-
-                br.seek(0,0)
-
-##                ## Save to output
-##                save_buf = br.read()
-##                with open('output.pdf','wb') as wwf:
-##                    wwf.write(save_buf)
-
-                ##From this point we have a plain old regular PDF file
-                pr = PdfFileReader(br)
                 
                 if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
+                pr = PyPdfFileReader(read_buf[pdf_start:])
+                
                 if verbose: print('Extracting embedded files:')
-                
-                root_obj = pr._trailer['/Root']
-                file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
-                
-                pyname = root_obj['/PyFile']
-                
-                for i in range(0,len(file_dict),2):
-                    fname = file_dict[i]
-                    fobjh = file_dict[i+1]
-
-                    if isinstance(fobjh,IndirectObject):
-                        fobjh = fobjh.getObject()
-
-                    fobj = fobjh['/EF']['/F']
-
-                    if isinstance(fobj,IndirectObject):
-                        fobj = fobj.getObject()
-
-                    if fname == pyname:
-                        pyfile = fobj.getData()[:-4]
-                        if verbose: print('-> Extracing generating script: ' + sname)
-                        
-                    else:
-                        sname = fname   
-                        if not os.path.isfile(sname):
-                            fdata = fobj.getData()
-                            with open(sname,'wb') as fw:
-                                fw.write(fdata)
-                                if verbose: print('-> Extracing ' + sname)
-                        else:
-                            if verbose: print('-> ' + fname +' already exists, skipping')
+                pyfile = pr.extractEmbeddedFiles()
 
             else:
-                ## Read as Python-only file
                 if verbose: print('\nPypdfplot loaded from Python-only file')
                 fr.seek(0)
                 pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
