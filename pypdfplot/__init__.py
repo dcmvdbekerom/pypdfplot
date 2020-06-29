@@ -88,8 +88,7 @@ def publish(output           = None,
     if os.path.isfile(output):
         do_overwrite = False
         if prompt_overwrite:
-            warnings.warn('Local copy of ' + output + ' found')
-            warnings.warn('Overwrite file? (y/n)')
+            warnings.warn('Local copy of ' + output + ' found\nOverwrite file? (y/n)')
             yes_no = input('')
             if yes_no.strip().lower()[0] == 'y':
                 do_overwrite = True
@@ -118,7 +117,7 @@ def publish(output           = None,
     with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
         pw = PyPdfFileWriter(fr,fw)
 
-        ## TO-DO: at some point this should be done with the                 
+        ## TO-DO: at some point this should be done with PyPDF4 methods                
         for fname in _packlist:
             if verbose: print('-> Attaching '+ fname)
             with open(fname,'rb') as fa:
