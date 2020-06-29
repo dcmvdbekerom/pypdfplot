@@ -345,7 +345,7 @@ class PyPdfFileWriter(PdfFileWriter):
                         f = f[0]
 
                     if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
-                        #T: upgrade to /ASCII85Encode at some point
+                        #TO-DO: upgrade to /ASCII85Encode at some point
                         obj.ASCIIHexEncode()
             
                 obj.writeToStream(self._stream, encryption_key)

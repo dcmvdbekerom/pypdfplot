@@ -1,0 +1,12 @@
+In this example we rely on external libraries and external data for the plot.
+The external data must be packed into the PDF in order to be truly portable.
+The packed files are extracted whenever the script is ran again.
+
+Note that plt.pack() is used designate files for packaging in the output PDF file.
+the keyword "in_place" is set to False, meaning that the original packing.py file will not
+be removed after the publish() function is called.
+
+By uncommenting plt.cleanup() all embedded files (in this case, data.xlsx and title.txt), will
+be removed after the publish() function is called. In combination with setting in_place to True,
+this leaves only the output packing.pdf function. By renaming this to packing.py and uncommenting 
+plt.cleanup(), all the originial source files are recovered.

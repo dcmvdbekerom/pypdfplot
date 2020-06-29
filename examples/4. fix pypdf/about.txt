@@ -1,0 +1,11 @@
+The PDF file that is produced by pypdfplot is fully PDF-compliant, meaning that any PDF-editor 
+should be able to open it. 
+
+However, there is some additional restrictions on the PyPDF file that allows for its functionality. 
+Since most "normal" PDF-viewers, like acrobat reader, are unaware of these additional restrictions, 
+if you save a PDF file produced by pypdfplot, they will likely be severed and you cannot access 
+the Python script by renaming the file anymore.
+
+To fix this, call the function fix_pypdf() with the filename of the severed PDF as argument.
+This function will return a new PDF file that is compliant with pypdfplot, and thus the
+generating Python script can now be accessed again by renaming the file to *.py.
