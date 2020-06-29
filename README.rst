@@ -169,6 +169,20 @@ When we open ``example.pdf``, we should find the updated blue plot with caption:
 
 .. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot_pdf2.png
 
+*publish()* keywords
+--------------------
+The behaviour of the publish function can be altered through the use of the following keywords. 
+Default values are given in brackets.
+
+- **output** (*str*) default = *None* -- Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
+
+- **in_place** (*bool*) default = *True* -- Whether or not to perform the publication 'in place'. If *True*, the Python file generating the plot will be deleted.
+  
+- **show_plot** (*bool*) default = *True* -- Whether or not to display the plot after publication.
+
+- **prompt_overwrite** (*bool*) default = *False* -- Wether or not to prompt when the output file already exists and is about to be overwritten. If *False* and the output file does already exist, ``pypdfplot`` will overwrite the file if possible.
+  
+- **verbose** (*bool*) default = *True* -- Wether or not to show verbose comments during publication.
 
 Embedding Files
 ===============
@@ -256,6 +270,43 @@ This can be confirmed by opening ``packing.pdf``:
 To maximize integration with ``Matplotlib``, the PyPDF file is checked for embedded files at the time the ``pypdfplot`` package is imported. If embedded files are found, they are extracted provided there are no local files with the same filename. If a local file is found with the same filename, it is assumed this is a more recent version (e.g. a file that was extracted and then updated), and should therefore have precedence over the embedded file.
 
 In case you want to keep the files that are extracted from the PyPDF file, simply comment out the *cleanup()* function.
+
+Editing Embedded Files
+======================
+
+There are two ways embedded files can be edited or updated: The Python way or the PDF way. The author encourages editing files via Python, but using PDF should also work.
+
+The Python way
+--------------
+
+#) Exctract all embedded files from the PyPDF file by renaming the file to the .py extension, and running the Python script with the *cleanup()* function **disabled** (i.e. commented out or otherwise not present in the script).
+
+#) Edit the local file
+
+#) Run again to embed the updated files. If so desired, the *cleanup()* function can be enabled again to remove all local files.
+
+When ``pypdfplot`` tries to exctract the outdated files from the pypdf file, it will check for local copies. If a local copy is present, it will assume it is a more recent version and will not extract the outdated embedded file.
+
+The PDF way
+-----------
+
+#) In the PDF viewer (in most cases, this is Adobe Acrobat), double click on the embedded file you wish to edit to open it. 
+
+#) Edit the file and save it. It will be saved as a local copy in the PDF viewer.
+
+#) Save the PDF file
+
+#) Because the PDF file was saved by a viewer that is unaware of the PyPDF file format, the format is severed. Assuming your filename is ``pdf_file.pdf``, run the following script to convert the PDF file back to PyPDF:
+
+.. code:: python
+
+    from pypdfplot import fix_pypdf
+    fix_pypdf('pdf_file.pdf')
+    
+
+
+
+
 
 
 ************************

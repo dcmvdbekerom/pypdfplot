@@ -32,11 +32,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from PyPDF4 import PdfFileWriter,PdfFileReader
-from PyPDF4.generic import *
-from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+from pypdf import PdfFileWriter,PdfFileReader
+from pypdf.generic import *
+from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
 from binascii import hexlify,unhexlify
-from PyPDF4.filters import ASCIIHexDecode
+import pypdf.utils as utils
+##from pypdf.filters import ASCIIHexDecode
 import sys
 
 COL_WIDTH = 79
@@ -65,11 +66,11 @@ def ASCIIHexEncode(self):
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
-def decode(data, decodeParms=None):
-    bdata = data[:-1].replace(b_('\n'),b_(''))
-    return unhexlify(bdata)
-
-ASCIIHexDecode.decode = staticmethod(decode)
+##def decode(data, decodeParms=None):
+##    bdata = data[:-1].replace(b_('\n'),b_(''))
+##    return unhexlify(bdata)
+##
+##ASCIIHexDecode.decode = staticmethod(decode)
 
 class PyPdfFileReader(PdfFileReader):
     """
@@ -115,6 +116,7 @@ class PyPdfFileReader(PdfFileReader):
         self.stream = stream
         self.pyObj = self.getGeneratingScriptObject()
         self._override_encryption = False
+        self._cachedObjects = {}
 
     def read(self, stream):
         debug = False
@@ -152,7 +154,7 @@ class PyPdfFileReader(PdfFileReader):
         while line[:5] != b_("%%EOF"):
             if stream.tell() < last1K:
                 raise utils.PdfReadError("%%EOF marker not found")
-            line = self.readNextEndLine(stream)
+            line = self._readNextEndLine(stream)
             if debug: print("  line:",line)
 
         # Determine if file has changed and by how much
@@ -171,7 +173,7 @@ class PyPdfFileReader(PdfFileReader):
             warnings.warn("Could not find original file size in trailer, file does not comply with PyPDF standard")
             
         # find startxref entry - the location of the xref table
-        line = self.readNextEndLine(stream)
+        line = self._readNextEndLine(stream)
         try:
             startxref = pdf_start + int(line)
         except ValueError:
@@ -181,7 +183,7 @@ class PyPdfFileReader(PdfFileReader):
             startxref = pdf_start + int(line[9:].strip())
             warnings.warn("startxref on same line as offset")
         else:
-            line = self.readNextEndLine(stream)
+            line = self._readNextEndLine(stream)
             if line[:9] != b_("startxref"):
                 raise utils.PdfReadError("startxref not found")
 
@@ -284,10 +286,10 @@ class PyPdfFileReader(PdfFileReader):
             elif x.isdigit():
                 # PDF 1.5+ Cross-Reference Stream
                 stream.seek(-1, 1)
-                idnum, generation = self.readObjectHeader(stream)
+                idnum, generation = self._readObjectHeader(stream)
                 xrefstream = readObject(stream, self)
                 assert xrefstream["/Type"] == "/XRef"
-                self.cacheIndirectObject(generation, idnum, xrefstream)
+                self._cacheIndirectObject(generation, idnum, xrefstream)
                 streamData = BytesIO(b_(xrefstream.getData()))
                 # Index pairs specify the subsections in the dictionary. If
                 # none create one subsection that spans everything.
@@ -391,7 +393,7 @@ class PyPdfFileReader(PdfFileReader):
                 for id in self.xref[gen]:
                     stream.seek(self.xref[gen][id], 0)
                     try:
-                        pid, pgen = self.readObjectHeader(stream)
+                        pid, pgen = self._readObjectHeader(stream)
                     except ValueError:
                         break
                     if pid == id - self.xrefIndex:
@@ -400,140 +402,138 @@ class PyPdfFileReader(PdfFileReader):
                     #if not, then either it's just plain wrong, or the non-zero-index is actually correct
             stream.seek(loc, 0) #return to where it was
 
-    def getGeneratingScriptObject(self):
-        """
-        Since the generating script object may have been changed since last time,
-        the /Length in its dictionary may not match the actual stream length.
-        That's why we treat it separately so that we can fix the length
-        before running into problems.
-        """
-
-        indirectReference = IndirectObject(self.pyId,self.pyGen,self)
-       
-        start = self.xref[indirectReference.generation][indirectReference.idnum]
-        self.stream.seek(start,0)
-
-        idnum, generation = self.readObjectHeader(self.stream)
-        if idnum != indirectReference.idnum and self.xrefIndex:
-            # Xref table probably had bad indexes due to not being zero-indexed
-            if self.strict:
-                raise utils.PdfReadError("Expected object ID (%d %d) does not match actual (%d %d); xref table not zero-indexed." \
-                                 % (indirectReference.idnum, indirectReference.generation, idnum, generation))
-            else: pass # xref table is corrected in non-strict mode
-        elif idnum != indirectReference.idnum:
-            # some other problem
-            raise utils.PdfReadError("Expected object ID (%d %d) does not match actual (%d %d)." \
-                                     % (indirectReference.idnum, indirectReference.generation, idnum, generation))
-        assert generation == indirectReference.generation
-                
-        ## Following is copied from DictionaryObject.readFromStream(), just to add the patch for the changed length
-        pdf = self
-        stream = self.stream
-        
-        debug = False
-        tmp = stream.read(2)
-        if tmp != b_("<<"):
-            raise utils.PdfReadError("Dictionary read error at byte %s: stream must begin with '<<'" % utils.hexStr(stream.tell()))
-        data = {}
-        while True:
-            tok = readNonWhitespace(stream)
-            if tok == b_('\x00'):
-                continue
-            elif tok == b_('%'):
-                stream.seek(-1, 1)
-                skipOverComment(stream)
-                continue
-            if not tok:
-                # stream has truncated prematurely
-                raise PdfStreamError("Stream has ended unexpectedly")
-
-            if debug: print(("Tok:", tok))
-            if tok == b_(">"):
-                stream.read(1)
-                break
-            stream.seek(-1, 1)
-            key = readObject(stream, pdf)
-            tok = readNonWhitespace(stream)
-            stream.seek(-1, 1)
-            value = readObject(stream, pdf)
-            if not data.get(key):
-                data[key] = value
-            elif pdf.strict:
-                # multiple definitions of key not permitted
-                raise utils.PdfReadError("Multiple definitions in dictionary at byte %s for key %s" \
-                                           % (utils.hexStr(stream.tell()), key))
-            else:
-                warnings.warn("Multiple definitions in dictionary at byte %s for key %s" \
-                                           % (utils.hexStr(stream.tell()), key), utils.PdfReadWarning)
-
-        pos = stream.tell()
-        s = readNonWhitespace(stream)
-        if s == b_('s') and stream.read(5) == b_('tream'):
-            eol = stream.read(1)
-            # odd PDF file output has spaces after 'stream' keyword but before EOL.
-            # patch provided by Danial Sandler
-            while eol == b_(' '):
-                eol = stream.read(1)
-            assert eol in (b_("\n"), b_("\r"))
-            if eol == b_("\r"):
-                # read \n after
-                if stream.read(1)  != b_('\n'):
-                    stream.seek(-1, 1)
-            # this is a stream object, not a dictionary
-            assert "/Length" in data
-            length = data["/Length"]
-            # And here is the patch:
-            length += self.offset_diff
-            if debug: print(data)
-            if isinstance(length, IndirectObject):
-                t = stream.tell()
-                length = pdf.getObject(length)
-                stream.seek(t, 0)
-            data["__streamdata__"] = stream.read(length)
-            if debug: print("here")
-            #if debug: print(binascii.hexlify(data["__streamdata__"]))
-            e = readNonWhitespace(stream)
-            ndstream = stream.read(8)
-            if (e + ndstream) != b_("endstream"):
-                # (sigh) - the odd PDF file has a length that is too long, so
-                # we need to read backwards to find the "endstream" ending.
-                # ReportLab (unknown version) generates files with this bug,
-                # and Python users into PDF files tend to be our audience.
-                # we need to do this to correct the streamdata and chop off
-                # an extra character.
-                pos = stream.tell()
-                stream.seek(-10, 1)
-                end = stream.read(9)
-                if end == b_("endstream"):
-                    # we found it by looking back one character further.
-                    data["__streamdata__"] = data["__streamdata__"][:-1]
-                else:
-                    if debug: print(("E", e, ndstream, debugging.toHex(end)))
-                    stream.seek(pos, 0)
-                    raise utils.PdfReadError("Unable to find 'endstream' marker after stream at byte %s." % utils.hexStr(stream.tell()))
-        else:
-            stream.seek(pos, 0)
-        if "__streamdata__" in data:
-            retval = StreamObject.initializeFromDictionary(data)
-        else:
-            retval = DictionaryObject()
-            retval.update(data)
-
-        self.cacheIndirectObject(indirectReference.generation,
-                    indirectReference.idnum, retval)
-
-        return retval
+##    def getGeneratingScriptObject(self):
+##        """
+##        Since the generating script object may have been changed since last time,
+##        the /Length in its dictionary may not match the actual stream length.
+##        That's why we treat it separately so that we can fix the length
+##        before running into problems.
+##        """
+##
+##        indirectReference = IndirectObject(self.pyId,self.pyGen,self)
+##       
+##        start = self.xref[indirectReference.generation][indirectReference.idnum]
+##        self.stream.seek(start,0)
+##
+##        idnum, generation = self._readObjectHeader(self.stream)
+##        if idnum != indirectReference.idnum and self.xrefIndex:
+##            # Xref table probably had bad indexes due to not being zero-indexed
+##            if self.strict:
+##                raise utils.PdfReadError("Expected object ID (%d %d) does not match actual (%d %d); xref table not zero-indexed." \
+##                                 % (indirectReference.idnum, indirectReference.generation, idnum, generation))
+##            else: pass # xref table is corrected in non-strict mode
+##        elif idnum != indirectReference.idnum:
+##            # some other problem
+##            raise utils.PdfReadError("Expected object ID (%d %d) does not match actual (%d %d)." \
+##                                     % (indirectReference.idnum, indirectReference.generation, idnum, generation))
+##        assert generation == indirectReference.generation
+##                
+##        ## Following is copied from DictionaryObject.readFromStream(), just to add the patch for the changed length
+##        pdf = self
+##        stream = self.stream
+##        
+##        debug = False
+##        tmp = stream.read(2)
+##        if tmp != b_("<<"):
+##            raise utils.PdfReadError("Dictionary read error at byte %s: stream must begin with '<<'" % utils.hexStr(stream.tell()))
+##        data = {}
+##        while True:
+##            tok = readNonWhitespace(stream)
+##            if tok == b_('\x00'):
+##                continue
+##            elif tok == b_('%'):
+##                stream.seek(-1, 1)
+##                skipOverComment(stream)
+##                continue
+##            if not tok:
+##                # stream has truncated prematurely
+##                raise PdfStreamError("Stream has ended unexpectedly")
+##
+##            if debug: print(("Tok:", tok))
+##            if tok == b_(">"):
+##                stream.read(1)
+##                break
+##            stream.seek(-1, 1)
+##            key = readObject(stream, pdf)
+##            tok = readNonWhitespace(stream)
+##            stream.seek(-1, 1)
+##            value = readObject(stream, pdf)
+##            if not data.get(key):
+##                data[key] = value
+##            elif pdf.strict:
+##                # multiple definitions of key not permitted
+##                raise utils.PdfReadError("Multiple definitions in dictionary at byte %s for key %s" \
+##                                           % (utils.hexStr(stream.tell()), key))
+##            else:
+##                warnings.warn("Multiple definitions in dictionary at byte %s for key %s" \
+##                                           % (utils.hexStr(stream.tell()), key), utils.PdfReadWarning)
+##
+##        pos = stream.tell()
+##        s = readNonWhitespace(stream)
+##        if s == b_('s') and stream.read(5) == b_('tream'):
+##            eol = stream.read(1)
+##            # odd PDF file output has spaces after 'stream' keyword but before EOL.
+##            # patch provided by Danial Sandler
+##            while eol == b_(' '):
+##                eol = stream.read(1)
+##            assert eol in (b_("\n"), b_("\r"))
+##            if eol == b_("\r"):
+##                # read \n after
+##                if stream.read(1)  != b_('\n'):
+##                    stream.seek(-1, 1)
+##            # this is a stream object, not a dictionary
+##            assert "/Length" in data
+##            length = data["/Length"]
+##            # And here is the patch:
+##            length += self.offset_diff
+##            if debug: print(data)
+##            if isinstance(length, IndirectObject):
+##                t = stream.tell()
+##                length = pdf.getObject(length)
+##                stream.seek(t, 0)
+##            data["__streamdata__"] = stream.read(length)
+##            if debug: print("here")
+##            #if debug: print(binascii.hexlify(data["__streamdata__"]))
+##            e = readNonWhitespace(stream)
+##            ndstream = stream.read(8)
+##            if (e + ndstream) != b_("endstream"):
+##                # (sigh) - the odd PDF file has a length that is too long, so
+##                # we need to read backwards to find the "endstream" ending.
+##                # ReportLab (unknown version) generates files with this bug,
+##                # and Python users into PDF files tend to be our audience.
+##                # we need to do this to correct the streamdata and chop off
+##                # an extra character.
+##                pos = stream.tell()
+##                stream.seek(-10, 1)
+##                end = stream.read(9)
+##                if end == b_("endstream"):
+##                    # we found it by looking back one character further.
+##                    data["__streamdata__"] = data["__streamdata__"][:-1]
+##                else:
+##                    if debug: print(("E", e, ndstream, debugging.toHex(end)))
+##                    stream.seek(pos, 0)
+##                    raise utils.PdfReadError("Unable to find 'endstream' marker after stream at byte %s." % utils.hexStr(stream.tell()))
+##        else:
+##            stream.seek(pos, 0)
+##        if "__streamdata__" in data:
+##            retval = StreamObject.initializeFromDictionary(data)
+##        else:
+##            retval = DictionaryObject()
+##            retval.update(data)
+##
+##        self._cacheIndirectObject(indirectReference.generation,
+##                    indirectReference.idnum, retval)
+##
+##        return retval
 
 
 
 
 
 class PyPdfFileWriter(PdfFileWriter):
-    def __init__(self, stream, after_page_append=None):
+    def __init__(self, in_stream, out_stream, after_page_append=None):
 
-        super(PyPdfFileWriter,self).__init__()
-
-        reader = PdfFileReader(stream)        
+        super(PyPdfFileWriter,self).__init__(out_stream)
 
         '''
         Create a copy (clone) of a document from a PDF file reader
@@ -555,129 +555,47 @@ class PyPdfFileWriter(PdfFileWriter):
                 if hasattr(obj, "indirectRef") and obj.indirectRef != None:
                     print("\t\tObject's reference is %r %r, at PDF %r" % (obj.indirectRef.idnum, obj.indirectRef.generation, obj.indirectRef.pdf))
 
-        # Variables used for after cloning the root to
-        # improve pre- and post- cloning experience
-
-        mustAddTogether = False
-        newInfoRef = self._info
-        oldPagesRef = self._pages
-        oldPages = self.getObject(self._pages)
-
-        # If there have already been any number of pages added
-
-        if oldPages[NameObject("/Count")] > 0:
-
-            # Keep them
-
-            mustAddTogether = True
-        else:
-
-            # Through the page object out
-
-            if oldPages in self._objects:
-                newInfoRef = self._pages
-                self._objects.remove(oldPages)
-
-        # Clone the reader's root document
-
+        reader = PdfFileReader(in_stream)   
         self.cloneReaderDocumentRoot(reader)
-        if not self._root:
-            self._root = self._addObject(self._root_object)
-
-        # Sweep for all indirect references
-
-        externalReferenceMap = {}
-        self.stack = []
-        newRootRef = self._sweepIndirectReferences(externalReferenceMap, self._root)
-
-        # Delete the stack to reset
-
-        del self.stack
-
-        #Clean-Up Time!!!
-
-        # Get the new root of the PDF
-
-        realRoot = self.getObject(newRootRef)
-
-        # Get the new pages tree root and its ID Number
-
-        tmpPages = realRoot[NameObject("/Pages")]
-        newIdNumForPages = 1 + self._objects.index(tmpPages)
-
-        # Make an IndirectObject just for the new Pages
-
-        self._pages = IndirectObject(newIdNumForPages, 0, self)
-
-        # If there are any pages to add back in
-
-        if mustAddTogether:
-
-            # Set the new page's root's parent to the old
-            # page's root's reference
-
-            tmpPages[NameObject("/Parent")] = oldPagesRef
-
-            # Add the reference to the new page's root in
-            # the old page's kids array
-
-            newPagesRef = self._pages
-            oldPages[NameObject("/Kids")].append(newPagesRef)
-
-            # Set all references to the root of the old/new
-            # page's root
-
-            self._pages = oldPagesRef
-            realRoot[NameObject("/Pages")] = oldPagesRef
-
-            # Update the count attribute of the page's root
-
-            oldPages[NameObject("/Count")] = NumberObject(oldPages[NameObject("/Count")] + tmpPages[NameObject("/Count")])
-
-        else:
-
-            # Bump up the info's reference b/c the old
-            # page's tree was bumped off
-
-            self._info = newInfoRef
-
-
+        
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
         try:
-            old_list = self._root_object["/Names"]["/EmbeddedFiles"]["/Names"] 
+            old_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"] 
         except(KeyError):
             old_list = ArrayObject([])
         
         super(PyPdfFileWriter,self).addAttachment(fname,fdata)
         
-        new_list = self._root_object["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
+        new_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
         if not isinstance(new_list[1],IndirectObject):
             new_list[1] = self._addObject(new_list[1])
         file_list = ArrayObject(old_list + new_list)
-        self._root_object[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
-        self._root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
+        self._rootObject[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
+        self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
 
     def setPyFile(self,fname):
-        self._root_object[NameObject('/PyFile')] = createStringObject(fname)
+        #TO-DO: use doc info instead of root object
+        self._rootObject[NameObject('/PyFile')] = createStringObject(fname)
 
     def setPyPDFVersion(self,version):
-        self._root_object[NameObject('/PyPDFVersion')] = createStringObject(version)
+        #TO-DO: use doc info instead of root object
+        self._rootObject[NameObject('/PyPDFVersion')] = createStringObject(version)
 
-    def write(self, stream):
+    def write(self):
         """
         Writes the collection of pages added to this object out as a PDF file.
 
         :param stream: An object to write the file to.  The object must support
             the write method and the tell method, similar to a file object.
         """
-        if hasattr(stream, 'mode') and 'b' not in stream.mode:
-            warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % stream.name)
+        if hasattr(self._stream, 'mode') and 'b' not in self._stream.mode:
+            warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
         debug = False
         import struct
 
         if not self._root:
-            self._root = self._addObject(self._root_object)
+            self._root = self._addObject(self._rootObject)
 
         externalReferenceMap = {}
 
@@ -710,10 +628,10 @@ class PyPdfFileWriter(PdfFileWriter):
         # Begin writing:
         offsets = {}
         self._header = b_("%PDF-1.4")
-        stream.write(b_('#') + self._header + b_(" "))
+        self._stream.write(b_('#') + self._header + b_(" "))
 
         ## Find the object number of the Python script and rearrange write order
-        pyname = self._root_object['/PyFile']
+        pyname = self._rootObject['/PyFile']
         name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
         name_dict = dict(zip(name_list[0::2],name_list[1::2]))
         py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
@@ -722,9 +640,10 @@ class PyPdfFileWriter(PdfFileWriter):
         oi = [py_oi] + oi
  
         for i in oi:
+##        for i in list(range(len(self._objects))):
             idnum = (i + 1)
             obj = self._objects[i]
-            offsets[i] = stream.tell()
+            offsets[i] = self._stream.tell()
             encryption_key = None
             
 ##            if hasattr(self, "_encrypt") and idnum != self._encrypt.idnum:
@@ -742,29 +661,32 @@ class PyPdfFileWriter(PdfFileWriter):
                     obj.getData()
                     obj = obj.decodedSelf
                 
-                stream.write(b_(str(idnum) + " 0 obj "))
+                self._stream.write(b_(str(idnum) + " 0 obj "))
 
                 obj[NameObject("/Length")] = NumberObject(len(obj._data))
                 
-                stream.write(b_("<< "))
+                self._stream.write(b_("<< "))
                 for key, value in list(obj.items()):
-                    key.writeToStream(stream, encryption_key)
-                    stream.write(b_(" "))
-                    value.writeToStream(stream, encryption_key)
-                    stream.write(b_(" "))
-                stream.write(b_(">>"))
+                    key.writeToStream(self._stream, encryption_key)
+                    self._stream.write(b_(" "))
+                    if key == '/Length':
+                        space = 10 - len(str(value))
+                        self._stream.write(b_(space*" "))
+                    value.writeToStream(self._stream, encryption_key)
+                    self._stream.write(b_(" "))
+                self._stream.write(b_(">>"))
 
                 del obj["/Length"]
-                stream.write(b_(" stream\n"))
+                self._stream.write(b_(" stream\n"))
                 data = obj._data
-                if encryption_key:
-                    data = RC4_encrypt(encryption_key, data)
-                stream.write(data)
-                stream.write(b_("\nendstream"))
-                stream.write(b_("\nendobj\n"))
+##                if encryption_key:
+##                    data = RC4_encrypt(encryption_key, data)
+                self._stream.write(data)
+                self._stream.write(b_("\nendstream"))
+                self._stream.write(b_("\nendobj\n"))
 
             else:
-                stream.write(b_(str(idnum) + " 0 obj\n"))
+                self._stream.write(b_(str(idnum) + " 0 obj\n"))
                 if type(obj) == DecodedStreamObject:
                     obj = obj.flateEncode()
                 
@@ -777,19 +699,19 @@ class PyPdfFileWriter(PdfFileWriter):
                         #T: upgrade to /ASCII85Encode at some point
                         obj.ASCIIHexEncode()
             
-                obj.writeToStream(stream, encryption_key)
-                stream.write(b_("\nendobj\n"))
+                obj.writeToStream(self._stream, encryption_key)
+                self._stream.write(b_("\nendobj\n"))
 
         # xref table
-        xref_location = stream.tell()-1
-        stream.write(b_("xref\n"))
-        stream.write(b_("0 %s\n" % (len(self._objects) + 1)))
-        stream.write(b_("%010d %05d f \n" % (0, 65535)))
+        xref_location = self._stream.tell()-1
+        self._stream.write(b_("xref\n"))
+        self._stream.write(b_("0 %s\n" % (len(self._objects) + 1)))
+        self._stream.write(b_("%010d %05d f \n" % (0, 65535)))
         for i in range(len(self._objects)):
-            stream.write(b_("%010d %05d n \n" % (offsets[i]-1, 0)))
+            self._stream.write(b_("%010d %05d n \n" % (offsets[i]-1, 0)))
 
         # trailer
-        stream.write(b_("trailer\n"))
+        self._stream.write(b_("trailer\n"))
         trailer = DictionaryObject()
         trailer.update({
                 NameObject("/Size"): NumberObject(len(self._objects) + 1),
@@ -800,12 +722,12 @@ class PyPdfFileWriter(PdfFileWriter):
             trailer[NameObject("/ID")] = self._ID
         if hasattr(self, "_encrypt"):
             trailer[NameObject("/Encrypt")] = self._encrypt
-        trailer.writeToStream(stream, None)
+        trailer.writeToStream(self._stream, None)
 
         eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
         eof += '\n{:000010d}\n"""\n'
-        eof = b_(eof.format(stream.tell()+len(eof)))
-        stream.write(eof)
+        eof = b_(eof.format(self._stream.tell()+len(eof)))
+        self._stream.write(eof)
 
 
 
