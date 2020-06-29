@@ -182,7 +182,7 @@ def fix_pypdf(fname,
               in_place         = True,
               verbose          = True):
     
-    ## Reads Class IIA PyPDF file and converts it to Class I
+    ## Reads severed file and fixes xref tables and lengths
     base,ext = os.path.splitext(fname)
     if output == None:
         output = available_filename(base + '_FIXED' + ext)
@@ -194,9 +194,9 @@ def fix_pypdf(fname,
         
     with open(fname,'rb') as fr, open(output,'wb') as fw:
         if verbose: print('-> Reading ' + fname)
-        pw = PyPdfFileWriter(fr,0)
+        pw = PyPdfFileWriter(fr,fw)
         if verbose: print('-> Saving as ' + output)
-        pw.write(fw)
+        pw.write()
     
     if in_place:
         if verbose: print('-> Removing ' + fname)
