@@ -22,7 +22,7 @@ def available_filename(fname):
     return fname
 
 def read(input_file,verbose = True,skip = False):
-    
+    global _pure_py
     if not skip:
         with open(input_file,'rb') as fr:
             read_buf = fr.read()
@@ -30,6 +30,7 @@ def read(input_file,verbose = True,skip = False):
             pdf_start = first1k.find(b_("%PDF"))
             
             if pdf_start >= 0:
+                _pure_py = False
                 
                 if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
                 pr = PyPdfFileReader(read_buf[pdf_start:])
@@ -38,6 +39,7 @@ def read(input_file,verbose = True,skip = False):
                 pyfile = pr.extractEmbeddedFiles()
 
             else:
+                _pure_py = True
                 if verbose: print('\nPypdfplot loaded from Python-only file')
                 fr.seek(0)
                 pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
@@ -62,25 +64,23 @@ def pack(packfiles):
 
 
 def publish(output           = None,
-            in_place         = True,
             show_plot        = True,
             prompt_overwrite = False,
             verbose          = True,
+            cleanup          = True,
             col_width        = 79,
             **kwargs):
     
     global _packlist,_filespacked,_pyfile,_imported_packlist
 
+    ## Save the matplotlib plot
+    if verbose: print('\nSaving figure...')
     try:
         show_kwargs = {'block':kwargs.pop('block')}
     except:
         show_kwargs = {}
-
-    ## Save the matplotlib plot
     temp_buf = io.BytesIO()
-    if verbose: print('\nSaving figure...')
     savefig(temp_buf,format='pdf',**kwargs)
-
 
     ## Name the output file
     if output == None:
@@ -151,8 +151,8 @@ def publish(output           = None,
 
     _filespacked = True    
 
-    ## Remove the generating python file
-    if in_place:
+    ## Remove the generating python file or create a new purely Python one:
+    if cleanup or not _pure_py:
         if verbose: print('-> Removing ' + pyname)
         if normcase(realpath(pyname)) != normcase(realpath(__file__)): 
             try:
@@ -168,22 +168,28 @@ def publish(output           = None,
         else:
             warnings.warn('Attempt to delete __init__ file was prevented')
 
+    ## Write the Python file:
+    if not cleanup and not _pure_py:
+        with open(pyname,'wb') as fw:
+            fw.write(_pyfile)
+
     ## Show the plot:
     if show_plot:
         if verbose: print('\nShowing plot...')
         show(**show_kwargs)
 
-def cleanup(verbose = True):
-    if _filespacked:
-        if verbose: print('\nCleaning up attached files:')
-        for fname in _packlist:
-            if verbose: print('-> Removing ' + fname)
-            try:
-                os.remove(fname)
-            except:
-                warnings.warn('Unable to remove {:s}.'.format(fname))
-    else:
-        warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
+    if cleanup:
+        if _filespacked:
+            if verbose: print('\nCleaning up attached files:')
+            for fname in _packlist:
+                if verbose: print('-> Removing ' + fname)
+                try:
+                    os.remove(fname)
+                except:
+                    warnings.warn('Unable to remove {:s}.'.format(fname))
+        else:
+            warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
+   
 
 def fix_pypdf(fname,
               output           = None,
