@@ -49,7 +49,7 @@ def read(input_file,verbose = True,skip = False):
     else:
         if verbose: print('Skip reading PyPDF file')
         warnings.warn('PyPDF file not read, it must be read before file imports in main script')
-        return b_(''),0 #TO-DO: should not return ,0
+        return b_('')
 
     
 def pack(packfiles):
@@ -71,10 +71,15 @@ def publish(output           = None,
     
     global _packlist,_filespacked,_pyfile,_imported_packlist
 
+    try:
+        show_kwargs = {'block':kwargs.pop('block')}
+    except:
+        show_kwargs = {}
+
     ## Save the matplotlib plot
     temp_buf = io.BytesIO()
     if verbose: print('\nSaving figure...')
-    savefig(temp_buf,format='pdf') #TO-DO: pass **kwargs (or are **kwargs for show?)
+    savefig(temp_buf,format='pdf',**kwargs)
 
 
     ## Name the output file
@@ -119,8 +124,7 @@ def publish(output           = None,
     if verbose: print('\nPreparing PyPDF file:')
     output_buf = io.BytesIO()
     pw = PyPdfFileWriter(temp_buf,output_buf)
-
-    ## TO-DO: at some point this should be done with PyPDF4 methods                
+              
     for fname in _packlist:
         if verbose: print('-> Attaching '+ fname)
         with open(fname,'rb') as fa:
@@ -167,7 +171,7 @@ def publish(output           = None,
     ## Show the plot:
     if show_plot:
         if verbose: print('\nShowing plot...')
-        show(**kwargs)
+        show(**show_kwargs)
 
 def cleanup(verbose = True):
     if _filespacked:

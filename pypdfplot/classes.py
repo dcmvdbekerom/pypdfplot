@@ -339,7 +339,7 @@ class PyPdfFileWriter(PdfFileWriter):
                 if type(obj) == DecodedStreamObject:
                     obj = obj.flateEncode()
                 
-                if type(obj) == EncodedStreamObject:
+                if type(obj) == EncodedStreamObject: #TO-DO: isn't this always True?
                     f = obj["/Filter"]
                     if isinstance(f, ArrayObject):
                         f = f[0]
