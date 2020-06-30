@@ -160,12 +160,12 @@ def publish(output           = None,
         if normcase(realpath(_pyname)) != normcase(realpath(__file__)): 
             try:
                 os.remove(_pyname)
-                warnings.warn(_pyname + ' removed, saving script in editor will make it reappear...!')
+                warnings.warn(_pyname + ' removed:\nSaving script in editor will make it reappear...!\n')
             except:
                 try:
                     del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(_pyname)
                     subprocess.Popen(del_script)
-                    warnings.warn(_pyname + ' removed, saving script in editor will make it reappear...!')
+                    warnings.warn(_pyname + ' removed:\nSaving script in editor will make it reappear...!\n')
                 except:
                     warnings.warn('Unable to remove ' + _pyname)
         else:
