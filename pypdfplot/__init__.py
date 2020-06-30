@@ -6,6 +6,7 @@ import os
 from os.path import normcase,realpath
 import inspect
 import subprocess
+import io
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -70,9 +71,10 @@ def publish(output           = None,
     global _packlist,_filespacked,_pyfile,_imported_packlist
 
     ## Save the matplotlib plot
-    temp_plot = available_filename('temp_plot.pdf')
-    if verbose: print('\nSaving figure as temporary file: ' + temp_plot)
-    savefig(temp_plot)
+    temp_buf = io.BytesIO()
+    if verbose: print('\nSaving figure...')
+    savefig(temp_buf,format='pdf') #TO-DO: pass **kwargs (or are **kwargs for show?)
+
 
     ## Name the output file
     if output == None:
@@ -114,8 +116,9 @@ def publish(output           = None,
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
-    with open(temp_plot,'rb') as fr, open(output,'wb+') as fw:
-        pw = PyPdfFileWriter(fr,fw)
+    with open(output,'wb+') as fw:
+        ## TO-DO: 'wb+' should be replaced by a BytesIO, followed by a write to 'wb' file
+        pw = PyPdfFileWriter(temp_buf,fw)
 
         ## TO-DO: at some point this should be done with PyPDF4 methods                
         for fname in _packlist:
@@ -135,13 +138,6 @@ def publish(output           = None,
 
     _filespacked = True    
 
-    ## Remove the temporary plot
-    if verbose: print('Cleaning up:\n-> Removing ' + temp_plot)
-    try:
-        os.remove(temp_plot)
-    except:
-        warnings.warn('Unable to remove ' + temp_plot)
-        
     ## Remove the generating python file
     if in_place:
         if verbose: print('-> Removing ' + pyname)
