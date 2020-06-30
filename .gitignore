@@ -11,3 +11,5 @@
 
 GitHubDesktop
 *.lnk
+install_symlink.bat
+PyPI distribution.txt
