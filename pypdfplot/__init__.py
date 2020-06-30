@@ -66,6 +66,7 @@ def publish(output           = None,
             show_plot        = True,
             prompt_overwrite = False,
             verbose          = True,
+            col_width        = 79,
             **kwargs):
     
     global _packlist,_filespacked,_pyfile,_imported_packlist
@@ -116,25 +117,33 @@ def publish(output           = None,
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
+    output_buf = io.BytesIO()
+    pw = PyPdfFileWriter(temp_buf,output_buf)
+
+    ## TO-DO: at some point this should be done with PyPDF4 methods                
+    for fname in _packlist:
+        if verbose: print('-> Attaching '+ fname)
+        with open(fname,'rb') as fa:
+            fdata = fa.read()
+            pw.addAttachment(fname,fdata)
+
+    if verbose: print('-> Attaching ' + pyname)
+    fdata = _pyfile + b_('\n"""')
+    pw.addAttachment(pyname,fdata)
+    pw.setPyFile(pyname)
+    pw.setPyPDFVersion(__version__)
+
+    if verbose: print('-> Writing '+output+'\n')
+    pw.write()
+    
     with open(output,'wb+') as fw:
-        ## TO-DO: 'wb+' should be replaced by a BytesIO, followed by a write to 'wb' file
-        pw = PyPdfFileWriter(temp_buf,fw)
-
-        ## TO-DO: at some point this should be done with PyPDF4 methods                
-        for fname in _packlist:
-            if verbose: print('-> Attaching '+ fname)
-            with open(fname,'rb') as fa:
-                fdata = fa.read()
-                pw.addAttachment(fname,fdata)
-
-        if verbose: print('-> Attaching ' + pyname)
-        fdata = _pyfile + b_('\n"""')
-        pw.addAttachment(pyname,fdata)
-        pw.setPyFile(pyname)
-        pw.setPyPDFVersion(__version__)
-
-        if verbose: print('-> Writing '+output+'\n')
-        pw.write()
+        output_buf.seek(0)
+        for line in output_buf:
+            while len(line) > col_width + 1:
+                i = line[:col_width].rfind(b_(' '))
+                fw.write(line[:i]+b_('\n'))
+                line = line[i+1:]
+            fw.write(line)
 
     _filespacked = True    
 
