@@ -9,11 +9,11 @@ This means that you can edit the local files without them being overwritten.
 
 Suppose we want to change the title, we can do this in the following way:
 - rename unpacking.pdf to unpacking.py
-- comment out plt.cleanup() in unpacking.py
+- set cleanup keyword to False in publish method
 - run unpacking.py
 - edit title in title.txt
 - if you closed the Python editor, rename unpacking.pdf to unpacking.py and open it in the editor
-- uncomment plt.cleanup() 
+- set cleanup to True
 - run the script again.
 
 You now have an updated unpacking.pdf file with an updated title!
