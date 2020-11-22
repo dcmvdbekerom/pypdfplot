@@ -32,12 +32,21 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from pypdf import PdfFileWriter,PdfFileReader
-from pypdf.generic import *
-from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+try:
+    from pypdf import PdfFileWriter,PdfFileReader
+    from pypdf.generic import *
+    from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+    import pypdf.utils as utils
+    legacy = False
+    
+except(ModuleNotFoundError):
+    from PyPDF4 import PdfFileWriter,PdfFileReader
+    from PyPDF4.generic import *
+    from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+    import PyPDF4.utils as utils
+    legacy = True
+
 from binascii import hexlify,unhexlify
-import pypdf.utils as utils
-from pypdf.filters import ASCIIHexCodec
 import sys
 import io
 import os
@@ -71,7 +80,13 @@ def decode(data, decodeParms=None):
     bdata = data[:-1].replace(b_('\n'),b_(''))
     return unhexlify(bdata)
 
-ASCIIHexCodec.decode = staticmethod(decode)
+if legacy:
+    from PyPDF4.filters import ASCIIHexDecode
+    ASCIIHexDecode.decode = staticmethod(decode)
+
+else:
+    from pypdf.filters import ASCIIHexCodec
+    ASCIIHexCodec.decode = staticmethod(decode)
 
 
 class PyPdfFileReader(PdfFileReader):
@@ -182,7 +197,11 @@ class PyPdfFileReader(PdfFileReader):
 class PyPdfFileWriter(PdfFileWriter):
     def __init__(self, in_stream, out_stream, after_page_append=None):
 
-        super(PyPdfFileWriter,self).__init__(out_stream)
+        if legacy:
+            super(PyPdfFileWriter,self).__init__()
+            self._stream = out_stream
+        else:
+            super(PyPdfFileWriter,self).__init__(out_stream)
 
         '''
         Create a copy (clone) of a document from a PDF file reader
@@ -209,6 +228,10 @@ class PyPdfFileWriter(PdfFileWriter):
         
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
+
+        if legacy:
+            self._rootObject = self._root_object
+
         try:
             old_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"] 
         except(KeyError):
