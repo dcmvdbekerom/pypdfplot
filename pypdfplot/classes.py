@@ -32,18 +32,28 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from pypdf import PdfFileWriter,PdfFileReader
-from pypdf.generic import *
-from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+try:
+    from pypdf import PdfFileWriter,PdfFileReader
+    from pypdf.generic import *
+    from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+    import pypdf.utils as utils
+    legacy = False
+    
+except(ModuleNotFoundError):
+    from PyPDF4 import PdfFileWriter,PdfFileReader
+    from PyPDF4.generic import *
+    from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
+    import PyPDF4.utils as utils
+    legacy = True
+
 from binascii import hexlify,unhexlify
-import pypdf.utils as utils
-from pypdf.filters import ASCIIHexCodec
 import sys
 import io
 import os
+import struct
 
 def ASCIIHexEncode(self,col_width = 79):
-    
+
     hexdata = hexlify(self._data) + b_('>')
 
     temp = b_('')
@@ -63,6 +73,22 @@ def ASCIIHexEncode(self,col_width = 79):
         f = newf
 
     self[NameObject("/Filter")] = f
+
+    try:
+        # Update DecodeParms if present:
+        p = self["/DecodeParms"]
+        if isinstance(p, ArrayObject):
+            p.insert(0, NullObject())
+        else:
+            newp = ArrayObject()
+            newp.append(NullObject())
+            newp.append(p)
+            p = newp
+            
+        self[NameObject("/DecodeParms")] = p
+        
+    except(KeyError):
+        pass
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
@@ -71,7 +97,13 @@ def decode(data, decodeParms=None):
     bdata = data[:-1].replace(b_('\n'),b_(''))
     return unhexlify(bdata)
 
-ASCIIHexCodec.decode = staticmethod(decode)
+if legacy:
+    from PyPDF4.filters import ASCIIHexDecode
+    ASCIIHexDecode.decode = staticmethod(decode)
+
+else:
+    from pypdf.filters import ASCIIHexCodec
+    ASCIIHexCodec.decode = staticmethod(decode)
 
 
 class PyPdfFileReader(PdfFileReader):
@@ -182,7 +214,12 @@ class PyPdfFileReader(PdfFileReader):
 class PyPdfFileWriter(PdfFileWriter):
     def __init__(self, in_stream, out_stream, after_page_append=None):
 
-        super(PyPdfFileWriter,self).__init__(out_stream)
+        if legacy:
+            super(PyPdfFileWriter,self).__init__()
+            self._stream = out_stream
+            self._rootObject = self._root_object
+        else:
+            super(PyPdfFileWriter,self).__init__(out_stream)
 
         '''
         Create a copy (clone) of a document from a PDF file reader
@@ -241,7 +278,6 @@ class PyPdfFileWriter(PdfFileWriter):
         if hasattr(self._stream, 'mode') and 'b' not in self._stream.mode:
             warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
         debug = False
-        import struct
 
         if not self._root:
             self._root = self._addObject(self._rootObject)
@@ -256,6 +292,10 @@ class PyPdfFileWriter(PdfFileWriter):
         # we sweep for indirect references.  This forces self-page-referencing
         # trees to reference the correct new object location, rather than
         # copying in a new copy of the page object.
+
+        # BUT for pypdfplot we don't have to worry about this happening,
+        # because we only ever get matplotlib outputs, which behave nicely.
+        
 ##        for objIndex in range(len(self._objects)):
 ##            obj = self._objects[objIndex]
 ##            if isinstance(obj, PageObject) and obj.indirectRef != None:
@@ -280,17 +320,24 @@ class PyPdfFileWriter(PdfFileWriter):
         self._stream.write(b_('#') + self._header + b_(" "))
 
         ## Find the object number of the Python script and rearrange write order
-        pyname = self._rootObject['/PyFile']
-        name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
-        name_dict = dict(zip(name_list[0::2],name_list[1::2]))
-        py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
+
         oi = list(range(len(self._objects)))
-        oi.pop(py_oi)
-        oi = [py_oi] + oi
+        try:
+            pyname = self._rootObject['/PyFile']
+            name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
+            name_dict = dict(zip(name_list[0::2],name_list[1::2]))
+            py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
+            
+            oi.pop(py_oi)
+            oi = [py_oi] + oi
+            
+        except(KeyError):
+            warnings.warn("/PyFile keyword not found, looks like a regular PDF file!")
+            py_oi = -1
  
         for i in oi:
 ##        for i in list(range(len(self._objects))):
-            idnum = (i + 1)
+            idnum = i + 1
             obj = self._objects[i]
             offsets[i] = self._stream.tell()
             encryption_key = None
@@ -336,9 +383,12 @@ class PyPdfFileWriter(PdfFileWriter):
 
             else:
                 self._stream.write(b_(str(idnum) + " 0 obj\n"))
+
+                # Try to compress every object:
                 if type(obj) == DecodedStreamObject:
                     obj = obj.flateEncode()
-                
+
+                # Hex encode object to make it compatible with Python interpreter:
                 if type(obj) == EncodedStreamObject: #TO-DO: isn't this always True?
                     f = obj["/Filter"]
                     if isinstance(f, ArrayObject):

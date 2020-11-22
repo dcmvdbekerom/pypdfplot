@@ -197,7 +197,7 @@ In order to use ``pyplotpdf`` to publish this as a PyPDF file, we change *matplo
 
 Additional files can be embedded in the PyPDF file by calling the function *pack(flist)*. The argument *flist* is a list of filenames that are to be embedded.
 
-By calling *cleanup()* after the *publish()* function, the local files are deleted after they are successfully embedded in the PyPDF file.
+By setting the keyword *cleanup = True* in the *publish()* function, the local files are deleted after they are successfully embedded in the PyPDF file.
 
 The script now looks as follows:
 
@@ -221,8 +221,7 @@ The script now looks as follows:
     plt.pack(['data.xlsx',
               'title.txt'])
 
-    plt.publish()
-    plt.cleanup()
+    plt.publish(cleanup = True)
 
 After running the script, the output file ``packing.pdf`` is generated and all three files ``packing.py``, ``data.xlsx``, and ``title.txt`` are deleted after being embedded in ``packing.pdf``.
 This can be confirmed by opening ``packing.pdf``:
@@ -231,7 +230,7 @@ This can be confirmed by opening ``packing.pdf``:
 
 To maximize integration with ``Matplotlib``, the PyPDF file is checked for embedded files at the time the ``pypdfplot`` package is imported. If embedded files are found, they are extracted provided there are no local files with the same filename. If a local file is found with the same filename, it is assumed this is a more recent version (e.g. a file that was extracted and then updated), and should therefore have precedence over the embedded file.
 
-In case you want to keep the files that are extracted from the PyPDF file, simply comment out the *cleanup()* function.
+In case you want to keep the files that are extracted from the PyPDF file, simply set the keyword *cleanup = False* (or omit).
 
 Editing Embedded Files
 ======================
@@ -241,11 +240,11 @@ There are two ways embedded files can be edited or updated: The Python way or th
 The Python way
 --------------
 
-#) Exctract all embedded files from the PyPDF file by renaming the file to the .py extension, and running the Python script with the *cleanup()* function **disabled** (i.e. commented out or otherwise not present in the script).
+#) Exctract all embedded files from the PyPDF file by renaming the file to the .py extension, and running the Python script with the *cleanup* keyword function **False** (or omitted).
 
 #) Edit the local file
 
-#) Run again to embed the updated files. If so desired, the *cleanup()* function can be enabled again to remove all local files.
+#) Run again to embed the updated files. If so desired, the *cleanup = True* keyword can be used again to remove all local files.
 
 When ``pypdfplot`` tries to exctract the outdated files from the pypdf file, it will check for local copies. If a local copy is present, it will assume it is a more recent version and will not extract the outdated embedded file.
 
