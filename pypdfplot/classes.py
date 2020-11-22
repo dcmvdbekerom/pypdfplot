@@ -50,6 +50,7 @@ from binascii import hexlify,unhexlify
 import sys
 import io
 import os
+import struct
 
 def ASCIIHexEncode(self,col_width = 79):
     
@@ -261,7 +262,6 @@ class PyPdfFileWriter(PdfFileWriter):
         if hasattr(self._stream, 'mode') and 'b' not in self._stream.mode:
             warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
         debug = False
-        import struct
 
         if not self._root:
             self._root = self._addObject(self._rootObject)
@@ -276,6 +276,10 @@ class PyPdfFileWriter(PdfFileWriter):
         # we sweep for indirect references.  This forces self-page-referencing
         # trees to reference the correct new object location, rather than
         # copying in a new copy of the page object.
+
+        # BUT for pypdfplot we don't have to worry about this happening,
+        # because we only ever get matplotlib outputs, which behave nicely.
+        
 ##        for objIndex in range(len(self._objects)):
 ##            obj = self._objects[objIndex]
 ##            if isinstance(obj, PageObject) and obj.indirectRef != None:
@@ -317,7 +321,7 @@ class PyPdfFileWriter(PdfFileWriter):
  
         for i in oi:
 ##        for i in list(range(len(self._objects))):
-            idnum = (i + 1)
+            idnum = i + 1
             obj = self._objects[i]
             offsets[i] = self._stream.tell()
             encryption_key = None
@@ -363,9 +367,12 @@ class PyPdfFileWriter(PdfFileWriter):
 
             else:
                 self._stream.write(b_(str(idnum) + " 0 obj\n"))
+
+                # Try to compress every object:
                 if type(obj) == DecodedStreamObject:
                     obj = obj.flateEncode()
-                
+
+                # Hex encode object to make it compatible with Python interpreter:
                 if type(obj) == EncodedStreamObject: #TO-DO: isn't this always True?
                     f = obj["/Filter"]
                     if isinstance(f, ArrayObject):
