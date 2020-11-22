@@ -4,13 +4,13 @@ Quickstart
 ************
 
 The ``pypdfplot`` package is designed to seamlessly integrate with ``Matplotlib``.
-In this section we will go through a basic example that shows how to use ``pypdfplot``.
+This section goes through a basic example that shows how to use ``pypdfplot``.
 
 Simple Example
 ==============
 
-For this example, our goal is to produce a red plot of the quadratic function from -10 to 20.
-To start off, we will first plot this in the conventional way using ``Matplotlib``.
+For this example, the goal is to produce a red plot of the quadratic function from -10 to 20.
+To start off, you first plot this in the conventional way using ``Matplotlib``.
 
 Create a new python file, let's call it ``example.py``. 
 
@@ -27,16 +27,16 @@ Open the file and enter the following script:
     plt.plot(x,y,'r')
     plt.show()
 	
-After running this script, we should get the following figure:
+After running this script, you should get the following figure:
 
 .. image:: _static/plot.png
 
-Next, we will use ``pypdfplot`` to publish this plot as a PyPDF file. 
-In order to do this we need to make two changes to the script:
+Next, you use ``pypdfplot`` to publish this plot as a PyPDF file. 
+In order to do this you need to make two changes to the script:
 
-1. Instead of importing *matplotlib.pyplot* we have to import *pypdfplot*. Note that ``pypdfplot`` wraps all ``Matplotlib``'s functions, so by importing *pypdfplot* as *plt* like before, no other modifications to the code are needed.
+1. Instead of importing *matplotlib.pyplot* you have to import *pypdfplot*. Note that ``pypdfplot`` wraps all ``Matplotlib``'s functions, so by importing *pypdfplot* as *plt* like before, no other modifications to the code are needed.
 
-2. Instead of calling *show()* we have to call *publish()*. Note that *publish()* can take all keywords that *show()* can, in addition to some new keywords (see `Classes`_).
+2. Instead of calling *show()* you have to call *publish()*. Note that *publish()* can take all keywords that *show()* can, in addition to some new keywords (see `Classes`_).
 
 The code now looks as follows:
 
@@ -51,10 +51,10 @@ The code now looks as follows:
     plt.plot(x,y,'r')
     plt.publish()
 
-After running this script, if we look in the folder where our ``example.py`` file once was, we notice it has been replaced by a new file ``example.pdf``.
+After running this script, if you look in the folder where the ``example.py`` file once was, you'll notice it has been replaced by a new file ``example.pdf``.
 Of course the fact that the ``example.py`` file disappeared doesn't mean the script is gone -- it is now embedded in the PyPDF file ``example.pdf``!
 
-We can find evidence of this by opening the ``example.pdf`` file:
+You can find evidence of this by opening the ``example.pdf`` file:
 
 .. image:: _static/plot_pdf.png
 
@@ -62,7 +62,7 @@ The table on the left shows all files that are embedded, and clearly ``example.p
 
 Most versions of Acrobat reader don't allow the embedded .py file to be opened for security reasons, which is probably a good thing.
 To access the python script, rename ``example.pdf`` into ``example.py`` and open the file.
-This is what we should find:
+This is what you should find:
 
 .. code:: python
 
@@ -127,7 +127,7 @@ For example, let's give the plot a title and change the color to blue:
     """
 	
 Again, after running the script the ``example.py`` file is replaced by the ``example.pdf`` file.
-When we open ``example.pdf``, we should find the updated blue plot with caption:
+When you open ``example.pdf``, you should find the updated blue plot with caption:
 
 .. image:: _static/plot_pdf2.png
 
@@ -138,13 +138,15 @@ Default values are given in brackets.
 
 - **output** (*str*) default = *None* -- Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
 
-- **in_place** (*bool*) default = *True* -- Whether or not to perform the publication 'in place'. If *True*, the Python file generating the plot will be deleted.
+- **cleanup** (*bool*) default = *True* -- Whether or not to cleanup files that have been embedded in the PyPDF file. Set to *False* and run script to extract embedded files.
   
 - **show_plot** (*bool*) default = *True* -- Whether or not to display the plot after publication.
 
 - **prompt_overwrite** (*bool*) default = *False* -- Wether or not to prompt when the output file already exists and is about to be overwritten. If *False* and the output file does already exist, ``pypdfplot`` will overwrite the file if possible.
   
 - **verbose** (*bool*) default = *True* -- Wether or not to show verbose comments during publication.
+
+- **kwargs** -- Any other keyword arguments are passed to matplotlib's *savefig* function.
 
 Embedding Files
 ===============
@@ -156,15 +158,15 @@ What follows is an example how to embed external files with ``pypdfplot``.
 We will write a script that opens data from an external excel file and reads the title and axis label from an extrnal text file.
 
 Create an excel file called ``data.xlsx``.
-For this example, we will fill the file with the first 10 numbers of the Fibonacci sequence:
+For this example, fill the file with the first 10 numbers of the Fibonacci sequence:
 
 .. image:: _static/excel_data.png
 
-Then we create a text file with our title and axis labels called ``title.txt``:
+Then create a text file with our title and axis labels called ``title.txt``:
 
 .. image:: _static/notepad_title.png
 
-Finally, we create a new python file called ``packing.py``. 
+Finally, create a new python file called ``packing.py``. 
 
 As before, let's first have a look at how this script would look using ``Matplotlib``.
 We will use ``Pandas`` to import the Excel file into Python.
@@ -193,11 +195,11 @@ After running this script, the following figure should pop up:
 
 .. image:: _static/plot2.png
 
-In order to use ``pyplotpdf`` to publish this as a PyPDF file, we change *matplotlib.pyplot* to *pypdfplot* and *show()* to *publish()* as before.
+In order to use ``pyplotpdf`` to publish this as a PyPDF file, change *matplotlib.pyplot* to *pypdfplot* and *show()* to *publish()* as before.
 
 Additional files can be embedded in the PyPDF file by calling the function *pack(flist)*. The argument *flist* is a list of filenames that are to be embedded.
 
-By setting the keyword *cleanup = True* in the *publish()* function, the local files are deleted after they are successfully embedded in the PyPDF file.
+By setting the keyword *cleanup = True* in the *publish()* function, the local files will be deleted after they are successfully embedded in the PyPDF file.
 
 The script now looks as follows:
 
@@ -230,17 +232,17 @@ This can be confirmed by opening ``packing.pdf``:
 
 To maximize integration with ``Matplotlib``, the PyPDF file is checked for embedded files at the time the ``pypdfplot`` package is imported. If embedded files are found, they are extracted provided there are no local files with the same filename. If a local file is found with the same filename, it is assumed this is a more recent version (e.g. a file that was extracted and then updated), and should therefore have precedence over the embedded file.
 
-In case you want to keep the files that are extracted from the PyPDF file, simply set the keyword *cleanup = False* (or omit).
+In case you want to keep the files that are extracted from the PyPDF file, simply set the keyword *cleanup = False*.
 
 Editing Embedded Files
 ======================
 
-There are two ways embedded files can be edited or updated: The Python way or the PDF way. The author encourages editing files via Python, but using PDF should also work.
+There are two ways embedded files can be edited or updated: The Python way or the PDF way. Editing files via the Python way is encouraged, but using PDF should also work.
 
 The Python way
 --------------
 
-#) Exctract all embedded files from the PyPDF file by renaming the file to the .py extension, and running the Python script with the *cleanup* keyword function **False** (or omitted).
+#) Exctract all embedded files from the PyPDF file by renaming the file to the .py extension, and running the Python script with the *cleanup* keyword set to **False**.
 
 #) Edit the local file
 
