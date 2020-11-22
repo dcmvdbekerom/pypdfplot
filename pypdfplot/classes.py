@@ -200,6 +200,7 @@ class PyPdfFileWriter(PdfFileWriter):
         if legacy:
             super(PyPdfFileWriter,self).__init__()
             self._stream = out_stream
+            self._rootObject = self._root_object
         else:
             super(PyPdfFileWriter,self).__init__(out_stream)
 
@@ -228,10 +229,6 @@ class PyPdfFileWriter(PdfFileWriter):
         
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
-
-        if legacy:
-            self._rootObject = self._root_object
-
         try:
             old_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"] 
         except(KeyError):
@@ -303,13 +300,20 @@ class PyPdfFileWriter(PdfFileWriter):
         self._stream.write(b_('#') + self._header + b_(" "))
 
         ## Find the object number of the Python script and rearrange write order
-        pyname = self._rootObject['/PyFile']
-        name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
-        name_dict = dict(zip(name_list[0::2],name_list[1::2]))
-        py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
+
         oi = list(range(len(self._objects)))
-        oi.pop(py_oi)
-        oi = [py_oi] + oi
+        try:
+            pyname = self._rootObject['/PyFile']
+            name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
+            name_dict = dict(zip(name_list[0::2],name_list[1::2]))
+            py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
+            
+            oi.pop(py_oi)
+            oi = [py_oi] + oi
+            
+        except(KeyError):
+            warnings.warn("/PyFile keyword not found, looks like a regular PDF file!")
+            py_oi = -1
  
         for i in oi:
 ##        for i in list(range(len(self._objects))):
