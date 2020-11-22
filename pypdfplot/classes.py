@@ -53,7 +53,7 @@ import os
 import struct
 
 def ASCIIHexEncode(self,col_width = 79):
-    
+
     hexdata = hexlify(self._data) + b_('>')
 
     temp = b_('')
@@ -73,6 +73,22 @@ def ASCIIHexEncode(self,col_width = 79):
         f = newf
 
     self[NameObject("/Filter")] = f
+
+    try:
+        # Update DecodeParms if present:
+        p = self["/DecodeParms"]
+        if isinstance(p, ArrayObject):
+            p.insert(0, NullObject())
+        else:
+            newp = ArrayObject()
+            newp.append(NullObject())
+            newp.append(p)
+            p = newp
+            
+        self[NameObject("/DecodeParms")] = p
+        
+    except(KeyError):
+        pass
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
