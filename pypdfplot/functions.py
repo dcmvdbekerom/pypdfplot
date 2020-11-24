@@ -72,6 +72,7 @@ def publish(output           = None,
             show_plot        = True,
             prompt_overwrite = False,
             verbose          = True,
+            file_list        = [],
             col_width        = 79,
             **kwargs):
     
@@ -85,21 +86,21 @@ def publish(output           = None,
         show_kwargs = {}
     temp_buf = io.BytesIO()
     savefig(temp_buf,format='pdf',**kwargs)
-
-   
+ 
     ## If input PyPDF file hasn't been read yet, do that now
     if _pyfile == b_(''):
 ##        new_kwargs = dict(pypdfplot_kwargs)
 ##        new_kwargs['skip'] = False
 ##        read(_pyname,**new_kwargs)
         _pyname = os.path.basename(sys.argv[0])
-        read(_pyname)
+        extract(_pyname)
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
     output_buf = io.BytesIO()
     pw = PyPdfFileWriter(temp_buf,output_buf)
-              
+
+    _packlist += list(set(file_list))          
     for fname in _packlist:
         if verbose: print('-> Attaching '+ fname)
         with open(fname,'rb') as fa:
