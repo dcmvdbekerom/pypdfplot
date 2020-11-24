@@ -1,4 +1,4 @@
-import pypdfplot.backend
+import pypdfplot.backend.auto_extract
 import matplotlib.pyplot as plt
 import pandas as pd
 
