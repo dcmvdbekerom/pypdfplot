@@ -10,6 +10,7 @@ import io
 _packlist = []
 _filespacked = False
 _pyfile = b_('')
+_pyname = ''
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -24,11 +25,11 @@ def _available_filename(fname):
 
     return fname
 
-def read(input_file,verbose = True,skip = False):
+def extract(fname,verbose = True,skip = False):
     global _pure_py,_pyfile,_pyname
-    _pyname = input_file #TO-DO: Should be filename instead of file
+    _pyname = fname
     if not skip:
-        with open(input_file,'rb') as fr:
+        with open(fname,'rb') as fr:
             read_buf = fr.read()
             first1k = read_buf[:1024]
             pdf_start = first1k.find(b_("%PDF"))
@@ -47,12 +48,13 @@ def read(input_file,verbose = True,skip = False):
                 if verbose: print('\nPypdfplot loaded from Python-only file')
                 fr.seek(0)
                 _pyfile = fr.read().replace(b_('\r\n'),b_('\n'))
-                fnames = []
+                ##fnames = [] # Legacy?
         
     ## If reading is skipped:
     else:
         if verbose: print('Skip reading PyPDF file')
         warnings.warn('PyPDF file not read, it must be read before file imports in main script')
+        #TO-DO: doesn't HAVE to be read as long as there are local copies.
         _pyfile = b_('')
 
     
@@ -73,7 +75,7 @@ def publish(output           = None,
             col_width        = 79,
             **kwargs):
     
-    global _packlist,_filespacked,_pyfile,_imported_packlist
+    global _packlist,_filespacked,_pyfile,_pyname,_imported_packlist
 
     ## Save the matplotlib plot
     if verbose: print('\nSaving figure...')
@@ -85,12 +87,13 @@ def publish(output           = None,
     savefig(temp_buf,format='pdf',**kwargs)
 
    
-
     ## If input PyPDF file hasn't been read yet, do that now
     if _pyfile == b_(''):
-        new_kwargs = dict(pypdfplot_kwargs)
-        new_kwargs['skip'] = False
-        read(_pyname,**new_kwargs)
+##        new_kwargs = dict(pypdfplot_kwargs)
+##        new_kwargs['skip'] = False
+##        read(_pyname,**new_kwargs)
+        _pyname = os.path.basename(sys.argv[0])
+        read(_pyname)
 
     ## Write the PyPDF file
     if verbose: print('\nPreparing PyPDF file:')
