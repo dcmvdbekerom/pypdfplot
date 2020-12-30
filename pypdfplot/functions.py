@@ -11,8 +11,9 @@ import pickle
 _packlist = []
 _write_success = False
 _py_file = b_('')
-_py_fname = ''
+_pypdf_fname = ''
 _iterations = 0
+_first_output_fname = ''
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -30,12 +31,12 @@ def _available_filename(fname):
 
 
 def extract(fname = None,
-            save_pypdf = False, #This will replace fix_pypdf in the future
+            save_pypdf = False, #TO-DO: This will replace fix_pypdf in the future
             verbose = True,
             ):
     
     global _pure_py,_py_file
-    _py_fname = fname
+    _pypdf_fname = fname
 
     if fname == None:
         fname = os.path.basename(sys.argv[0])
@@ -72,13 +73,13 @@ def publish(output_fname     = None,
             file_list        = [],
             cleanup          = True,
             show_plot        = True,
-            multiples        = 'pickle',
+            multiples        = 'pickle',#'pages',
             force_pickle     = False,
             verbose          = True,
             prompt_overwrite = False,
             **kwargs):
     
-    global _py_file, _py_fname, _iterations
+    global _py_file, _pypdf_fname, _iterations, _first_output_fname
 
     ## Save the matplotlib plot
     if verbose: print('\nSaving figure...')
@@ -92,64 +93,86 @@ def publish(output_fname     = None,
     
     ## If input PyPDF file hasn't been read yet, do that now
     if _py_file == b_(''):
-        _py_fname = extract()
+        _pypdf_fname = extract()
 
     ## Name the output file
-    if output_fname == None:
-        output_fname = os.path.splitext(_py_fname)[0] + '.pdf' #DO-DO: Make sure to prevent self-deletion!!
-    elif os.path.splitext(output_fname)[1] == '':
-        output_fname += '.pdf'
-    elif os.path.splitext(output_fname)[1] not in ['.pdf','.py']: ##TO-DO: Shouldn't this be just '.pdf'?
-        output_fname = os.path.splitext(output_fname)[0] + '.pdf'
-        warnings.warn('Invalid extension, saving as {:s}'.format(output_fname))
+    if multiples != 'pages' or _iterations == 0:
+        if output_fname == None:
+            output_fname = os.path.splitext(_pypdf_fname)[0] + '.pdf' #DO-DO: Make sure to prevent self-deletion!!
+        elif os.path.splitext(output_fname)[1] == '':
+            output_fname += '.pdf'
+        elif os.path.splitext(output_fname)[1] not in ['.pdf','.py']: #TO-DO: Shouldn't this be just '.pdf'?
+            output_fname = os.path.splitext(output_fname)[0] + '.pdf'
+            warnings.warn('Invalid extension, saving as {:s}'.format(output_fname))
+
+    elif multiples = 'pickle':
+        output_fname = _first_output_fname
+        
     _py_packed_fname = output_fname[:-3] + 'py'
-
     
-    ## Write the PyPDF file
-    if verbose: print('\nPreparing PyPDF file:')
-    output_bytes = io.BytesIO()
-    pw = PyPdfFileWriter(plot_bytes,output_bytes)
+    if _iterations == 0:
+        _first_output_fname = output_fname
 
-    if force_pickle or _iterations > 0:
-        if len(file_list) > 0:
-            warnings.warn('file_list will be ignored when pickling figure!')
 
-        fig_fname = output_fname[:-3] + 'pkl'
-        fdata = pickle.dumps(gcf())
-        pw.addAttachment(fig_fname,fdata)
+    if multiples == 'pickle' or _iterations == 0:
 
-        flines = [b"import pypdfplot.auto_extract as plt",
-                  b"from pickle import load",
-                  b"",
-                  b"with open('" + fig_fname.encode() + b"','rb') as f:",
-                  b"    fig = load(f)",
-                  b"",
-                  b"plt.figure(fig.number)",
-                  b"",
-                  b"## Plot customizations go here...",
-                  b"",
-                  b"plt.publish('" + output_fname.encode() + b"',",
-                  b"            file_list = ['" + fig_fname.encode() + b"'])",
-                  b"",
-                  b'"""']
+        ## Write the regular PyPDF file
+        if verbose: print('\nPreparing PyPDF file:')
+        output_bytes = io.BytesIO()
+        pw = PyPdfFileWriter(plot_bytes,output_bytes)
+
+        if force_pickle or _iterations > 0:
+            if len(file_list) > 0:
+                warnings.warn('file_list will be ignored when pickling figure!')
+
+            fig_fname = output_fname[:-3] + 'pkl'
+            fdata = pickle.dumps(gcf())
+            pw.addAttachment(fig_fname,fdata)
+
+            flines = [b"import pypdfplot.auto_extract as plt",
+                      b"from pickle import load",
+                      b"",
+                      b"with open('" + fig_fname.encode() + b"','rb') as f:",
+                      b"    fig = load(f)",
+                      b"",
+                      b"plt.figure(fig.number)",
+                      b"",
+                      b"## Plot customizations go here...",
+                      b"",
+                      b"plt.publish('" + output_fname.encode() + b"',",
+                      b"            file_list = ['" + fig_fname.encode() + b"'])",
+                      b"",
+                      b'"""']
+            
+            fdata = b'\n'.join(flines) 
+            pw.addAttachment(_py_packed_fname,fdata)
+            
+        elif multiples == 'pages':         
+            for fname in file_list:
+                if verbose: print('-> Attaching '+ fname)
+                with open(fname,'rb') as fa:
+                    fdata = fa.read()
+                    pw.addAttachment(fname,fdata)
+
+            if verbose: print('-> Attaching ' + _py_packed_fname)
+
+            fdata = _py_file + b_('\n"""')
+            pw.addAttachment(_py_packed_fname,fdata)
         
-        fdata = b'\n'.join(flines) 
-        pw.addAttachment(_py_packed_fname,fdata)
+        pw.setPyFile(_py_packed_fname)
+        pw.setPyPDFVersion(__version__)
+
+    else:
+
+        ## This is a consecutive call with 'pages' enabled,
+        ## so open previous file and append current plot as page:
+
+        ## TO-DO: This procedure rewrites the entire file each time,
+        ##        Would be more efficient to simply attach pages
+
+        warnings.warn('Multiple pages not currently implemented!!!!')
         
-    else:         
-        for fname in file_list:
-            if verbose: print('-> Attaching '+ fname)
-            with open(fname,'rb') as fa:
-                fdata = fa.read()
-                pw.addAttachment(fname,fdata)
-
-        if verbose: print('-> Attaching ' + _py_packed_fname)
-
-        fdata = _py_file + b_('\n"""')
-        pw.addAttachment(_py_packed_fname,fdata)
-    
-    pw.setPyFile(_py_packed_fname)
-    pw.setPyPDFVersion(__version__)
+        
 
     ## If the output file already exists, try to remove it:
     if os.path.isfile(output_fname):
@@ -193,25 +216,26 @@ def publish(output_fname     = None,
 
     ## Remove the generating python file or create a new purely Python one:
     if cleanup or not _pure_py:
-        if os.path.isfile(_py_fname):
-            if verbose: print('-> Removing ' + _py_fname)
-            if normcase(realpath(_py_fname)) != normcase(realpath(__file__)): 
+        if os.path.isfile(_pypdf_fname):
+            if verbose: print('-> Removing ' + _pypdf_fname)
+            if normcase(realpath(_pypdf_fname)) != normcase(realpath(__file__)): 
                 try:
-                    os.remove(_py_fname)
-                    warnings.warn(_py_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
+                    os.remove(_pypdf_fname)
+                    warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
                 except:
                     try:
-                        del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(_py_fname)
+                        del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(_pypdf_fname)
                         subprocess.Popen(del_script)
-                        warnings.warn(_py_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
+                        warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
                     except:
-                        warnings.warn('Unable to remove ' + _py_fname)
+                        warnings.warn('Unable to remove ' + _pypdf_fname)
             else:
                 warnings.warn('Attempt to delete __init__ file was prevented')
 
     ## Write the Python file if needed, and remove it if not:
     if cleanup:
-        # Remove the packed file if it happens to be present:
+        # Remove the packed file if it happens to be present
+        # TO-DO: This might be overzealous, consider removing...
         if os.path.isfile(_py_packed_fname): 
             os.remove(_py_packed_fname)
     else:
