@@ -12,6 +12,7 @@ _packlist = []
 _write_success = False
 _py_file = b_('')
 _py_fname = ''
+_iterations = 0
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -43,8 +44,9 @@ def extract(fname = None,
         read_buf = fr.read()
         first1k = read_buf[:1024]
         pdf_start = first1k.find(b_("%PDF"))
-        
-        if pdf_start >= 0: #try:
+
+        #try:
+        if pdf_start >= 0:
                         
             pr = PyPdfFileReader(read_buf[pdf_start:])
             
@@ -54,7 +56,8 @@ def extract(fname = None,
             if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
             _pure_py = False
 
-        else: #except:
+        #except:
+        else:
                         
             fr.seek(0)
             _py_file = fr.read().replace(b_('\r\n'),b_('\n'))
@@ -69,12 +72,13 @@ def publish(output_fname     = None,
             file_list        = [],
             cleanup          = True,
             show_plot        = True,
-            pickle_figure    = False,
+            multiples        = 'pickle',
+            force_pickle     = False,
             verbose          = True,
             prompt_overwrite = False,
             **kwargs):
     
-    global _py_file, _py_fname, _iteration
+    global _py_file, _py_fname, _iterations
 
     ## Save the matplotlib plot
     if verbose: print('\nSaving figure...')
@@ -106,7 +110,7 @@ def publish(output_fname     = None,
     output_bytes = io.BytesIO()
     pw = PyPdfFileWriter(plot_bytes,output_bytes)
 
-    if pickle_figure:
+    if force_pickle or _iterations > 0:
         if len(file_list) > 0:
             warnings.warn('file_list will be ignored when pickling figure!')
 
@@ -184,24 +188,26 @@ def publish(output_fname     = None,
                 line = line[i+1:]
             fw.write(line)
 
-    _write_success = True    
+    _write_success = True
+    _iterations += 1
 
     ## Remove the generating python file or create a new purely Python one:
     if cleanup or not _pure_py:
-        if verbose: print('-> Removing ' + _py_fname)
-        if normcase(realpath(_py_fname)) != normcase(realpath(__file__)): 
-            try:
-                os.remove(_py_fname)
-                warnings.warn(_py_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
-            except:
+        if os.path.isfile(_py_fname):
+            if verbose: print('-> Removing ' + _py_fname)
+            if normcase(realpath(_py_fname)) != normcase(realpath(__file__)): 
                 try:
-                    del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(_py_fname)
-                    subprocess.Popen(del_script)
+                    os.remove(_py_fname)
                     warnings.warn(_py_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
                 except:
-                    warnings.warn('Unable to remove ' + _py_fname)
-        else:
-            warnings.warn('Attempt to delete __init__ file was prevented')
+                    try:
+                        del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(_py_fname)
+                        subprocess.Popen(del_script)
+                        warnings.warn(_py_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
+                    except:
+                        warnings.warn('Unable to remove ' + _py_fname)
+            else:
+                warnings.warn('Attempt to delete __init__ file was prevented')
 
     ## Write the Python file if needed, and remove it if not:
     if cleanup:
