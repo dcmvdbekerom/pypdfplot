@@ -333,4 +333,6 @@ def print_pdf(self, filename, *,
             else:            # we opened the file above; now finish it off
                 file.close()
 
+            #Do file manupulations here
+
 FigureCanvasPdf.print_pdf = print_pdf

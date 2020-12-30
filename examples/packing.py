@@ -13,7 +13,7 @@ plt.title(title)
 plt.xlabel(xlabel)
 plt.ylabel(ylabel)
 
-plt.publish(file_list = ['data.xlsx',
-                         'title.txt'],
-            cleanup = True,
-            )
+plt.pack(['data.xlsx',
+          'title.txt'])
+
+plt.publish(cleanup = False)

@@ -1,10 +1,6 @@
+import pypdfplot
 from pypdfplot.__init__ import *
 
-import sys
-import os
-
-## Read PyPDF file
-pyname = os.path.basename(sys.argv[-1])
-if pyname != '':
-    extract(pyname)
+# if pyname != '': ## Add back later to prevent overwriting the module
+pypdfplot.functions._py_fname = extract()
 
