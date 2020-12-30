@@ -1,10 +1,10 @@
-from .__init__ import *
+from pypdfplot.__init__ import *
 
 import sys
 import os
 
 ## Read PyPDF file
-pyname   = os.path.basename(sys.argv[-1])
+pyname = os.path.basename(sys.argv[-1])
 if pyname != '':
     extract(pyname)
 
