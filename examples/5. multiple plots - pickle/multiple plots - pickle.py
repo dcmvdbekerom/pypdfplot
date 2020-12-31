@@ -1,4 +1,3 @@
-#%PDF-1.4 23 0 obj << /Type /EmbeddedFile /Length        187 >> stream
 import pypdfplot as plt
 import numpy as np
 

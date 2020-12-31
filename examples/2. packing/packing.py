@@ -1,4 +1,5 @@
-import pypdfplot.auto_extract as plt
+import pypdfplot.backend.auto_extract
+import matplotlib.pyplot as plt
 import pandas as pd
 
 df = pd.read_excel('data.xlsx')
@@ -13,7 +14,8 @@ plt.title(title)
 plt.xlabel(xlabel)
 plt.ylabel(ylabel)
 
-plt.publish(file_list = ['data.xlsx',
+plt.savefig('packing.pdf',
+            file_list = ['data.xlsx',
                          'title.txt'],
             cleanup = True,
             )

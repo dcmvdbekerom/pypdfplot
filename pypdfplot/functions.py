@@ -1,4 +1,4 @@
-from matplotlib.pyplot import show,savefig,gcf
+import matplotlib.pyplot as plt
 from .classes import PyPdfFileReader,PyPdfFileWriter,b_,warnings
 from ._version import __version__
 import sys
@@ -69,27 +69,23 @@ def extract(fname = None,
     return fname
 
 
-def publish(output_fname     = None,
-            file_list        = [],
-            cleanup          = True,
-            show_plot        = True,
-            multiples        = 'pickle',#'pages',
-            force_pickle     = False,
-            verbose          = True,
-            prompt_overwrite = False,
-            **kwargs):
-    
-    global _py_file, _pypdf_fname, _iterations, _first_output_fname
+def write_pypdf(write_plot_func,
+                output_fname     = None,
+                file_list        = [],
+                cleanup          = True,
+                multiples        = 'pickle',#'pages','close_pdf'
+                force_pickle     = False,
+                verbose          = True,
+                prompt_overwrite = False,
+                **kwargs,
+                ):
 
+    global _py_file, _pypdf_fname, _iterations, _first_output_fname
+    
     ## Save the matplotlib plot
     if verbose: print('\nSaving figure...')
-    try:
-        show_kwargs = {'block':kwargs.pop('block')}
-    except:
-        show_kwargs = {}
-        
     plot_bytes = io.BytesIO()
-    savefig(plot_bytes,format='pdf',**kwargs)
+    write_plot_func(plot_bytes,**kwargs)
     
     ## If input PyPDF file hasn't been read yet, do that now
     if _py_file == b_(''):
@@ -97,15 +93,16 @@ def publish(output_fname     = None,
 
     ## Name the output file
     if multiples != 'pages' or _iterations == 0:
+        print(output_fname)
         if output_fname == None:
             output_fname = os.path.splitext(_pypdf_fname)[0] + '.pdf' #DO-DO: Make sure to prevent self-deletion!!
-        elif os.path.splitext(output_fname)[1] == '':
+        elif os.path.splitext(output_fname)[-1] == '':
             output_fname += '.pdf'
         elif os.path.splitext(output_fname)[1] not in ['.pdf','.py']: #TO-DO: Shouldn't this be just '.pdf'?
             output_fname = os.path.splitext(output_fname)[0] + '.pdf'
             warnings.warn('Invalid extension, saving as {:s}'.format(output_fname))
 
-    elif multiples = 'pickle':
+    elif multiples == 'pickle':
         output_fname = _first_output_fname
         
     _py_packed_fname = output_fname[:-3] + 'py'
@@ -114,7 +111,7 @@ def publish(output_fname     = None,
         _first_output_fname = output_fname
 
 
-    if multiples == 'pickle' or _iterations == 0:
+    if multiples in ['pickle','close_pdf'] or _iterations == 0:
 
         ## Write the regular PyPDF file
         if verbose: print('\nPreparing PyPDF file:')
@@ -126,7 +123,7 @@ def publish(output_fname     = None,
                 warnings.warn('file_list will be ignored when pickling figure!')
 
             fig_fname = output_fname[:-3] + 'pkl'
-            fdata = pickle.dumps(gcf())
+            fdata = pickle.dumps(plt.gcf())
             pw.addAttachment(fig_fname,fdata)
 
             flines = [b"import pypdfplot.auto_extract as plt",
@@ -147,7 +144,7 @@ def publish(output_fname     = None,
             fdata = b'\n'.join(flines) 
             pw.addAttachment(_py_packed_fname,fdata)
             
-        elif multiples == 'pages':         
+        else:         
             for fname in file_list:
                 if verbose: print('-> Attaching '+ fname)
                 with open(fname,'rb') as fa:
@@ -162,7 +159,7 @@ def publish(output_fname     = None,
         pw.setPyFile(_py_packed_fname)
         pw.setPyPDFVersion(__version__)
 
-    else:
+    elif multiples == 'pages':
 
         ## This is a consecutive call with 'pages' enabled,
         ## so open previous file and append current plot as page:
@@ -246,7 +243,7 @@ def publish(output_fname     = None,
     ## Cleanup files if needed:
     if cleanup:
         if _write_success:
-            if verbose: print('\nCleaning up attached files:')
+            if verbose and len(file_list): print('\nCleaning up attached files:')
             for fname in file_list:
                 if verbose: print('-> Removing ' + fname)
                 try:
@@ -255,11 +252,22 @@ def publish(output_fname     = None,
                     warnings.warn('Unable to remove {:s}.'.format(fname))
         else:
             warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
+            
 
-    ## Show the plot:
+def publish(*vargs,
+            show_plot = True,
+            block     = None,
+            verbose   = True,
+            **kwargs):
+    
+    def write_plot_func(fh,**kwargs):
+        plt.savefig(fh,format='pdf',**kwargs)
+        
+    write_pypdf(write_plot_func,*vargs,verbose=verbose,**kwargs)
+
     if show_plot:
         if verbose: print('Showing plot...')
-        show(**show_kwargs)
+        plt.show(block=block)
 
 
 def fix_pypdf(fname,
@@ -297,3 +305,11 @@ def fix_pypdf(fname,
             except:
                 warnings.warn('Unable to remove ' + fname + ', file saved as ' + output_fname + 'instead')
 
+
+
+
+
+
+
+
+    

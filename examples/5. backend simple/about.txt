@@ -1,8 +1,0 @@
-This is a simple example how pypdfplot is used to convert a Python script into a portable PDF plot.
-
-There are two differences compared to a "normal" matplotlib plot script:
-1. instead of importing matplotlib.pyplot as plt, we import pypdfplot as plt
-2. instead of calling plt.show(), we call plt.publish() at the end to convert the figure into a PDF file.
-
-During the publishing process, the example.py file is removed and a example.pdf file is produced.
-You can access the original example.py simply by renaming example.pdf into example.py.
