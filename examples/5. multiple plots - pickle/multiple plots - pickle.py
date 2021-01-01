@@ -10,7 +10,7 @@ for n in range(3):
     
     plt.plot(x,y,'r-',lw = 2)
     plt.publish('plot{:d}.pdf'.format(n+1),
-                multiples = 'pickle')
+                multiple = 'pickle')
     plt.clf()
 
 """

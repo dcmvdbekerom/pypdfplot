@@ -67,11 +67,23 @@ def extract(fname = None,
     return fname
 
 
-def add_page(pw,write_plot_func,**kwargs):
+def add_page(pw,write_plot_func,**kwargs): #pickle_figure,
+
+##    if pickle_figure:
+##        fig_file = pickle.dumps(plt.gcf())
+##    else:
+##        fig_file = None
+##
+##    with open('pickled_fig.pkl','wb') as fw:
+##        print('STORED PICKLE')
+##        fw.write(fig_file)
+    
     plot_bytes = io.BytesIO()
     write_plot_func(plot_bytes,**kwargs)
     pr = PdfFileReader(plot_bytes)
     pw.appendPagesFromReader(pr)
+
+##    return fig_file
 
 
 def finalize_pypdf(pw,
@@ -81,6 +93,7 @@ def finalize_pypdf(pw,
                    pickle_figure,
                    verbose,
                    prompt_overwrite,
+##                   fig_file,
                    **kwargs):
 
     global _py_file, _pypdf_fname
@@ -105,8 +118,10 @@ def finalize_pypdf(pw,
             warnings.warn('file_list will be ignored when pickling figure!')
 
         fig_fname = output_fname[:-3] + 'pkl'
-        fdata = pickle.dumps(plt.gcf())
+        fig = plt.gcf()
+        fdata = pickle.dumps(fig)
         pw.addAttachment(fig_fname,fdata)
+##        pw.addAttachment(fig_fname,fig_file)
 
 ##        with open(fig_fname,'wb') as fw:
 ##            fw.write(fdata)
@@ -222,7 +237,7 @@ def write_pypdf(write_plot_func,
                 output_fname     = None,
                 file_list        = [],
                 cleanup          = True,
-                multiples        = ['pickle','add_page','finalize'][0],
+                multiple        = ['pickle','add_page','finalize'][0],
                 force_pickle     = False,
                 verbose          = True,
                 prompt_overwrite = False,
@@ -232,7 +247,7 @@ def write_pypdf(write_plot_func,
 
     
     ## Init PyPpfWriter:
-    if multiples == 'pickle' or _iteration == 0:
+    if multiple == 'pickle' or _iteration == 0:
         
         if verbose: print('\nPreparing PyPDF file:')
         pw = PyPdfFileWriter()
@@ -242,13 +257,15 @@ def write_pypdf(write_plot_func,
             _pypdf_fname = extract()
 
     ## Add a page with the plot to the PyPPDF file:
-    if multiples != 'finalize':
+    pickle_figure = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
+    if multiple != 'finalize':
         if verbose: print('Adding page...')
-        add_page(pw,write_plot_func,**kwargs)
+##        fig_file =
+        add_page(pw,write_plot_func,**kwargs) #pickle_figure,
 
     ## Write output:
-    pickle_figure = (force_pickle if multiples != 'pickle' or _iteration == 0 else True)
-    if multiples != 'add_page':
+    
+    if multiple != 'add_page':
         finalize_pypdf(pw,
                        output_fname,
                        file_list,
@@ -256,6 +273,7 @@ def write_pypdf(write_plot_func,
                        pickle_figure,
                        verbose,
                        prompt_overwrite,
+##                       fig_file,
                        **kwargs)
         
     _iteration += 1
@@ -274,11 +292,11 @@ def publish(*vargs,
 
     if show_plot:
         try:
-            multiples = kwargs['multiples']
+            multiple = kwargs['multiple']
         except:
-            multiples = ''
+            multiple = ''
             
-        if multiples != 'finalize':
+        if multiple != 'finalize':
             #if verbose: print('Showing plot...') #kinda obvious...
             plt.show(block=block)
 
