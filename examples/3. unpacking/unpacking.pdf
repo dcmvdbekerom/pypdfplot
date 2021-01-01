@@ -109,7 +109,7 @@ endobj
 >>
 /PageMode /UseAttachments
 /PyFile (unpacking\056py)
-/PyPDFVersion (0\0565\0561)
+/PyPDFVersion (0\0566\0560)
 /PyPDFNewlineChar (\134n)
 >>
 endobj
@@ -825,5 +825,6 @@ trailer
 startxref
 30439
 %%EOF
-0000031474
+0000031480
+PyPDF
 """

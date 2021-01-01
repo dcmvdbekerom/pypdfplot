@@ -123,7 +123,7 @@ class PyPdfFileReader(PdfFileReader):
         startxref_addr = last1k.rfind(b_('startxref'))+len(b_('startxref\n'))
         filesize_addr = last1k.rfind(b_('%%EOF'))+len(b_('%%EOF\n'))
 
-        old_size = int(last1k[filesize_addr:].split()[0])
+        old_size = int(last1k[filesize_addr:].split()[0]) #TO-DO: split() looks unnecessary here
         offset = len(read_buf) - old_size + 1 
         startxref = int(last1k[startxref_addr:].split()[0]) + offset
 
@@ -429,7 +429,7 @@ class PyPdfFileWriter(PdfFileWriter):
         trailer.writeToStream(self._stream, None)
 
         eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
-        eof += '\n{:000010d}\n"""\n'
+        eof += '\n{:000010d}\nPyPDF\n"""\n'
         eof = b_(eof.format(self._stream.tell()+len(eof)))
         self._stream.write(eof)
 
