@@ -1,4 +1,4 @@
-#%PDF-1.4 47 0 obj << /Type /EmbeddedFile /Length        470 >> stream
+#%PDF-1.4 46 0 obj << /Type /EmbeddedFile /Length        470 >> stream
 import pypdfplot.backend.auto_extract
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -27,8 +27,8 @@ endobj
 1 0 obj
 <<
 /Type /Pages
-/Count 0
-/Kids [ ]
+/Count 1
+/Kids [ 3 0 R ]
 >>
 endobj
 2 0 obj
@@ -38,38 +38,53 @@ endobj
 endobj
 3 0 obj
 <<
-/Type /Filespec
-/F (data\056xlsx)
-/EF <<
-/F 45 0 R
+/Annots [ ]
+/Contents 8 0 R
+/Group <<
+/CS /DeviceRGB
+/S /Transparency
+/Type /Group
 >>
+/MediaBox [ 0 0 460.8 345.6 ]
+/Parent 1 0 R
+/Resources 9 0 R
+/Type /Page
 >>
 endobj
 4 0 obj
 <<
 /Type /Filespec
-/F (title\056txt)
+/F (data\056xlsx)
 /EF <<
-/F 46 0 R
+/F 44 0 R
 >>
 >>
 endobj
 5 0 obj
 <<
 /Type /Filespec
-/F (unpacking\056py)
+/F (title\056txt)
 /EF <<
-/F 47 0 R
+/F 45 0 R
 >>
 >>
 endobj
 6 0 obj
 <<
-/Pages 7 0 R
+/Type /Filespec
+/F (unpacking\056py)
+/EF <<
+/F 46 0 R
+>>
+>>
+endobj
+7 0 obj
+<<
 /Type /Catalog
+/Pages 1 0 R
 /Names <<
 /EmbeddedFiles <<
-/Names [ (data\056xlsx) 3 0 R (title\056txt) 4 0 R (unpacking\056py) 5 0 R ]
+/Names [ (data\056xlsx) 4 0 R (title\056txt) 5 0 R (unpacking\056py) 6 0 R ]
 >>
 >>
 /PageMode /UseAttachments
@@ -77,29 +92,7 @@ endobj
 /PyPDFVersion (0\0565\0561)
 >>
 endobj
-7 0 obj
-<<
-/Count 1
-/Kids [ 8 0 R ]
-/Type /Pages
->>
-endobj
 8 0 obj
-<<
-/Annots [ ]
-/Contents 9 0 R
-/Group <<
-/CS /DeviceRGB
-/S /Transparency
-/Type /Group
->>
-/MediaBox [ 0 0 460.8 345.6 ]
-/Parent 7 0 R
-/Resources 10 0 R
-/Type /Page
->>
-endobj
-9 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 1519
@@ -126,17 +119,17 @@ ef7cfbda11ed4ee95a0df71bdebe516669f104eee7b98f434861e8693082b01fd1f50d4c94f8248
 3a7321962e3ddd5cdedf5d2c971bf8fc6b7bb97a7c736770756718c2225d5f19e7ea2f990ae39a>
 endstream
 endobj
-10 0 obj
+9 0 obj
 <<
-/ExtGState 11 0 R
-/Font 12 0 R
-/Pattern 41 0 R
+/ExtGState 10 0 R
+/Font 11 0 R
+/Pattern 40 0 R
 /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
-/Shading 42 0 R
-/XObject 43 0 R
+/Shading 41 0 R
+/XObject 42 0 R
 >>
 endobj
-11 0 obj
+10 0 obj
 <<
 /A1 <<
 /CA 0
@@ -150,15 +143,15 @@ endobj
 >>
 >>
 endobj
-12 0 obj
+11 0 obj
 <<
-/F1 13 0 R
+/F1 12 0 R
 >>
 endobj
-13 0 obj
+12 0 obj
 <<
 /BaseFont /DejaVuSans
-/CharProcs 14 0 R
+/CharProcs 13 0 R
 /Encoding <<
 /Differences [ 32 /space 48 /zero /one /two /three /four /five /six 56 /eight
 70 /F 78 /N 97 /a /b /c 101 /e 105 /i 109 /m /n /o 114 /r /s 117 /u 120 /x /y ]
@@ -166,44 +159,44 @@ endobj
 >>
 /FirstChar 0
 /FontBBox [ -1021 -463 1794 1233 ]
-/FontDescriptor 39 0 R
+/FontDescriptor 38 0 R
 /FontMatrix [ 0.001 0 0 0.001 0 0 ]
 /LastChar 255
 /Name /DejaVuSans
 /Subtype /Type3
 /Type /Font
-/Widths 40 0 R
+/Widths 39 0 R
+>>
+endobj
+13 0 obj
+<<
+/F 14 0 R
+/N 15 0 R
+/a 16 0 R
+/b 17 0 R
+/c 18 0 R
+/e 19 0 R
+/eight 20 0 R
+/five 21 0 R
+/four 22 0 R
+/i 23 0 R
+/m 24 0 R
+/n 25 0 R
+/o 26 0 R
+/one 27 0 R
+/r 28 0 R
+/s 29 0 R
+/six 30 0 R
+/space 31 0 R
+/three 32 0 R
+/two 33 0 R
+/u 34 0 R
+/x 35 0 R
+/y 36 0 R
+/zero 37 0 R
 >>
 endobj
 14 0 obj
-<<
-/F 15 0 R
-/N 16 0 R
-/a 17 0 R
-/b 18 0 R
-/c 19 0 R
-/e 20 0 R
-/eight 21 0 R
-/five 22 0 R
-/four 23 0 R
-/i 24 0 R
-/m 25 0 R
-/n 26 0 R
-/o 27 0 R
-/one 28 0 R
-/r 29 0 R
-/s 30 0 R
-/six 31 0 R
-/space 32 0 R
-/three 33 0 R
-/two 34 0 R
-/u 35 0 R
-/x 36 0 R
-/y 37 0 R
-/zero 38 0 R
->>
-endobj
-15 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 150
@@ -213,7 +206,7 @@ stream
 b649689b1219065626186c43236b180ca225806401a6c4d0eccf41cae340003711893>
 endstream
 endobj
-16 0 obj
+15 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 152
@@ -223,7 +216,7 @@ stream
 7f4e7a44df3425190aa30d074667d7168e40e560e175e684aaf8ae8cf41ef0799ea179a>
 endstream
 endobj
-17 0 obj
+16 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 616
@@ -239,7 +232,7 @@ c3309d5bf4a89c8b864d939ae72a4b19b70b9ec3b589e7967dc40f3734a807758d4bc20dddd5685
 92cc894cc0b3246a74d9e3878c87e8d9af47995e778fd016cf3733b>
 endstream
 endobj
-18 0 obj
+17 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 481
@@ -254,7 +247,7 @@ eea95b64e3b8d92a02314e16f9423e1e9154a764d6c1aabd43aa0a108cbb62e883a9924a2766171
 >
 endstream
 endobj
-19 0 obj
+18 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 466
@@ -268,7 +261,7 @@ e52ec5f441aab3859e84f2a27c0eb2f9a821125da29c81270607a3403bb0e7b69f895785a075759
 fb68da11a291d4fff3634354922e413259cd9d2b85bf8fe9e7bfdfc03a654539f>
 endstream
 endobj
-20 0 obj
+19 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 497
@@ -283,7 +276,7 @@ e27a9f35c4e7deeb31dd1e4a2a555fb9cfdde9196f222b5dba1d5e9572551998dd5a790b83cff8c
 9ff1fe038ea0593e>
 endstream
 endobj
-21 0 obj
+20 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 794
@@ -301,7 +294,7 @@ f3de9a35132b551190f4d677cf1dd3252f3d115e8a4d2c8ddca4367cf42276024e64998e77023e1
 caccdb11c9e0f267b6fb48f94cccca88415d4767aa8b6cf631dd4779efbfafc012e00a119>
 endstream
 endobj
-22 0 obj
+21 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 501
@@ -316,7 +309,7 @@ ce1075b0fbee49155437f1e3f31ec332c3dc9e4d43fe6b9c95414be15aa9b98501762e1fd6804bc
 fbc9cff3fd0b15285c2a>
 endstream
 endobj
-23 0 obj
+22 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 183
@@ -327,7 +320,7 @@ eb832156b5029989497c055305c0bdaeea2cafe32494c9d86d37bb70383b2f17183d249fbf6717a
 00abfd7a06dd0fd21c2258>
 endstream
 endobj
-24 0 obj
+23 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 138
@@ -337,7 +330,7 @@ stream
 4259c82885b42344194825810a56626661049380322970600c9b415e5>
 endstream
 endobj
-25 0 obj
+24 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 517
@@ -352,7 +345,7 @@ f3ac39de7da0c578e77f13b4c6bbbe32f31c98ab98045ee14d4f33d17adeb0c1defc9996372d37d
 43e75cb0cbdd41a6cffc1febf70f508a6688>
 endstream
 endobj
-26 0 obj
+25 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 327
@@ -365,7 +358,7 @@ stream
 733a84>
 endstream
 endobj
-27 0 obj
+26 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 434
@@ -379,7 +372,7 @@ f98a6b71a63a0a4470466af28a7461c5b2c843a4d504353d036bb500aede7af9376847741980ec1
 389e334a51c43ffd6b8c7eb03878a52f4>
 endstream
 endobj
-28 0 obj
+27 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 163
@@ -390,7 +383,7 @@ stream
 f4>
 endstream
 endobj
-29 0 obj
+28 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 318
@@ -402,7 +395,7 @@ stream
 0317daf6281a39c767f229c18e03e194799292371626e0aecf7190066be57b8c6e305dd013779>
 endstream
 endobj
-30 0 obj
+29 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 673
@@ -419,7 +412,7 @@ eac95cb3b9bc9d49325bf7458acd14ceebc299f5779832abcd3b799613a54e45f8197bb6040d9de
 9ad2d4cbf0df97f7197fff0133e27c01>
 endstream
 endobj
-31 0 obj
+30 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 643
@@ -436,7 +429,7 @@ a4b8b4d48943d49fc2be5f5a49534747e262b73f97b72a9146aa3c908152058b9d807a42b291e24
 a3>
 endstream
 endobj
-32 0 obj
+31 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 35
@@ -445,7 +438,7 @@ stream
 789c3336b4503080c314432e001a9402ec>
 endstream
 endobj
-33 0 obj
+32 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 685
@@ -462,7 +455,7 @@ c3ca6013fe21172ae58b71c6315480dba71da15ef43f379c81a206698968a0a5d5689167e41f1a0
 d2c59ae47d402a137a60faffd7f879fefc031cb68054>
 endstream
 endobj
-34 0 obj
+33 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 503
@@ -477,7 +470,7 @@ e9cb239d6155236a0cfb5c4bdbd77313ce1a343b16ab3c39a547579ccbc9c50b2b07fdbccdc0455
 f83de3ebf9fc03a8a55b16>
 endstream
 endobj
-35 0 obj
+34 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 347
@@ -490,7 +483,7 @@ stream
 e2563def8b5eedf901c1f63bfb>
 endstream
 endobj
-36 0 obj
+35 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 177
@@ -501,7 +494,7 @@ stream
 b749cf07a5de1b98>
 endstream
 endobj
-37 0 obj
+36 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 280
@@ -513,7 +506,7 @@ a0e9b820dc78ba54ba8d6f0298a894a0ec899600ea5a4d21d67917a623818dc1eb41bcee2b1e9fa
 4b2926b38a6dfbde7a9ebffd355de5f5fdf2e8c>
 endstream
 endobj
-38 0 obj
+37 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 426
@@ -527,7 +520,7 @@ stream
 28ea59f6fbcc7f70f400053b4>
 endstream
 endobj
-39 0 obj
+38 0 obj
 <<
 /Ascent 929
 /CapHeight 0
@@ -542,7 +535,7 @@ endobj
 /XHeight 0
 >>
 endobj
-40 0 obj
+39 0 obj
 [ 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600
 600 600 600 600 600 600 600 600 600 600 600 600 600 318 401 460 838 636 950
 780 275 390 390 500 838 318 361 318 337 636 636 636 636 636 636 636 636 636
@@ -558,20 +551,20 @@ endobj
 613 613 613 613 982 550 615 615 615 615 278 278 278 278 612 634 612 612 612
 612 612 838 612 634 634 634 634 592 635 592 ]
 endobj
+40 0 obj
+<<
+>>
+endobj
 41 0 obj
 <<
 >>
 endobj
 42 0 obj
 <<
+/M0 43 0 R
 >>
 endobj
 43 0 obj
-<<
-/M0 44 0 R
->>
-endobj
-44 0 obj
 <<
 /BBox [ -3.5 -3.5 3.5 3.5 ]
 /Filter [ /ASCIIHexDecode /FlateDecode ]
@@ -586,7 +579,7 @@ b114a6d4d6e878a39be936de933ffab05921463f1c0eaf847b1643265c29310687df0b2fdbc3ff1
 19e5ed4c01fa28d7e635a43fd>
 endstream
 endobj
-45 0 obj
+44 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 11950
@@ -744,7 +737,7 @@ bc5e9b17eabe6dd9ee0760bf5170c086f3554b74d6fd7ae7f81eaee7faf646fcff2f712e1579c93
 368b9f9b9e4343fdffd0f09395c6c>
 endstream
 endobj
-46 0 obj
+45 0 obj
 <<
 /Filter [ /ASCIIHexDecode /FlateDecode ]
 /Length 73
@@ -754,63 +747,62 @@ stream
 endstream
 endobj
 xref
-0 48
+0 47
 0000000000 65535 f 
 0000000558 00000 n 
-0000000611 00000 n 
-0000000650 00000 n 
-0000000725 00000 n 
-0000000800 00000 n 
-0000000878 00000 n 
-0000001118 00000 n 
-0000001177 00000 n 
-0000001358 00000 n 
-0000002970 00000 n 
-0000003119 00000 n 
-0000003219 00000 n 
-0000003252 00000 n 
-0000003686 00000 n 
-0000003975 00000 n 
-0000004218 00000 n 
-0000004463 00000 n 
-0000005172 00000 n 
-0000005746 00000 n 
-0000006305 00000 n 
-0000006895 00000 n 
-0000007782 00000 n 
-0000008376 00000 n 
-0000008652 00000 n 
-0000008883 00000 n 
-0000009493 00000 n 
-0000009913 00000 n 
-0000010440 00000 n 
-0000010696 00000 n 
-0000011107 00000 n 
-0000011873 00000 n 
-0000012609 00000 n 
-0000012736 00000 n 
-0000013514 00000 n 
-0000014110 00000 n 
-0000014550 00000 n 
-0000014820 00000 n 
-0000015193 00000 n 
-0000015712 00000 n 
-0000015912 00000 n 
-0000016965 00000 n 
+0000000617 00000 n 
+0000000656 00000 n 
+0000000836 00000 n 
+0000000911 00000 n 
+0000000986 00000 n 
+0000001064 00000 n 
+0000001304 00000 n 
+0000002916 00000 n 
+0000003064 00000 n 
+0000003164 00000 n 
+0000003197 00000 n 
+0000003631 00000 n 
+0000003920 00000 n 
+0000004163 00000 n 
+0000004408 00000 n 
+0000005117 00000 n 
+0000005691 00000 n 
+0000006250 00000 n 
+0000006840 00000 n 
+0000007727 00000 n 
+0000008321 00000 n 
+0000008597 00000 n 
+0000008828 00000 n 
+0000009438 00000 n 
+0000009858 00000 n 
+0000010385 00000 n 
+0000010641 00000 n 
+0000011052 00000 n 
+0000011818 00000 n 
+0000012554 00000 n 
+0000012681 00000 n 
+0000013459 00000 n 
+0000014055 00000 n 
+0000014495 00000 n 
+0000014765 00000 n 
+0000015138 00000 n 
+0000015657 00000 n 
+0000015857 00000 n 
+0000016910 00000 n 
+0000016932 00000 n 
+0000016954 00000 n 
 0000016987 00000 n 
-0000017009 00000 n 
-0000017042 00000 n 
-0000017459 00000 n 
-0000029504 00000 n 
+0000017404 00000 n 
+0000029449 00000 n 
 0000000009 00000 n 
 trailer
 <<
-/Size 48
-/Root 6 0 R
+/Size 47
+/Root 7 0 R
 /Info 2 0 R
 >>
 startxref
-29669
+29614
 %%EOF
-0000030724
+0000030649
 """

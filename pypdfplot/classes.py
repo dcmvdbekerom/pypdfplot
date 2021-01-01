@@ -212,14 +212,15 @@ class PyPdfFileReader(PdfFileReader):
 
 
 class PyPdfFileWriter(PdfFileWriter):
-    def __init__(self, in_stream, out_stream, after_page_append=None):
+    def __init__(self, after_page_append=None): # in_stream,  out_stream, 
 
         if legacy:
             super(PyPdfFileWriter,self).__init__()
-            self._stream = out_stream
+            self._stream = io.BytesIO()
             self._rootObject = self._root_object
         else:
-            super(PyPdfFileWriter,self).__init__(out_stream)
+            stream = io.BytesIO()
+            super(PyPdfFileWriter,self).__init__(stream)
 
         '''
         Create a copy (clone) of a document from a PDF file reader
@@ -241,9 +242,9 @@ class PyPdfFileWriter(PdfFileWriter):
                 if hasattr(obj, "indirectRef") and obj.indirectRef != None:
                     print("\t\tObject's reference is %r %r, at PDF %r" % (obj.indirectRef.idnum, obj.indirectRef.generation, obj.indirectRef.pdf))
 
-        reader = PdfFileReader(in_stream)   
-        self.cloneReaderDocumentRoot(reader)
-        
+##        reader = PdfFileReader(in_stream)   
+##        self.appendPagesFromReader(reader)
+                
     def addAttachment(self,fname,fdata):
         ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
         try:
@@ -268,7 +269,7 @@ class PyPdfFileWriter(PdfFileWriter):
         #TO-DO: use doc info instead of root object
         self._rootObject[NameObject('/PyPDFVersion')] = createStringObject(version)
 
-    def write(self):
+    def write(self,fstream):
         """
         Writes the collection of pages added to this object out as a PDF file.
 
@@ -427,6 +428,18 @@ class PyPdfFileWriter(PdfFileWriter):
         eof += '\n{:000010d}\n"""\n'
         eof = b_(eof.format(self._stream.tell()+len(eof)))
         self._stream.write(eof)
+
+            
+        self._stream.seek(0)
+
+        ## Write bytes object to fstream:
+        col_width = 79
+        for line in self._stream:
+            while len(line) > col_width + 1:
+                i = line[:col_width].rfind(b_(' '))
+                fstream.write(line[:i]+b_('\n'))
+                line = line[i+1:]
+            fstream.write(line)
 
 
 
