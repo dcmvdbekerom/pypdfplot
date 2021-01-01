@@ -1,3 +1,23 @@
+
+"""
+In most cases, a plot depends on some external files. These files can be
+embedded in the pypdf-file just like the generating script. To do this,
+set the `file_list` keyword to a list with the filenames that need to be
+embedded.
+
+The `cleanup` keyword is a toggle to determine if the local files should be
+removed once packed in the pypdf-file. Setting it to `True` will remove all
+local copies of the files that are embedded, which is usually desirable.
+`cleanup` is `True` by default.
+
+When running the script later, the script will expect that these embedded
+files are present locally. This can be guaranteed by extracting the files
+the moment the backend is loaded, which should always be before `matplotlib`
+is loaded. To do this, instead of importing `pypdfplot.backend`, import
+`pypdfplot.backend.auto_extract`.
+
+"""
+
 import pypdfplot.backend.auto_extract
 import matplotlib.pyplot as plt
 import pandas as pd

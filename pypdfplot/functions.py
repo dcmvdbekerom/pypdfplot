@@ -7,7 +7,6 @@ from os.path import normcase,realpath
 import subprocess
 import io
 import pickle
-from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 _packlist = []
 _py_file = b_('')
