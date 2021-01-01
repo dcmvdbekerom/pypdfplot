@@ -269,6 +269,10 @@ class PyPdfFileWriter(PdfFileWriter):
         #TO-DO: use doc info instead of root object
         self._rootObject[NameObject('/PyPDFVersion')] = createStringObject(version)
 
+    def setNewlineChar(self,newline_char):
+        #TO-DO: use doc info instead of root object
+        self._rootObject[NameObject('/PyPDFNewlineChar')] = createStringObject(newline_char)
+
     def write(self,fstream):
         """
         Writes the collection of pages added to this object out as a PDF file.

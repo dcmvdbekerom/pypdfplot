@@ -1,14 +1,21 @@
-#%PDF-1.4 46 0 obj << /Type /EmbeddedFile /Length        780 >> stream
+#%PDF-1.4 46 0 obj << /Type /EmbeddedFile /Length       1299 >> stream
 
 """
-A typical way to edit a pypdf-file with embedded files would be as follows:
+In most cases, a plot depends on some external files. These files can be
+embedded in the pypdf-file just like the generating script. To do this,
+set the `file_list` keyword to a list with the filenames that need to be
+embedded.
 
-(1) rename .pdf to .py, 
-(2) run the script with `cleanup` = `False`, 
-(3) edit the local files, e.g. changing some data in the excel file, 
-(4) run the script again with `cleanup` = `True`. 
+The `cleanup` keyword is a toggle to determine if the local files should be
+removed once packed in the pypdf-file. Setting it to `True` will remove all
+local copies of the files that are embedded, which is usually desirable.
+`cleanup` is `True` by default.
 
- ...You are now at step (2)!
+When running the script later, the script will expect that these embedded
+files are present locally. This can be guaranteed by extracting the files
+the moment the backend is loaded, which should always be before `matplotlib`
+is loaded. To do this, instead of importing `pypdfplot.backend`, import
+`pypdfplot.backend.auto_extract`.
 
 """
 
@@ -103,6 +110,7 @@ endobj
 /PageMode /UseAttachments
 /PyFile (unpacking\056py)
 /PyPDFVersion (0\0565\0561)
+/PyPDFNewlineChar (\134n)
 >>
 endobj
 8 0 obj
@@ -762,51 +770,51 @@ endobj
 xref
 0 47
 0000000000 65535 f 
-0000000868 00000 n 
-0000000927 00000 n 
-0000000966 00000 n 
-0000001146 00000 n 
-0000001221 00000 n 
-0000001296 00000 n 
-0000001374 00000 n 
-0000001614 00000 n 
-0000003204 00000 n 
-0000003352 00000 n 
-0000003452 00000 n 
-0000003485 00000 n 
-0000003919 00000 n 
-0000004208 00000 n 
-0000004451 00000 n 
-0000004696 00000 n 
-0000005405 00000 n 
-0000005979 00000 n 
-0000006538 00000 n 
-0000007128 00000 n 
-0000008015 00000 n 
-0000008609 00000 n 
-0000008885 00000 n 
-0000009116 00000 n 
-0000009726 00000 n 
-0000010146 00000 n 
-0000010673 00000 n 
-0000010929 00000 n 
-0000011340 00000 n 
-0000012106 00000 n 
-0000012842 00000 n 
-0000012969 00000 n 
-0000013747 00000 n 
-0000014343 00000 n 
-0000014783 00000 n 
-0000015053 00000 n 
-0000015426 00000 n 
-0000015945 00000 n 
-0000016145 00000 n 
-0000017198 00000 n 
-0000017220 00000 n 
-0000017242 00000 n 
-0000017275 00000 n 
-0000017684 00000 n 
-0000029729 00000 n 
+0000001387 00000 n 
+0000001446 00000 n 
+0000001485 00000 n 
+0000001665 00000 n 
+0000001740 00000 n 
+0000001815 00000 n 
+0000001893 00000 n 
+0000002159 00000 n 
+0000003749 00000 n 
+0000003897 00000 n 
+0000003997 00000 n 
+0000004030 00000 n 
+0000004464 00000 n 
+0000004753 00000 n 
+0000004996 00000 n 
+0000005241 00000 n 
+0000005950 00000 n 
+0000006524 00000 n 
+0000007083 00000 n 
+0000007673 00000 n 
+0000008560 00000 n 
+0000009154 00000 n 
+0000009430 00000 n 
+0000009661 00000 n 
+0000010271 00000 n 
+0000010691 00000 n 
+0000011218 00000 n 
+0000011474 00000 n 
+0000011885 00000 n 
+0000012651 00000 n 
+0000013387 00000 n 
+0000013514 00000 n 
+0000014292 00000 n 
+0000014888 00000 n 
+0000015328 00000 n 
+0000015598 00000 n 
+0000015971 00000 n 
+0000016490 00000 n 
+0000016690 00000 n 
+0000017743 00000 n 
+0000017765 00000 n 
+0000017787 00000 n 
+0000017820 00000 n 
+0000018229 00000 n 
+0000030274 00000 n 
 0000000009 00000 n 
 trailer
 <<
@@ -815,7 +823,7 @@ trailer
 /Info 2 0 R
 >>
 startxref
-29894
+30439
 %%EOF
-0000030929
+0000031474
 """

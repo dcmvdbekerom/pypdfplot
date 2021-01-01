@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
-from .classes import PyPdfFileReader,PyPdfFileWriter,PdfFileReader,b_,warnings
-from ._version import __version__
+from pypdfplot.classes import (PyPdfFileReader, PyPdfFileWriter,
+                               PdfFileReader, b_, warnings)
+from pypdfplot._version import __version__
 import sys
 import os
-from os.path import normcase,realpath
+from os.path import normcase, realpath
 import subprocess
 import io
 import pickle
@@ -144,6 +145,7 @@ def finalize_pypdf(pw,
     
     pw.setPyFile(_py_packed_fname)
     pw.setPyPDFVersion(__version__)
+    pw.setNewlineChar('\\n')
 
     ## If the output file already exists, try to remove it:
     if os.path.isfile(output_fname):
@@ -222,7 +224,7 @@ def write_pypdf(write_plot_func,
                 output_fname     = None,
                 file_list        = [],
                 cleanup          = True,
-                multiple        = ['pickle','add_page','finalize'][0],
+                multiple         = ['pickle','add_page','finalize'][0],
                 force_pickle     = False,
                 verbose          = True,
                 prompt_overwrite = False,
@@ -257,14 +259,17 @@ def write_pypdf(write_plot_func,
                        prompt_overwrite,
                        **kwargs)
     _iteration += 1
-                       
 
+                       
 def publish(*vargs,
             show_plot = True,
             block     = None,
             verbose   = True,
             **kwargs):
     
+    warnings.warn('Use of pypdfplot.publish() is deprecated since v0.6!!!')
+    warnings.warn('Please use plt.savefig() instead...!')
+
     def write_plot_func(fh,**kwargs):
         plt.savefig(fh,format='pdf',**kwargs)
         
@@ -316,12 +321,3 @@ def fix_pypdf(fname,
                 if verbose: print('-> Renaming ' + output_fname + ' to ' + fname)
             except:
                 warnings.warn('Unable to remove ' + fname + ', file saved as ' + output_fname + 'instead')
-
-
-
-
-
-
-
-
-    
