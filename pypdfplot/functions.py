@@ -7,6 +7,7 @@ from os.path import normcase,realpath
 import subprocess
 import io
 import pickle
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 _packlist = []
 _py_file = b_('')
@@ -67,23 +68,11 @@ def extract(fname = None,
     return fname
 
 
-def add_page(pw,write_plot_func,**kwargs): #pickle_figure,
-
-##    if pickle_figure:
-##        fig_file = pickle.dumps(plt.gcf())
-##    else:
-##        fig_file = None
-##
-##    with open('pickled_fig.pkl','wb') as fw:
-##        print('STORED PICKLE')
-##        fw.write(fig_file)
-    
+def add_page(pw,write_plot_func,**kwargs):
     plot_bytes = io.BytesIO()
     write_plot_func(plot_bytes,**kwargs)
     pr = PdfFileReader(plot_bytes)
     pw.appendPagesFromReader(pr)
-
-##    return fig_file
 
 
 def finalize_pypdf(pw,
@@ -93,7 +82,6 @@ def finalize_pypdf(pw,
                    pickle_figure,
                    verbose,
                    prompt_overwrite,
-##                   fig_file,
                    **kwargs):
 
     global _py_file, _pypdf_fname
@@ -119,14 +107,12 @@ def finalize_pypdf(pw,
 
         fig_fname = output_fname[:-3] + 'pkl'
         fig = plt.gcf()
+        fig.canvas = plt.figure().canvas
         fdata = pickle.dumps(fig)
         pw.addAttachment(fig_fname,fdata)
-##        pw.addAttachment(fig_fname,fig_file)
 
-##        with open(fig_fname,'wb') as fw:
-##            fw.write(fdata)
-
-        flines = [b"import pypdfplot.auto_extract as plt",
+        flines = [b"import pypdfplot.backend.auto_extract",
+                  b"import matplotlib.pyplot as plt",
                   b"from pickle import load",
                   b"",
                   b"with open('" + fig_fname.encode() + b"','rb') as f:",
@@ -136,7 +122,7 @@ def finalize_pypdf(pw,
                   b"",
                   b"## Plot customizations go here...",
                   b"",
-                  b"plt.publish('" + output_fname.encode() + b"',",
+                  b"plt.savefig('" + output_fname.encode() + b"',",
                   b"            file_list = ['" + fig_fname.encode() + b"'])",
                   b"",
                   b'"""']
@@ -245,7 +231,6 @@ def write_pypdf(write_plot_func,
 
     global pw, _py_file, _pypdf_fname, _iteration
 
-    
     ## Init PyPpfWriter:
     if multiple == 'pickle' or _iteration == 0:
         
@@ -260,11 +245,9 @@ def write_pypdf(write_plot_func,
     pickle_figure = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
     if multiple != 'finalize':
         if verbose: print('Adding page...')
-##        fig_file =
-        add_page(pw,write_plot_func,**kwargs) #pickle_figure,
+        add_page(pw,write_plot_func,**kwargs)
 
     ## Write output:
-    
     if multiple != 'add_page':
         finalize_pypdf(pw,
                        output_fname,
@@ -273,9 +256,7 @@ def write_pypdf(write_plot_func,
                        pickle_figure,
                        verbose,
                        prompt_overwrite,
-##                       fig_file,
                        **kwargs)
-        
     _iteration += 1
                        
 
