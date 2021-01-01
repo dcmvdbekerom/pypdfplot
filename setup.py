@@ -52,23 +52,27 @@ except:
         doc = f.read()
 
 setup(name='pypdfplot',
-      version = __version__,
-      description="Saves plots as PDF with embedded generating script",
-      author='Dirk van den Bekerom',
-      author_email='dcmvdbekerom@gmail.com',
-      license='GPLv3',
-      packages=['pypdfplot'],
-      install_requires=['matplotlib','PyPDF4','numpy'],
-      project_urls={
+    version = __version__,
+    description="Saves plots as PDF with embedded generating script",
+    author='Dirk van den Bekerom',
+    author_email='dcmvdbekerom@gmail.com',
+    license='GPLv3',
+    packages=['pypdfplot'],
+    install_requires=['matplotlib','PyPDF4','numpy'],
+    project_urls={
         'Documentation': 'https://pypdfplot.readthedocs.io/',
         'GitHub': 'https://github.com/dcmvdbekerom/pypdfplot'}, 
-      zip_safe=False,
-      classifiers = [
-	      "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-          "Development Status :: 4 - Beta",
-          "Intended Audience :: Science/Research",
-          "Programming Language :: Python",
-          "Topic :: Multimedia :: Graphics",
-          "Topic :: Scientific/Engineering :: Visualization"],
-      long_description=doc,
-      long_description_content_type='text/x-rst')
+    zip_safe=False,
+    classifiers = [
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+         "Development Status :: 4 - Beta",
+         "Intended Audience :: Science/Research",
+         "Programming Language :: Python",
+         "Topic :: Multimedia :: Graphics",
+         "Topic :: Scientific/Engineering :: Visualization"],
+    long_description=doc,
+    long_description_content_type='text/x-rst',
+    entry_points = {
+        'console_scripts': ['fix_pypdf=pypdfplot.cli:main'],
+    }
+      )

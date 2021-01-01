@@ -1,7 +1,6 @@
 import argparse
 from pypdfplot.functions import fix_pypdf
 
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument('fname',
@@ -16,14 +15,22 @@ parser.add_argument(
                             'if omitted the conversion will be done in place'),
                     )
 
-parser.add_argument('-v',
-                    '--verbose',
-                    action ='store_const',
-                    const = True, 
-                    default = False,
-                    dest ='verbose',
-                    help = 'toggles verbosity')
+
+##parser.add_argument('-v',
+##                    '--verbose',
+##                    action ='store_const',
+##                    const = True, 
+##                    default = False,
+##                    dest ='verbose',
+##                    help = 'toggles verbosity')
+
+def main():
+    args = parser.parse_args()
+    fix_pypdf(args.fname,
+              args.output,
+              #args.verbose, #Might as well have it always on
+              )
+
 
 if __name__ == '__main__':
-    args = parser.parse_args()
-    fix_pypdf(args.fname,args.output,args.verbose)
+    main()

@@ -10,6 +10,11 @@ The pypdf-file can be fixed by calling `fix_pypdf()`, with the
 input file and ouput file as argument. The output filename can be omitted, in
 which case the operation is performed in-place.
 
+You can also use the command-line tool by entering the following commands in
+the prompt:
+
+    `fix_pypdf fname_in [-o fname_out]` 
+
 Once fixed successfully, you should retrieve the unpacking.pdf from example 3.
 
 """

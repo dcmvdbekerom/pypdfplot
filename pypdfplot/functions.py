@@ -313,6 +313,19 @@ def fix_pypdf(input_fname,
     pw = PyPdfFileWriter()
     temp_output = io.BytesIO()
     with open(input_fname,'rb') as fr:
+        try:
+            fr.seek(-1024,2)
+            last1k = fr.read()
+            eof_addr = last1k.rfind(b'%%EOF')
+            pypdf_str = last1k[eof_addr:].split()[2]
+
+            if pypdf_str == b'PyPDF':
+                warnings.warn(input_fname + ' is already compliant PyPDF-file, skipping!')
+                return
+            
+        except(IndexError):
+            pass
+        
         pr = PdfFileReader(fr)     
         pw.cloneReaderDocumentRoot(pr)
         pw.write(temp_output)
