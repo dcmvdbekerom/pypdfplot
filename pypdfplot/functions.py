@@ -30,7 +30,6 @@ def _available_filename(fname):
 
 
 def extract(fname = None,
-            save_pypdf = False, #TO-DO: This will replace fix_pypdf in the future
             verbose = True,
             ):
     
@@ -73,6 +72,41 @@ def add_page(pw,write_plot_func,**kwargs):
     write_plot_func(plot_bytes,**kwargs)
     pr = PdfFileReader(plot_bytes)
     pw.appendPagesFromReader(pr)
+
+
+def remove_file(fname,verbose = True):
+
+    success = False
+    
+    if os.path.isfile(fname):
+        if verbose: print('-> Removing ' + fname + '...', end = '')
+        if normcase(realpath(fname)) != normcase(realpath(__file__)): 
+            try:
+                os.remove(fname)
+                success = True
+            except:
+                try:
+                    ## Removing files via command line sometimes helps if os.remove doesn't work:
+                    del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(fname)
+                    subprocess.Popen(del_script)
+                    success = True
+                    
+                except:
+                    warnings.warn('Unable to remove ' + fname + '...!')
+                    success = False
+        else:
+            warnings.warn('Attempt to delete __init__ file was prevented')
+            success = False
+
+        if verbose:
+            if success:
+                print(' Done!')
+            else:
+                print(' FAILED!')
+    else:
+        success = True
+
+    return success
 
 
 def finalize_pypdf(pw,
@@ -178,29 +212,14 @@ def finalize_pypdf(pw,
 
     ## Remove the generating python file or create a new purely Python one:
     if cleanup or not _pure_py:
-        if os.path.isfile(_pypdf_fname):
-            if verbose: print('-> Removing ' + _pypdf_fname)
-            if normcase(realpath(_pypdf_fname)) != normcase(realpath(__file__)): 
-                try:
-                    os.remove(_pypdf_fname)
-                    warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
-                except:
-                    try:
-                        ## Removing files via command line sometimes helps if os.remove doesn't work:
-                        del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(_pypdf_fname)
-                        subprocess.Popen(del_script)
-                        warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
-                    except:
-                        warnings.warn('Unable to remove ' + _pypdf_fname)
-            else:
-                warnings.warn('Attempt to delete __init__ file was prevented')
+        if remove_file(_pypdf_fname, verbose=verbose):
+            warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
 
     ## Write the Python file if needed, and remove it if not:
     if cleanup:
         # Remove the local copy of the packed Python file if it happens to be present
         # TO-DO: This might be overzealous, consider removing...
-        if os.path.isfile(_py_packed_fname): 
-            os.remove(_py_packed_fname)
+        remove_file(_py_packed_fname, verbose=verbose)
     else:
         if not _pure_py:
             with open(_py_packed_fname,'wb') as fw:
@@ -211,11 +230,7 @@ def finalize_pypdf(pw,
         if write_success:
             if verbose and len(file_list): print('\nCleaning up attached files:')
             for fname in file_list:
-                if verbose: print('-> Removing ' + fname)
-                try:
-                    os.remove(fname)
-                except:
-                    warnings.warn('Unable to remove {:s}.'.format(fname))
+                remove_file(fname, verbose=verbose)
         else:
             warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
             
@@ -286,38 +301,32 @@ def publish(*vargs,
             plt.show(block=block)
 
 
-def fix_pypdf(fname,
-              output_fname     = None,
-              in_place         = True,
-              verbose          = True):
-    
-    ## Reads severed file and fixes xref tables and lengths
-    base,ext = os.path.splitext(fname)
+def fix_pypdf(input_fname,
+              output_fname = None,
+              verbose = True):
+
+    if verbose: print('Fixing ' + input_fname)
+
     if output_fname == None:
-        output_fname = _available_filename(base + '_FIXED' + ext)
-    else:
-        if output_fname == fname:
-            if in_place == False:
-                warnings.warn('Output name same as input, in_place set to True')
-                in_place = True
-        
-    with open(fname,'rb') as fr, open(output_fname,'wb') as fw:
-        if verbose: print('-> Reading ' + fname)
-        pw = PyPdfFileWriter(fr,fw)
-        if verbose: print('-> Saving as ' + output_fname)
-        pw.write()
+        output_fname = input_fname
     
-    if in_place:
-        if verbose: print('-> Removing ' + fname)
-        try:
-            os.remove(fname)
-            if verbose: print('-> Renaming ' + output_fname + ' to ' + fname)
-            os.rename(output_fname,fname)
-        except:
-            try:
-                ## Removing files via command line sometimes helps if os.remove doesn't work:
-                del_script = "python -c \"import os, time; time.sleep(1); os.remove('{:}'); os.rename('{:}','{:}');\"".format(fname,output_fname,fname)
-                subprocess.Popen(del_script)
-                if verbose: print('-> Renaming ' + output_fname + ' to ' + fname)
-            except:
-                warnings.warn('Unable to remove ' + fname + ', file saved as ' + output_fname + 'instead')
+    pw = PyPdfFileWriter()
+    temp_output = io.BytesIO()
+    with open(input_fname,'rb') as fr:
+        pr = PdfFileReader(fr)     
+        pw.cloneReaderDocumentRoot(pr)
+        pw.write(temp_output)
+
+    do_write = True
+    if output_fname == input_fname:
+        if not remove_file(input_fname, verbose=verbose):
+            output_fname = _available_fname(output_fname)
+            warnings.warn('File saved as ' + output_fname + 'instead')
+          
+    if verbose: print('Writing '+ output_fname + '...', end = '')
+    temp_output.seek(0)
+    with open(output_fname,'wb') as fw:
+        fw.write(temp_output.read())
+
+    if verbose: print(' Done!')
+
