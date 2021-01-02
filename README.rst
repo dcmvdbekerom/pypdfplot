@@ -92,7 +92,7 @@ You can find evidence of this by opening the ``example.pdf`` file:
 The table on the left shows all files that are embedded, and clearly ``example.py`` is there.
 
 Most versions of Acrobat reader don't allow the embedded .py file to be opened for security reasons.
-To access the python script, rename ``example.pdf`` into ``example.py`` and open the file.
+To access the python script, rename ``example.pdf`` to ``example.py`` and open the file.
 This is what you should find:
 
 .. code:: python
@@ -166,9 +166,9 @@ When you open ``example.pdf``, you should find the updated blue plot with captio
 
 .. image:: https://pypdfplot.readthedocs.io/en/latest/_images/plot_pdf2.png
 
-*savefig()* keywords
+*savefig()* keywords:
 --------------------
-The behaviour of the publish function can be altered through the use of the following keywords. 
+The behaviour of the *plt.savefig()* function can be altered through the use of the following keywords. 
 Default values are given in brackets.
 
 - **output_fname** (*str*) default = *None* -- Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
@@ -208,7 +208,7 @@ Then create a text file with our title and axis labels called ``title.txt``:
 
 Finally, create a new python file called ``packing.py``. 
 
-As before, let's first have a look at how this script would look using ``Matplotlib``.
+As before, let's first have a look at how this script would look without the ``pypdfplot`` backend.
 We will use ``Pandas`` to import the Excel file into Python.
 Open ``packing.py`` and enter the following script:
 
@@ -237,12 +237,12 @@ After running this script, the following figure should pop up:
 
 In order to use ``pyplotpdf`` to save the figure as a PyPDF file, change add the import for *pypdfplot.backend* as before.
 Additionally, you must make sure that the embedded files are available for the python script when it is run again next time.
-To do this, the embedded files must be extracted before they are referenced, ideally even befor matplotlib is loaded.
+To do this, the embedded files must be extracted before they are read, ideally even before matplotlib is loaded.
 This can be done by importing *pypdfplot.backend.auto_extract* instead of just *pypdfplot.backend.auto_extract*
 
-Additional files can be embedded in the PyPDF file by calling the function *pack(flist)*. The argument *flist* is a list of filenames that are to be embedded.
+Additional files can be embedded in the PyPDF file by appending their filenames to a list and passing the list to *plt.savefig()* as the *file_list* keyword argument.
 
-By setting the keyword *cleanup = True* in the *savefig()* function, the local files will be deleted after they are successfully embedded in the PyPDF file.
+By setting the keyword *cleanup = True* in the *plt.savefig()* function, the local files will be deleted after they are successfully embedded in the PyPDF file.
 
 The script now looks as follows:
 
