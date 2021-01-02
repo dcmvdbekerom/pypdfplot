@@ -11,6 +11,7 @@ When the backend is loaded and a figure is saved using ``plt.savefig()``, the ge
 
 The resulting file, which is both a Python file and a PDF-file, is conveniently called a PyPDF-file.
 
+To learn more about how to use ``pypdfplot``, continue with reading the `Quickstart`_, or check out the commented examples in the `examples folder <https://github.com/dcmvdbekerom/pypdfplot/tree/develop/examples>`__.
 
 
 ************
