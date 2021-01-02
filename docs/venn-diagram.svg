@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="venn-diagram.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 210 297"
+   height="297mm"
+   width="210mm">
+  <defs
+     id="defs2">
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible;"
+       id="marker2670"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow2Send">
+      <path
+         transform="scale(0.3) rotate(180) translate(-2.3,0)"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         id="path2668" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker2458"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path2456"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-2.3,0)" />
+    </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker2448"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path2446"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-2.3,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible;"
+       id="marker1976"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend">
+      <path
+         transform="scale(0.4) rotate(180) translate(10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path1974" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker1966"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path1964"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible;"
+       id="marker1956"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend">
+      <path
+         transform="scale(0.4) rotate(180) translate(10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path1954" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker1946"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path1944"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:collect="always"
+       inkscape:isstock="true"
+       style="overflow:visible;"
+       id="marker1497"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend">
+      <path
+         transform="scale(0.4) rotate(180) translate(10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path1495" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker1307"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path1305"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible;"
+       id="Arrow1Lend"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="scale(0.8) rotate(180) translate(12.5,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path886" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lstart">
+      <path
+         transform="scale(0.8) translate(12.5,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path883" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="g1822"
+     inkscape:document-units="mm"
+     inkscape:cy="667.3688"
+     inkscape:cx="370.07593"
+     inkscape:zoom="1.4"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <g
+       transform="translate(0,77.107143)"
+       id="g1822">
+      <ellipse
+         style="mix-blend-mode:screen;fill:#ff0808;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         id="path837"
+         cx="122.72091"
+         cy="90.525299"
+         rx="42.52232"
+         ry="41.388393" />
+      <ellipse
+         ry="41.388393"
+         rx="42.52232"
+         cy="90.525299"
+         cx="74.504395"
+         id="ellipse875"
+         style="mix-blend-mode:screen;fill:#368de6;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1" />
+      <text
+         id="text849"
+         y="64.007675"
+         x="122.65683"
+         style="font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.165;stroke-linecap:round;stroke-dashoffset:19.7669;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.165"
+           y="64.007675"
+           x="122.65683"
+           id="tspan847"
+           sodipodi:role="line">PDF</tspan></text>
+      <ellipse
+         style="mix-blend-mode:screen;fill:#00ce32;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         id="path861"
+         ry="22.986134"
+         rx="49.754135"
+         cy="90.525299"
+         cx="98.746284" />
+      <g
+         transform="matrix(0.55114538,0,0,0.55114538,44.136691,85.304565)"
+         id="g1695">
+        <rect
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+           id="rect1689"
+           width="53.186646"
+           height="9.7553368"
+           x="35.546844"
+           y="34.076862"
+           ry="0.56675071" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+           x="61.872894"
+           y="41.694046"
+           id="text1693"><tspan
+             sodipodi:role="line"
+             id="tspan1691"
+             x="61.872894"
+             y="41.694046"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.665">Run script</tspan></text>
+      </g>
+      <g
+         id="g1717"
+         transform="matrix(0.55114538,0,0,0.55114538,84.76166,85.17093)">
+        <rect
+           ry="0.56675071"
+           y="34.076862"
+           x="33.97081"
+           height="9.3916359"
+           width="55.490067"
+           id="rect1711"
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1" />
+        <text
+           id="text1715"
+           y="41.45158"
+           x="62.35783"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.665"
+             y="41.45158"
+             x="62.35783"
+             id="tspan1713"
+             sodipodi:role="line">Save as PDF</tspan></text>
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:0.992157;stroke:none;stroke-width:1.165;stroke-linecap:round;stroke-dashoffset:19.7669;stroke-opacity:1"
+         x="74.43618"
+         y="62.873745"
+         id="text845"><tspan
+           sodipodi:role="line"
+           id="tspan843"
+           x="74.43618"
+           y="62.873745"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#ffffff;fill-opacity:0.992157;stroke:none;stroke-width:1.165">Python</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#fafdf9;fill-opacity:1;stroke:#000000;stroke-width:0.165;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         x="99.029762"
+         y="91.848213"
+         id="text853"><tspan
+           sodipodi:role="line"
+           id="tspan851"
+           x="99.029762"
+           y="91.848213"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#fafdf9;fill-opacity:1;stroke:#000000;stroke-width:0.165;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">PyPDF</tspan></text>
+      <text
+         id="text859"
+         y="87.879463"
+         x="66.523804"
+         style="font-size:6.70277px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#fafdf9;fill-opacity:1;stroke:none;stroke-width:0.065;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="fill:#fafdf9;fill-opacity:1;stroke:none;stroke-width:0.065;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           y="87.879463"
+           x="66.523804"
+           sodipodi:role="line"
+           id="tspan863">Stale </tspan><tspan
+           style="fill:#fafdf9;fill-opacity:1;stroke:none;stroke-width:0.065;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           y="94.58223"
+           x="66.523804"
+           sodipodi:role="line"
+           id="tspan867">PyPDF</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:6.70277px;line-height:1;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#fafdf9;fill-opacity:1;stroke:none;stroke-width:0.1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         x="132.29164"
+         y="87.911888"
+         id="text873"><tspan
+           id="tspan869"
+           sodipodi:role="line"
+           x="132.29164"
+           y="87.911888"
+           style="fill:#fafdf9;fill-opacity:1;stroke:none;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">Severed </tspan><tspan
+           id="tspan871"
+           sodipodi:role="line"
+           x="132.29164"
+           y="94.614655"
+           style="fill:#fafdf9;fill-opacity:1;stroke:none;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">PyPDF</tspan></text>
+      <path
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.165;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1;marker-end:url(#marker2448)"
+         d="M 91.539811,84.056264 C 85.49481,75.226727 76.206108,76.166319 68.420998,80.715398"
+         id="path881"
+         sodipodi:nodetypes="cc" />
+      <path
+         sodipodi:nodetypes="cc"
+         id="path1409"
+         d="m 67.675033,96.770433 c 7.284374,7.838407 16.331965,5.535387 23.358673,-0.11505"
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.165;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1;marker-end:url(#marker2458)" />
+      <path
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.66500005;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:1.99500015,1.99500015;stroke-dashoffset:6.65000049;stroke-opacity:1;marker-end:url(#marker1497)"
+         d="m 105.66062,94.37379 c 5.53987,9.15492 14.86667,8.73817 22.89484,4.633237"
+         id="path1493"
+         sodipodi:nodetypes="cc" />
+      <g
+         id="g1682"
+         transform="matrix(0.55114538,0,0,0.55114538,45.740308,50.42589)">
+        <rect
+           ry="0.56675071"
+           y="34.076862"
+           x="35.546844"
+           height="9.7553368"
+           width="53.186646"
+           id="rect1671"
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1" />
+        <text
+           id="text1669"
+           y="41.694046"
+           x="61.872894"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.665"
+             y="41.694046"
+             x="61.872894"
+             id="tspan1667"
+             sodipodi:role="line">Edit script</tspan></text>
+      </g>
+      <g
+         transform="matrix(0.55114538,0,0,0.55114538,86.766181,50.425891)"
+         id="g1709">
+        <rect
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+           id="rect1703"
+           width="72.34156"
+           height="10.240273"
+           x="25.363216"
+           y="34.076862"
+           ry="0.56675071" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';text-align:center;text-anchor:middle;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.665001;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+           x="62.35783"
+           y="41.45158"
+           id="text1707"><tspan
+             sodipodi:role="line"
+             id="tspan1705"
+             x="62.357826"
+             y="41.45158"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Consolas;-inkscape-font-specification:Consolas;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.665">Run fix_pypdf()</tspan></text>
+      </g>
+      <path
+         sodipodi:nodetypes="cc"
+         id="path2666"
+         d="m 129.88407,82.306279 c -7.24499,-7.874822 -16.30401,-5.617183 -23.35895,-0.002"
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.165;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1;marker-end:url(#marker2670)" />
+    </g>
+    <g
+       id="g1942"
+       transform="translate(0,-33.450893)">
+      <ellipse
+         ry="36.37709"
+         rx="37.373718"
+         cy="88.854858"
+         cx="110.00365"
+         id="ellipse1872"
+         style="mix-blend-mode:screen;fill:#ff0808;fill-opacity:1;stroke:none;stroke-width:0.87892;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1" />
+      <ellipse
+         style="mix-blend-mode:screen;fill:#368de6;fill-opacity:1;stroke:none;stroke-width:0.87892;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         id="ellipse1874"
+         cx="77.373886"
+         cy="88.854858"
+         rx="37.373718"
+         ry="36.37709" />
+      <text
+         xml:space="preserve"
+         style="font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.165;stroke-linecap:round;stroke-dashoffset:19.7669;stroke-opacity:1"
+         x="129.4722"
+         y="91.135529"
+         id="text1878"><tspan
+           sodipodi:role="line"
+           id="tspan1876"
+           x="129.4722"
+           y="91.135529"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.165">PDF</tspan></text>
+      <ellipse
+         cx="93.731346"
+         cy="89.122131"
+         rx="18.710981"
+         ry="18.509371"
+         id="ellipse1880"
+         style="mix-blend-mode:screen;fill:#00ce32;fill-opacity:1;stroke:none;stroke-width:1.15415;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1" />
+      <text
+         id="text1900"
+         y="90.53614"
+         x="56.796394"
+         style="font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:0.992157;stroke:none;stroke-width:1.165;stroke-linecap:round;stroke-dashoffset:19.7669;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#ffffff;fill-opacity:0.992157;stroke:none;stroke-width:1.165"
+           y="90.53614"
+           x="56.796394"
+           id="tspan1898"
+           sodipodi:role="line">Python</tspan></text>
+      <text
+         id="text1904"
+         y="91.848213"
+         x="93.283463"
+         style="font-size:8.46667px;line-height:0;font-family:Cambria;-inkscape-font-specification:Cambria;text-align:center;text-anchor:middle;fill:#fafdf9;fill-opacity:1;stroke:#000000;stroke-width:0.165;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:19.7669;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.46667px;font-family:Cambria;-inkscape-font-specification:'Cambria Bold';fill:#fafdf9;fill-opacity:1;stroke:#000000;stroke-width:0.165;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           y="91.848213"
+           x="93.283463"
+           id="tspan1902"
+           sodipodi:role="line">PyPDF</tspan></text>
+    </g>
+  </g>
+</svg>
