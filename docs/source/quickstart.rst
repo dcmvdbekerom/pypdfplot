@@ -275,7 +275,7 @@ The PDF way
 
 alternatively, the command-line tool can be used:
 
-.. code:: cli
+.. code:: bash
 
     fix_pypdf pdf_file.pdf 
 
