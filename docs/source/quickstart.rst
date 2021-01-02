@@ -3,7 +3,7 @@
 Quickstart
 ************
 
-The ``pypdfplot`` package is designed to seamlessly integrate with ``Matplotlib``.
+The ``pypdfplot`` package provides a backend for ``Matplotlib`` for producing PyPDF-files.
 This section goes through a basic example that shows how to use ``pypdfplot``.
 
 Simple Example
@@ -25,31 +25,25 @@ Open the file and enter the following script:
     y = x**2
     
     plt.plot(x,y,'r')
-    plt.show()
+    plt.savefig('example.pdf')
 	
 After running this script, you should get the following figure:
 
 .. image:: _static/plot.png
 
-Next, you use ``pypdfplot`` to publish this plot as a PyPDF file. 
-In order to do this you need to make two changes to the script:
-
-1. Instead of importing *matplotlib.pyplot* you have to import *pypdfplot*. Note that ``pypdfplot`` wraps all ``Matplotlib``'s functions, so by importing *pypdfplot* as *plt* like before, no other modifications to the code are needed.
-
-2. Instead of calling *show()* you have to call *publish()*. Note that *publish()* can take all keywords that *show()* can, in addition to some new keywords (see `Classes`_).
-
-The code now looks as follows:
+To produce a PyPDF-file, all you have to do is add a line on the top to import the backend: 
 
 .. code:: python
 
-    import pypdfplot as plt
+    import pypdfplot.backend
+    import matplotlib.pyplot as plt
     import numpy as np
     
     x = np.arange(-10,20,0.1)
     y = x**2
     
     plt.plot(x,y,'r')
-    plt.publish()
+    plt.savefig(example.pdf)
 
 After running this script, if you look in the folder where the ``example.py`` file once was, you'll notice it has been replaced by a new file ``example.pdf``.
 Of course the fact that the ``example.py`` file disappeared doesn't mean the script is gone -- it is now embedded in the PyPDF file ``example.pdf``!
@@ -60,21 +54,22 @@ You can find evidence of this by opening the ``example.pdf`` file:
 
 The table on the left shows all files that are embedded, and clearly ``example.py`` is there.
 
-Most versions of Acrobat reader don't allow the embedded .py file to be opened for security reasons, which is probably a good thing.
+Most versions of Acrobat reader don't allow the embedded .py file to be opened for security reasons.
 To access the python script, rename ``example.pdf`` into ``example.py`` and open the file.
 This is what you should find:
 
 .. code:: python
 
     #%PDF-1.3 23 0 obj << /Type /EmbeddedFile /Length 124 >> stream
-    import pypdfplot as plt
+    import pypdfplot.backend
+    import matplotlib.pyplot as plt
     import numpy as np
     
     x = np.arange(-10,20,0.1)
     y = x**2
     
     plt.plot(x,y,'r')
-    plt.publish()
+    plt.savefig('example.pdf')
     
     """
     endstream
@@ -86,24 +81,26 @@ This is what you should find:
     startxref
     8829
     %%EOF
-    0000009410 00000 
+    0000009410
+    PyPDF
     """
 
 The first line is the PDF header that helps the PDF reader to determine this is a valid PDF file.
 It also includes the object header for the EmbeddedFile object of our ``example.py`` file. 
 This line may not be altered, as it will result in corruption of the PyPDF file.
 
-What follows is our original python script, followed by a massive multiline string. 
+What follows is the original python script, followed by a large multiline string. 
 This multiline string contains all the PDF objects including the data for any remaining embedded files (see `PyPDF File specification`_).
-Making any edits in this string will again likely result in corruption of the file, so it is strongly discouraged as well.
+Making any edits in this string will again likely result in corruption of the file, so it is strongly discouraged.
 
-In between the first line and the multiline string is our original python script, which may be edited in any way.
+In between the first line and the multiline string is the original python script, which may be edited in any way.
 For example, let's give the plot a title and change the color to blue:
 
 .. code:: python
 
     #%PDF-1.3 23 0 obj << /Type /EmbeddedFile /Length 124 >> stream
-    import pypdfplot as plt
+    import pypdfplot.backend
+    import matplotlib.pyplot as plt
     import numpy as np
     
     x = np.arange(-10,20,0.1)
@@ -111,7 +108,7 @@ For example, let's give the plot a title and change the color to blue:
     
     plt.plot(x,y,'b')
     plt.title('Blue Example')
-    plt.publish()
+    plt.savefig('example.pdf')
     
     """
     endstream
@@ -123,7 +120,8 @@ For example, let's give the plot a title and change the color to blue:
     startxref
     8829
     %%EOF
-    0000009410 00000 
+    0000009410
+    PyPDF
     """
 	
 Again, after running the script the ``example.py`` file is replaced by the ``example.pdf`` file.
@@ -131,27 +129,32 @@ When you open ``example.pdf``, you should find the updated blue plot with captio
 
 .. image:: _static/plot_pdf2.png
 
-*publish()* keywords
+*savefig()* keywords
 --------------------
 The behaviour of the publish function can be altered through the use of the following keywords. 
 Default values are given in brackets.
 
-- **output** (*str*) default = *None* -- Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
+- **output_fname** (*str*) default = *None* -- Filename of the output file. If *None*, the filename of the python file is used with extension .pdf.
+
+- **file_list** (*list*) default = *[]* -- List with filenames that will be embedded in the PyPDF-file. The generating script is added separately and should not be included here.
 
 - **cleanup** (*bool*) default = *True* -- Whether or not to cleanup files that have been embedded in the PyPDF file. Set to *False* and run script to extract embedded files.
-  
-- **show_plot** (*bool*) default = *True* -- Whether or not to display the plot after publication.
+
+- **multiple** (*str*) default = *'pickle'* -- How to handle multiple plots in a single generating script. Can be any of *'pickle'*, *'add_page'*, or *'finalize'*. See section XXX for more details
+
+- **force_pickle** (*bool*) default = *False* -- Pickles the figure and embeds a Python script that unpickles and reads the figure again. This can be useful when dealing with very large source files, see section XXX for more details.
+
+- **verbose** (*bool*) default = *True* -- Wether or not to show verbose comments during publication.
 
 - **prompt_overwrite** (*bool*) default = *False* -- Wether or not to prompt when the output file already exists and is about to be overwritten. If *False* and the output file does already exist, ``pypdfplot`` will overwrite the file if possible.
   
-- **verbose** (*bool*) default = *True* -- Wether or not to show verbose comments during publication.
-
 - **kwargs** -- Any other keyword arguments are passed to matplotlib's *savefig* function.
+
 
 Embedding Files
 ===============
 
-In many cases we would like to plot data that is stored in a separate file.
+In many cases you may want to plot data that is stored in a separate file.
 In order for this to work, the external data file must be included in the PyPDF file as well.
 What follows is an example how to embed external files with ``pypdfplot``.
 
@@ -189,23 +192,27 @@ Open ``packing.py`` and enter the following script:
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-    plt.show()
+    plt.savefig('packing.pdf')
 
 After running this script, the following figure should pop up:
 
 .. image:: _static/plot2.png
 
-In order to use ``pyplotpdf`` to publish this as a PyPDF file, change *matplotlib.pyplot* to *pypdfplot* and *show()* to *publish()* as before.
+In order to use ``pyplotpdf`` to save the figure as a PyPDF file, change add the import for *pypdfplot.backend* as before.
+Additionally, you must make sure that the embedded files are available for the python script when it is run again next time.
+To do this, the embedded files must be extracted before they are referenced, ideally even befor matplotlib is loaded.
+This can be done by importing *pypdfplot.backend.auto_extract* instead of just *pypdfplot.backend.auto_extract*
 
 Additional files can be embedded in the PyPDF file by calling the function *pack(flist)*. The argument *flist* is a list of filenames that are to be embedded.
 
-By setting the keyword *cleanup = True* in the *publish()* function, the local files will be deleted after they are successfully embedded in the PyPDF file.
+By setting the keyword *cleanup = True* in the *savefig()* function, the local files will be deleted after they are successfully embedded in the PyPDF file.
 
 The script now looks as follows:
 
 .. code:: python
 
-    import pypdfplot as plt
+    import pypdfplot.backend.auto_extract
+    import matplotlib.pyplot as plt
     import pandas as pd
     
     df = pd.read_excel('data.xlsx')
@@ -220,12 +227,12 @@ The script now looks as follows:
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-    plt.pack(['data.xlsx',
-              'title.txt'])
+    plt.savefig('packing.pdf',
+                file_list = ['data.xlsx',
+                             'title.txt'],
+                cleanup = True)
 
-    plt.publish(cleanup = True)
-
-After running the script, the output file ``packing.pdf`` is generated and all three files ``packing.py``, ``data.xlsx``, and ``title.txt`` are deleted after being embedded in ``packing.pdf``.
+After running the script, the output file ``packing.pdf`` is generated and all three files ``packing.py``, ``data.xlsx``, and ``title.txt``, are deleted after being embedded in ``packing.pdf``.
 This can be confirmed by opening ``packing.pdf``:
 
 .. image:: _static/plot_pdf3.png
@@ -265,8 +272,11 @@ The PDF way
 
     from pypdfplot import fix_pypdf
     fix_pypdf('pdf_file.pdf')
-    
 
+alternatively, the command-line tool can be used:
 
+.. code:: cli
+
+    fix_pypdf pdf_file.pdf 
 
 

@@ -10,7 +10,7 @@ def print_pdf(self, filename, *,
               bbox_inches_restore=None, metadata=None,
               **kwargs):
 
-    self.figure.set_dpi(72)            # there are 72 pdf points to an inch
+    self.figure.set_dpi(72) # there are 72 pdf points to an inch
     width, height = self.figure.get_size_inches()
     file = PdfFile(filename, metadata=metadata)
 

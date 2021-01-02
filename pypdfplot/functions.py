@@ -18,7 +18,7 @@ if sys.version_info[0] < 3:
     input = raw_input
 
 
-def _available_filename(fname):
+def available_filename(fname):
     base,ext = os.path.splitext(fname)
     i = 1
     fname = base + ext
@@ -190,7 +190,7 @@ def finalize_pypdf(pw,
             if yes_no.strip().lower()[0] == 'y':
                 do_overwrite = True
             else:
-                output_fname = _available_filename(output_fname)
+                output_fname = available_filename(output_fname)
                 warnings.warn('Publishing as {:s} instead'.format(output_fname))
         else:
             do_overwrite = True
@@ -200,7 +200,7 @@ def finalize_pypdf(pw,
                 os.remove(output_fname)
             except:
                 warnings.warn('Unable to overwrite local file ' + output_fname)
-                output_fname = _available_filename(output_fname)
+                output_fname = available_filename(output_fname)
                 warnings.warn('Publishing as {:s} instead'.format(output_fname))
     
     ## Write the output file:
