@@ -130,7 +130,7 @@ When you open ``example.pdf``, you should find the updated blue plot with captio
 .. image:: _static/plot_pdf2.png
 
 *savefig()* keywords:
---------------------
+---------------------
 The behaviour of the *plt.savefig()* function can be altered through the use of the following keywords. 
 Default values are given in brackets.
 
