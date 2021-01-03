@@ -178,8 +178,7 @@ def finalize_pypdf(pw,
         pw.addAttachment(_py_packed_fname,fdata)
     
     pw.setPyFile(_py_packed_fname)
-    pw.setPyPDFVersion(__version__)
-    pw.setNewlineChar('\\n')
+    pw.setPyPDFVersion('1.0')
 
     ## If the output file already exists, try to remove it:
     if os.path.isfile(output_fname):
