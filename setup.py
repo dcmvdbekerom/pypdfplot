@@ -48,7 +48,7 @@ setup(name='pypdfplot',
     author='Dirk van den Bekerom',
     author_email='dcmvdbekerom@gmail.com',
     license='GPLv3',
-    packages=['pypdfplot'],
+    packages=['pypdfplot','pypdfplot/backend'],
     install_requires=['matplotlib','PyPDF4','numpy'],
     project_urls={
         'Documentation': 'https://pypdfplot.readthedocs.io/',
