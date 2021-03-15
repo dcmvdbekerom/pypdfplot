@@ -1,15 +1,18 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1. Overview &mdash; pypdfplot 1.0.0 documentation</title>
+  <title>1. Overview &mdash; pypdfplot 0.6.0 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
 
   
   
@@ -17,7 +20,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -29,14 +34,10 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="2. Installation" href="installation.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="index.html" /> 
+    <link rel="prev" title="Pypdfplot Documentation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -50,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pypdfplot
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pypdfplot
           
 
           
@@ -58,6 +59,10 @@
 
           
             
+            
+              <div class="version">
+                0.6
+              </div>
             
           
 
@@ -73,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -80,19 +86,21 @@
               
             
             
-              <p class="caption"><span class="caption-text">Pypdfplot</span></p>
-<ul class="current">
+              <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">1. Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">2. Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="specification.html">4. PyPDF File specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="classes.html">5. Classes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">6. Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">4. Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packing.html">5. Packing &amp; unpacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple.html">6. Multiple plots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specification.html">7. PyPDF file specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">8. Changelog</a></li>
 </ul>
 
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -131,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>1. Overview</li>
     
@@ -154,10 +162,11 @@
             
   <div class="section" id="overview">
 <h1>1. Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> package is an extension to <code class="docutils literal notranslate"><span class="pre">Matplotlib</span></code> that generates a PDF file of the plot with the generating Python script embedded.</p>
-<p>Although <code class="docutils literal notranslate"><span class="pre">Matplotlib</span></code> is a very powerful and flexible plotting tool, once a plot is saved as PNG or PDF file, the link between the plot and its generating Python script is lost. The philosophy of <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> is that there should be no distinction between the Python script that generates a plot and its output PDF file, much like there is no such distinction in an Origin or Excel file. As far as <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> is concerned, <em>the generating script</em> <strong>is</strong> <em>the plot.</em></p>
-<p>The way <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> works is by extending <code class="docutils literal notranslate"><span class="pre">Matplotlib</span></code> with a <em>publish</em> function. This function saves the current plot as a PDF file and embeds the generating Python script in that PDF file. The Python script is embedded in such a way that when the PDF file is renamed from .pdf to .py, the file can be read by a Python interpreter without alteration. The script can then be edited at will to implement changes in the plot, after which the script is ran again to produce the updated PDF file of the plot – including the updated embedded generating script.</p>
-<p>Since the resulting output file is compliant with both Python and PDF syntax, we will call such a file a PyPDF file for the remainder of this document.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> package provides a backend to <code class="docutils literal notranslate"><span class="pre">Matplotlib</span></code> that generates a PDF file of the plot with the generating Python script embedded.</p>
+<p>Normally, once a <code class="docutils literal notranslate"><span class="pre">Matplotlib</span></code> plot is saved as PNG or PDF file, the link between the plot and its generating Python script is lost. The philosophy behind <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> is that there should be no distinction between the Python script that generates a plot and its output PDF file, much like there is no such distinction in an Origin or Excel file. As far as <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> is concerned, <em>the generating script</em> <strong>is</strong> <em>the plot.</em></p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> backend is loaded and a figure is saved with <code class="docutils literal notranslate"><span class="pre">plt.savefig()</span></code>, the generating Python script is embedded into the output PDF file in such a way that when the PDF file is renamed from .pdf to .py, the file can be read by a Python interpreter directly without alteration. The script can be modified to implement changes in the plot, after which the script is ran again to produce the updated PDF file of the plot – including the updated embedded generating script.</p>
+<p>The resulting file is both a valid Python file and a valid PDF file, and is conveniently call a PyPDF file. The compatibility with both Python and PDF is achieved by arranging the data blocks in the PyPDF file in a very specific order, such that the PDF-part is read as comment block in Python, and the Python-part is seen as an embedded file by a PDF reader.</p>
+<p>To learn more about how to use <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code>, continue with reading <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a>, or check out the commented examples in the <a class="reference external" href="https://github.com/dcmvdbekerom/pypdfplot/tree/develop/examples">examples folder</a>.</p>
 </div>
 
 
@@ -171,7 +180,7 @@
         <a href="installation.html" class="btn btn-neutral float-right" title="2. Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Pypdfplot Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -180,11 +189,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Dirk van den Bekerom
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -195,7 +212,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

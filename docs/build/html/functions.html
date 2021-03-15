@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4. Functions &mdash; pypdfplot 0.6.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="5. Packing &amp; unpacking" href="packing.html" />
+    <link rel="prev" title="3. Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pypdfplot
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">1. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">2. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#savefig">4.1. savefig()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unpack">4.2. unpack()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fix-pypdf">4.3. fix_pypdf()</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packing.html">5. Packing &amp; unpacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple.html">6. Multiple plots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specification.html">7. PyPDF file specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">8. Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypdfplot</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>4. Functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/functions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="functions">
+<h1>4. Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="savefig">
+<h2>4.1. savefig()<a class="headerlink" href="#savefig" title="Permalink to this headline">¶</a></h2>
+<p>Saves the current plot as PyPDF file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span>
+        <span class="n">pack_list</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">cleanup</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">multiple</span> <span class="o">=</span> <span class="s1">&#39;pickle&#39;</span><span class="p">,</span>
+        <span class="n">force_pickle</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">prompt_overwrite</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">fname</dt>
+<dd class="field-odd"><p><em>str</em></p>
+<p>Filename of the output file.</p>
+</dd>
+<dt class="field-even">pack_list</dt>
+<dd class="field-even"><p><em>list</em>, default = <code class="docutils literal notranslate"><span class="pre">[]</span></code></p>
+<p>List with filenames that will be embedded in the PyPDF-file. The generating script is added separately and should not be included here. See <a class="reference internal" href="packing.html#packing"><span class="std std-ref">Packing &amp; unpacking</span></a> for more details.</p>
+</dd>
+<dt class="field-odd">multiple</dt>
+<dd class="field-odd"><p><em>str</em>, default = <code class="docutils literal notranslate"><span class="pre">'pickle'</span></code></p>
+<p>How to handle multiple plots in a single generating script. Can be any of <code class="docutils literal notranslate"><span class="pre">'pickle'</span></code>, <code class="docutils literal notranslate"><span class="pre">'add_page'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'finalize'</span></code>. See <a class="reference internal" href="multiple.html#multiple-plots"><span class="std std-ref">Multiple plots</span></a> for more details</p>
+</dd>
+<dt class="field-even">cleanup</dt>
+<dd class="field-even"><p><em>bool</em>, default = <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<p>Whether or not to cleanup files that have been embedded in the PyPDF file. Set to <code class="docutils literal notranslate"><span class="pre">False</span></code> and run script to extract embedded files.</p>
+</dd>
+<dt class="field-odd">force_pickle</dt>
+<dd class="field-odd"><p><em>bool</em>, default = <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+<p>Pickles the figure and embeds a Python script that unpickles and reads the figure again. This can be useful when dealing with very large source files, see <a class="reference internal" href="multiple.html#pickling"><span class="std std-ref">Pickling</span></a> for more details.</p>
+</dd>
+<dt class="field-even">verbose</dt>
+<dd class="field-even"><p><em>bool</em>, default = <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<p>Wether or not to show verbose comments during saving.</p>
+</dd>
+<dt class="field-odd">prompt_overwrite</dt>
+<dd class="field-odd"><p><em>bool</em>, default = <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+<p>Wether or not to prompt when the output file already exists and is about to be overwritten. If <code class="docutils literal notranslate"><span class="pre">False</span></code> and the output file does already exist, file will be overwritten if possible.</p>
+</dd>
+<dt class="field-even">**kwargs</dt>
+<dd class="field-even"><p>Any keyword arguments accepted by <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.savefig()</span></code></p>
+</dd>
+</dl>
+</div>
+<div class="section" id="unpack">
+<h2>4.2. unpack()<a class="headerlink" href="#unpack" title="Permalink to this headline">¶</a></h2>
+<p>Extracts the files embedded in the PyPDF-file. Must be called before embedded files are read by the generating script. This can be guaranteed by importing the backend using <code class="docutils literal notranslate"><span class="pre">pypdfplot.backend.unpack</span></code>, which automatically calls <code class="docutils literal notranslate"><span class="pre">unpack()</span></code> with its default parameters. See <a class="reference internal" href="packing.html#packing"><span class="std std-ref">Packing &amp; unpacking</span></a> for more details.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">unpack</span><span class="p">(</span><span class="n">fname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+       <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">fname</dt>
+<dd class="field-odd"><p><em>str</em>, default = <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+<p>Filename of the PyPDF file to unpack. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the filename of the currently executing script is taken.</p>
+</dd>
+<dt class="field-even">verbose</dt>
+<dd class="field-even"><p><em>bool</em>, default = <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<p>Wether or not to show verbose comments during extraction.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="fix-pypdf">
+<h2>4.3. fix_pypdf()<a class="headerlink" href="#fix-pypdf" title="Permalink to this headline">¶</a></h2>
+<p>Fixes PyPDF files that have been severed, e.g. because they were saved as ‘regular’ PDF-files outside of <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code>. See <a class="reference internal" href="specification.html#pypdf-compliance-types"><span class="std std-ref">PyPDF compliance types</span></a> for more details.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fix_pypdf</span><span class="p">(</span><span class="n">input_fname</span><span class="p">,</span>
+          <span class="n">output_fname</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+          <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list">
+<dt class="field-odd">input_fname</dt>
+<dd class="field-odd"><p><em>str</em></p>
+<p>Filename of the severed PyPDF file</p>
+</dd>
+<dt class="field-even">output_fname</dt>
+<dd class="field-even"><p><em>str</em>, default = <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+<p>Filename of the fixed output PyPDF file. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the input PDF file is overwritten.</p>
+</dd>
+<dt class="field-odd">verbose</dt>
+<dd class="field-odd"><p><em>bool</em>, default = <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<p>Wether or not to show verbose comments during fixing.</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="packing.html" class="btn btn-neutral float-right" title="5. Packing &amp; unpacking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="3. Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Dirk van den Bekerom
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

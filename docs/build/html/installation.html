@@ -1,15 +1,18 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>2. Installation &mdash; pypdfplot 1.0.0 documentation</title>
+  <title>2. Installation &mdash; pypdfplot 0.6.0 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
 
   
   
@@ -17,7 +20,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -29,10 +34,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="3. Quickstart" href="quickstart.html" />
@@ -50,7 +51,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> pypdfplot
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pypdfplot
           
 
           
@@ -58,6 +59,10 @@
 
           
             
+            
+              <div class="version">
+                0.6
+              </div>
             
           
 
@@ -73,6 +78,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -80,23 +86,25 @@
               
             
             
-              <p class="caption"><span class="caption-text">Pypdfplot</span></p>
-<ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="overview.html">1. Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">2. Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#via-python-package">2.1. Via Python Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#via-git-or-download">2.2. Via Git or Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pypi-repository">2.1. PyPI repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#github-or-download">2.2. Github or download</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="specification.html">4. PyPDF File specification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="classes.html">5. Classes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">6. Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">4. Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packing.html">5. Packing &amp; unpacking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiple.html">6. Multiple plots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specification.html">7. PyPDF file specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">8. Changelog</a></li>
 </ul>
 
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -135,7 +143,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>2. Installation</li>
     
@@ -158,17 +166,17 @@
             
   <div class="section" id="installation">
 <h1>2. Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="via-python-package">
-<h2>2.1. Via Python Package<a class="headerlink" href="#via-python-package" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pypi-repository">
+<h2>2.1. PyPI repository<a class="headerlink" href="#pypi-repository" title="Permalink to this headline">¶</a></h2>
 <p>Install the package from the PyPI repository opening a command prompt and enter:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pypdfplot</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pypdfplot
 </pre></div>
 </div>
 </div>
-<div class="section" id="via-git-or-download">
-<h2>2.2. Via Git or Download<a class="headerlink" href="#via-git-or-download" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="github-or-download">
+<h2>2.2. Github or download<a class="headerlink" href="#github-or-download" title="Permalink to this headline">¶</a></h2>
 <p>Alternatively, the source files can be downloaded directly from the GitHub <a class="reference external" href="https://github.com/dcmvdbekerom/pypdfplot">repository</a>. After downloading the source files, navigate to the project directory and install the package by opening a command prompt and enter:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python setup.py install
 </pre></div>
 </div>
 </div>
@@ -194,11 +202,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Dirk van den Bekerom
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -209,7 +225,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

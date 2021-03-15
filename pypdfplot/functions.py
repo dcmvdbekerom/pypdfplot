@@ -9,10 +9,13 @@ import subprocess
 import io
 import pickle
 
+__PYPDFVERSION__ = '1.0'
+
 _packlist = []
 _py_file = b_('')
 _pypdf_fname = ''
 _iteration = 0
+
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -29,7 +32,7 @@ def available_filename(fname):
     return fname
 
 
-def extract(fname = None,
+def unpack(fname = None,
             verbose = True,
             ):
     
@@ -111,7 +114,7 @@ def remove_file(fname,verbose = True):
 
 def finalize_pypdf(pw,
                    output_fname,
-                   file_list,
+                   pack_list,
                    cleanup,
                    pickle_figure,
                    verbose,
@@ -136,8 +139,8 @@ def finalize_pypdf(pw,
     if pickle_figure:
         if verbose: print('-> Pickling figure...')
                 
-        if len(file_list):
-            warnings.warn('file_list will be ignored when pickling figure!')
+        if len(pack_list):
+            warnings.warn('pack_list will be ignored when pickling figure!')
 
         fig_fname = output_fname[:-3] + 'pkl'
         fig = plt.gcf()
@@ -145,7 +148,7 @@ def finalize_pypdf(pw,
         fdata = pickle.dumps(fig)
         pw.addAttachment(fig_fname,fdata)
 
-        flines = [b"import pypdfplot.backend.auto_extract",
+        flines = [b"import pypdfplot.backend.unpack",
                   b"import matplotlib.pyplot as plt",
                   b"from pickle import load",
                   b"",
@@ -157,7 +160,7 @@ def finalize_pypdf(pw,
                   b"## Plot customizations go here...",
                   b"",
                   b"plt.savefig('" + output_fname.encode() + b"',",
-                  b"            file_list = ['" + fig_fname.encode() + b"'])",
+                  b"            pack_list = ['" + fig_fname.encode() + b"'])",
                   b"",
                   b'"""']
         
@@ -166,7 +169,7 @@ def finalize_pypdf(pw,
         
     else:
         
-        for fname in file_list:
+        for fname in pack_list:
             if verbose: print('-> Attaching '+ fname)
             with open(fname,'rb') as fa:
                 fdata = fa.read()
@@ -178,8 +181,7 @@ def finalize_pypdf(pw,
         pw.addAttachment(_py_packed_fname,fdata)
     
     pw.setPyFile(_py_packed_fname)
-    pw.setPyPDFVersion(__version__)
-    pw.setNewlineChar('\\n')
+    pw.setPyPDFVersion(__PYPDFVERSION__)
 
     ## If the output file already exists, try to remove it:
     if os.path.isfile(output_fname):
@@ -228,8 +230,8 @@ def finalize_pypdf(pw,
     ## Cleanup files if needed:
     if cleanup:
         if write_success:
-            if verbose and len(file_list): print('\nCleaning up attached files:')
-            for fname in file_list:
+            if verbose and len(pack_list): print('\nCleaning up attached files:')
+            for fname in pack_list:
                 remove_file(fname, verbose=verbose)
         else:
             warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
@@ -237,7 +239,7 @@ def finalize_pypdf(pw,
 
 def write_pypdf(write_plot_func,
                 output_fname     = None,
-                file_list        = [],
+                pack_list       = [],
                 cleanup          = True,
                 multiple         = ['pickle','add_page','finalize'][0],
                 force_pickle     = False,
@@ -255,7 +257,7 @@ def write_pypdf(write_plot_func,
 
         ## If input PyPDF file hasn't been read yet, do that now:
         if _py_file == b_(''):
-            _pypdf_fname = extract()
+            _pypdf_fname = unpack()
 
     ## Add a page with the plot to the PyPPDF file:
     pickle_figure = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
@@ -267,38 +269,13 @@ def write_pypdf(write_plot_func,
     if multiple != 'add_page':
         finalize_pypdf(pw,
                        output_fname,
-                       file_list,
+                       pack_list,
                        cleanup,
                        pickle_figure,
                        verbose,
                        prompt_overwrite,
                        **kwargs)
     _iteration += 1
-
-                       
-def publish(*vargs,
-            show_plot = True,
-            block     = None,
-            verbose   = True,
-            **kwargs):
-    
-    warnings.warn('Use of pypdfplot.publish() is deprecated since v0.6!!!')
-    warnings.warn('Please use plt.savefig() instead...!')
-
-    def write_plot_func(fh,**kwargs):
-        plt.savefig(fh,format='pdf',**kwargs)
-        
-    write_pypdf(write_plot_func,*vargs,verbose=verbose,**kwargs)
-
-    if show_plot:
-        try:
-            multiple = kwargs['multiple']
-        except:
-            multiple = ''
-            
-        if multiple != 'finalize':
-            #if verbose: print('Showing plot...') #kinda obvious...
-            plt.show(block=block)
 
 
 def fix_pypdf(input_fname,
@@ -328,6 +305,7 @@ def fix_pypdf(input_fname,
         
         pr = PdfFileReader(fr)     
         pw.cloneReaderDocumentRoot(pr)
+        pw.setPyPDFVersion(__PYPDFVERSION__)
         pw.write(temp_output)
 
     do_write = True

@@ -2,6 +2,7 @@ from setuptools import setup
 from sys import path
 path.append("pypdfplot")
 from _version import __version__
+import re
 
 try:
     #If building package, complile README.rst
@@ -9,23 +10,9 @@ try:
     doc_folder = 'docs/source/'
     
     with open(doc_folder + 'index.rst','r') as f:
-        line = f.readline()
-        while line == '\n':
-            line = f.readline()
-        
-        while line != '\n':
-            line = f.readline()
-
-        while line == '\n':
-            line = f.readline()
-        
-        while line != '\n':
-            line = f.readline()
-        
-        for line in f:
-            if line != '\n':
-                files.append(line.strip()+'.rst')
-
+        index_text = f.read()
+    files = [f+'.rst' for f in re.findall('    (\w+)',index_text)]
+    
     doc = ''
     for fname in files:
         with open(doc_folder + fname,'r') as f:
@@ -36,8 +23,11 @@ try:
     doc = doc.replace('.. image:: _static/',
                       '.. image:: ' + img_link)
 
+    doc = re.sub(r':ref:(`[\w ]+`)', r'\1_', doc) 
+
     with open('README.rst','w') as f:
         f.write(doc)
+
 
 ##    ## Update version number in __init__ file:
 ##    with open('pypdfplot/__init__.py','w+b') as f:
@@ -47,6 +37,7 @@ try:
 ##        f.write(buf)
     
 except:
+    print('Rebuilding README failed!')
     # Otherwise, just load the readme:
     with open('README.rst','r') as f:
         doc = f.read()

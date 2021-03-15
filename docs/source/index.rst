@@ -1,6 +1,6 @@
-************
+**************************
  Pypdfplot Documentation
-************
+**************************
 
 .. toctree::
     :maxdepth: 2
@@ -9,8 +9,9 @@
     overview
     installation
     quickstart
-    specification
     functions
-    classes
+    packing
+    multiple
+    specification
     changelog
 

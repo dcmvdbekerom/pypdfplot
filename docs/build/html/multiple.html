@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>6. Multiple plots &mdash; pypdfplot 0.6.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. PyPDF file specification" href="specification.html" />
+    <link rel="prev" title="5. Packing &amp; unpacking" href="packing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pypdfplot
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">1. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">2. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">4. Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packing.html">5. Packing &amp; unpacking</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Multiple plots</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pickling">6.1. Pickling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-pages">6.2. Multiple pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="specification.html">7. PyPDF file specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">8. Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypdfplot</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>6. Multiple plots</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/multiple.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="multiple-plots">
+<span id="id1"></span><h1>6. Multiple plots<a class="headerlink" href="#multiple-plots" title="Permalink to this headline">¶</a></h1>
+<p>In some cases a single Python file may be generating multiple plots, e.g. in an iterative loop. This poses a challenge, because according to the <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> philosophy, <em>“the generating script</em> <strong>is</strong> <em>the plot”</em> – but now there are multiple plots and only one generating script.</p>
+<p>There are two options available to resolve this issue; in the first (default), the generating script (including the iterative loop), is embedded in the first PyPDF file. After that, following plots are <strong>pickled</strong>: the <code class="docutils literal notranslate"><span class="pre">figure</span></code> object is saved as external file, and a small script that reads the pickled <code class="docutils literal notranslate"><span class="pre">figure</span></code> is included as generating Python script in the PyPDF file. With this option, each plot is stored in a separate PyPDF file, and the iterative loop can be accessed by opening the first PyPDF file.</p>
+<p>The second way is to add the multiple plots as <strong>multiple pages</strong> in a <em>single</em> PyPDF file. Because there is now only a single PyPDF file, there is no ambiguity in what file the generating Python script should be embedded.</p>
+<p>Below each of the two options are detailed with an example.</p>
+<div class="section" id="pickling">
+<span id="id2"></span><h2>6.1. Pickling<a class="headerlink" href="#pickling" title="Permalink to this headline">¶</a></h2>
+<p>The way of handling multiple files can be selected with the keyword <code class="docutils literal notranslate"><span class="pre">multiple</span></code>. Since pickling is the default (<code class="docutils literal notranslate"><span class="pre">multiple</span></code> = <code class="docutils literal notranslate"><span class="pre">'pickle'</span></code>), it does not have to be specified explicitly.</p>
+<p>The code below generates plots of a linear, quadratic, and cubic function respectively:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pypdfplot.backend</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;plot</span><span class="si">{:d}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Which produces the following three plots:</p>
+<img alt="_images/pickle_1.png" src="_images/pickle_1.png" />
+<img alt="_images/pickle_2.png" src="_images/pickle_2.png" />
+<img alt="_images/pickle_3.png" src="_images/pickle_3.png" />
+<p>The first plot, <code class="docutils literal notranslate"><span class="pre">plot1.pdf</span></code>, has the original generating script embedded.</p>
+<p>Plots <code class="docutils literal notranslate"><span class="pre">plot2.pdf</span></code> and <code class="docutils literal notranslate"><span class="pre">plot3.pdf</span></code> have their <code class="docutils literal notranslate"><span class="pre">figure</span></code> objects pickled, which are stored in <code class="docutils literal notranslate"><span class="pre">plot2.pkl</span></code> and <code class="docutils literal notranslate"><span class="pre">plot3.pkl</span></code>. By pickling their <code class="docutils literal notranslate"><span class="pre">figure</span></code> objects, the plots can still be modified by opening the PyPDF files in a text editor and running them as Python scripts.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">plot2.pdf</span></code> file looks as follows when opened in a text editor:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#%PDF-1.4 26 0 obj &lt;&lt; /Type /EmbeddedFile /Length        269 &gt;&gt; stream</span>
+<span class="kn">import</span> <span class="nn">pypdfplot.backend.unpack</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">pickle</span> <span class="kn">import</span> <span class="n">load</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;plot2.pkl&#39;</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+
+<span class="c1">## Plot customizations go here...</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;plot2.pdf&#39;</span><span class="p">,</span>
+            <span class="n">pack_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;plot2.pkl&#39;</span><span class="p">])</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">endstream</span>
+<span class="sd">endobj</span>
+<span class="sd">1 0 obj</span>
+
+<span class="sd">&lt;&lt; ... &gt;&gt;</span>
+
+<span class="sd">startxref</span>
+<span class="sd">79815</span>
+<span class="sd">%%EOF</span>
+<span class="sd">0000080463 LF</span>
+<span class="sd">PyPDF-1.0</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>The individual plots can now be customized by modifying these generating scripts. By pickling the figure some flexibility is lost, but it should still be relatively straightforward to change e.g. line colors, font sizes, etc.</p>
+<p>Pickling the figure can be advantageous even if it is not generated inside an iterative loop, for example if the generating script is very slow or relies on large external data files. By pickling the figure, the external files do not have to be re-processed and do not have to be embedded in the PyPDF file.</p>
+<p>In such cases it is possible to force <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> to pickle the plot by passing the <code class="docutils literal notranslate"><span class="pre">force_pickle</span></code> = <code class="docutils literal notranslate"><span class="pre">True</span></code> keyword to <code class="docutils literal notranslate"><span class="pre">savefig()</span></code>.</p>
+</div>
+<div class="section" id="multiple-pages">
+<span id="id3"></span><h2>6.2. Multiple pages<a class="headerlink" href="#multiple-pages" title="Permalink to this headline">¶</a></h2>
+<p>The other solution is to add the multiple plots to a <em>single</em> PyPDF file as multiple pages. This is done by calling <code class="docutils literal notranslate"><span class="pre">savefig()</span></code> with the <code class="docutils literal notranslate"><span class="pre">multiple</span></code> = <code class="docutils literal notranslate"><span class="pre">'add_page'</span></code> keyword for every new plot, and finally calling <code class="docutils literal notranslate"><span class="pre">savefig()</span></code> one more time with the keyword <code class="docutils literal notranslate"><span class="pre">multiple</span></code> = <code class="docutils literal notranslate"><span class="pre">'finalize'</span></code> to finalize the PyPDF file.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">multiple</span></code> = <code class="docutils literal notranslate"><span class="pre">'add_page'</span></code> keyword is specified, every other argument to <code class="docutils literal notranslate"><span class="pre">savefig()</span></code> is ignored. The filename of the output PyPDF file is thus determined by the filename that is passed to the final <code class="docutils literal notranslate"><span class="pre">savefig()</span></code> call (with <code class="docutils literal notranslate"><span class="pre">multiple</span></code> = <code class="docutils literal notranslate"><span class="pre">finalize</span></code>), so an empty string can be passed for the calls with <code class="docutils literal notranslate"><span class="pre">multiple</span></code> = <code class="docutils literal notranslate"><span class="pre">'add_page'</span></code>.</p>
+<p>Any other arguments, such as the <code class="docutils literal notranslate"><span class="pre">pack_list</span></code> list, should also be passed to the finalizing <code class="docutils literal notranslate"><span class="pre">savefig()</span></code> call.</p>
+<p>Revisiting the previous example, but this time adding the multiple plots as separate pages, the updated script looks as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pypdfplot.backend</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">multiple</span> <span class="o">=</span> <span class="s1">&#39;add_page&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;multi_page.pdf&#39;</span><span class="p">,</span> <span class="n">multiple</span> <span class="o">=</span> <span class="s1">&#39;finalize&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output of this results in a single PyPDF file with three pages:</p>
+<img alt="_images/multi_page.png" src="_images/multi_page.png" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="specification.html" class="btn btn-neutral float-right" title="7. PyPDF file specification" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="packing.html" class="btn btn-neutral float-left" title="5. Packing &amp; unpacking" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Dirk van den Bekerom
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
