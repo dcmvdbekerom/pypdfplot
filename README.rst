@@ -668,7 +668,7 @@ The ``fix_pypdf`` command can also be ran from the command line.
 
 The different compliance types and how they can be converted into fully compliant PyPDF files are summarized in the figure below:
 
-.. image:: venn-diagram2.svg
+.. image:: https://pypdfplot.readthedocs.io/en/latest/_images/venn-diagram2.svg
 
 *********
 Changelog
