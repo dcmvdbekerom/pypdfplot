@@ -27,4 +27,4 @@ for n in range(3):
     plt.savefig('', multiple = 'add_page')
     plt.clf()
 
-plt.savefig('multiple plots - pages.pdf', multiple = 'finalize')
+plt.savefig('multi_page.pdf', multiple = 'finalize')
