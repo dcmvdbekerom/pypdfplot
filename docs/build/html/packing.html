@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>5. Packing &amp; unpacking &mdash; pypdfplot 0.6.1 documentation</title>
+  <title>5. Packing and unpacking &mdash; pypdfplot 0.6.1 documentation</title>
   
 
   
@@ -91,7 +91,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">2. Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="functions.html">4. Functions</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Packing &amp; unpacking</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Packing and unpacking</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#packing-files">5.1. Packing files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#unpacking-files">5.2. Unpacking files</a></li>
 </ul>
@@ -145,7 +145,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>5. Packing &amp; unpacking</li>
+      <li>5. Packing and unpacking</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,12 +164,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="packing-unpacking">
-<span id="packing"></span><h1>5. Packing &amp; unpacking<a class="headerlink" href="#packing-unpacking" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="packing-and-unpacking">
+<span id="id1"></span><h1>5. Packing and unpacking<a class="headerlink" href="#packing-and-unpacking" title="Permalink to this headline">¶</a></h1>
 <p>In many cases you may want to plot data that is stored in a separate external file.
 In order for this to work, the external data file must be included, which can be achieved by packing and unpacking the data into the PyPDF file.</p>
 <div class="section" id="packing-files">
-<span id="packing2"></span><h2>5.1. Packing files<a class="headerlink" href="#packing-files" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>5.1. Packing files<a class="headerlink" href="#packing-files" title="Permalink to this headline">¶</a></h2>
 <p>In this section we show how to write a script that opens data from an external Excel file and reads the title and axis label from an extrnal text file, where both files are embedded in the PyPDF file.</p>
 <p>Create an excel file <code class="docutils literal notranslate"><span class="pre">data.xlsx</span></code> and fill the Excel file with data, e.g. the first 10 numbers of the Fibonacci sequence:</p>
 <img alt="_images/excel_data.png" src="_images/excel_data.png" />
@@ -213,7 +213,7 @@ In order for this to work, the external data file must be included, which can be
 </div>
 <div class="section" id="unpacking-files">
 <h2>5.2. Unpacking files<a class="headerlink" href="#unpacking-files" title="Permalink to this headline">¶</a></h2>
-<p>A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see <a class="reference internal" href="#packing2"><span class="std std-ref">Packing files</span></a>), so unpacking files is just a matter of <em>not removing the files</em> after they have been extracted.</p>
+<p>A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see <a class="reference internal" href="#packing-files"><span class="std std-ref">Packing files</span></a>), so unpacking files is just a matter of <em>not removing the files</em> after they have been extracted.</p>
 <p>This is done by simply passing the keyword argument <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </div>
 </div>

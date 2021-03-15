@@ -1,14 +1,14 @@
 
-.. _Packing:
+.. _Packing and unpacking:
 
-*******************
-Packing & unpacking
-*******************
+*********************
+Packing and unpacking
+*********************
 
 In many cases you may want to plot data that is stored in a separate external file.
 In order for this to work, the external data file must be included, which can be achieved by packing and unpacking the data into the PyPDF file.
 
-.. _Packing2:
+.. _Packing files:
 
 Packing files
 =============
@@ -68,7 +68,7 @@ As can be seen in the "Attachments" list, the external files ``data.xlsx`` and `
 Unpacking files
 ===============
 
-A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see :ref:`Packing2`), so unpacking files is just a matter of *not removing the files* after they have been extracted. 
+A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see :ref:`Packing files`), so unpacking files is just a matter of *not removing the files* after they have been extracted. 
 
 This is done by simply passing the keyword argument ``cleanup`` = ``False``.
 

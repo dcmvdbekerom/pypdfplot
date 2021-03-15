@@ -38,7 +38,7 @@ Alternatively, the source files can be downloaded directly from the GitHub `repo
 .. code:: bash
 
     python setup.py install
-.. _quickstart:
+.. _Quickstart:
 
 **********
 Quickstart
@@ -165,7 +165,7 @@ Saves the current plot as PyPDF file.
 
 :pack_list: *list*, default = ``[]`` 
   
-  List with filenames that will be embedded in the PyPDF-file. The generating script is added separately and should not be included here. See `Packing`_ for more details.
+  List with filenames that will be embedded in the PyPDF-file. The generating script is added separately and should not be included here. See `Packing and unpacking`_ for more details.
 
 :multiple: *str*, default = ``'pickle'`` 
  
@@ -192,7 +192,7 @@ Saves the current plot as PyPDF file.
 unpack()
 =========
 
-Extracts the files embedded in the PyPDF-file. Must be called before embedded files are read by the generating script. This can be guaranteed by importing the backend using ``pypdfplot.backend.unpack``, which automatically calls ``unpack()`` with its default parameters. See `Packing`_ for more details.
+Extracts the files embedded in the PyPDF-file. Must be called before embedded files are read by the generating script. This can be guaranteed by importing the backend using ``pypdfplot.backend.unpack``, which automatically calls ``unpack()`` with its default parameters. See `Packing and unpacking`_ for more details.
 
 
 .. code:: python
@@ -234,16 +234,16 @@ Fixes PyPDF files that have been severed, e.g. because they were saved as 'regul
 
 
 
-.. _Packing:
+.. _Packing and unpacking:
 
-*******************
-Packing & unpacking
-*******************
+*********************
+Packing and unpacking
+*********************
 
 In many cases you may want to plot data that is stored in a separate external file.
 In order for this to work, the external data file must be included, which can be achieved by packing and unpacking the data into the PyPDF file.
 
-.. _Packing2:
+.. _Packing files:
 
 Packing files
 =============
@@ -303,7 +303,7 @@ As can be seen in the "Attachments" list, the external files ``data.xlsx`` and `
 Unpacking files
 ===============
 
-A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see `Packing2`_), so unpacking files is just a matter of *not removing the files* after they have been extracted. 
+A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see `Packing files`_), so unpacking files is just a matter of *not removing the files* after they have been extracted. 
 
 This is done by simply passing the keyword argument ``cleanup`` = ``False``.
 
@@ -673,6 +673,11 @@ The different compliance types and how they can be converted into fully complian
 *********
 Changelog
 *********
+
+v0.6.2
+======
+- Fix missing installation of backend
+- Fix some links in docs
 
 v0.6.1
 ======

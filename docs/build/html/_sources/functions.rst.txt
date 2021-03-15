@@ -25,7 +25,7 @@ Saves the current plot as PyPDF file.
 
 :pack_list: *list*, default = ``[]`` 
   
-  List with filenames that will be embedded in the PyPDF-file. The generating script is added separately and should not be included here. See :ref:`Packing` for more details.
+  List with filenames that will be embedded in the PyPDF-file. The generating script is added separately and should not be included here. See :ref:`Packing and unpacking` for more details.
 
 :multiple: *str*, default = ``'pickle'`` 
  
@@ -52,7 +52,7 @@ Saves the current plot as PyPDF file.
 unpack()
 =========
 
-Extracts the files embedded in the PyPDF-file. Must be called before embedded files are read by the generating script. This can be guaranteed by importing the backend using ``pypdfplot.backend.unpack``, which automatically calls ``unpack()`` with its default parameters. See :ref:`Packing` for more details.
+Extracts the files embedded in the PyPDF-file. Must be called before embedded files are read by the generating script. This can be guaranteed by importing the backend using ``pypdfplot.backend.unpack``, which automatically calls ``unpack()`` with its default parameters. See :ref:`Packing and unpacking` for more details.
 
 
 .. code:: python

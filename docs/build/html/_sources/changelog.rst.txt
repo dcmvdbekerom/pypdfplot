@@ -3,6 +3,11 @@
 Changelog
 *********
 
+v0.6.2
+======
+- Fix missing installation of backend
+- Fix some links in docs
+
 v0.6.1
 ======
 - Documentation completely updated
