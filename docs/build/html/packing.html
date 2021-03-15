@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5. Packing &amp; unpacking &mdash; pypdfplot 0.6.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. Multiple plots" href="multiple.html" />
+    <link rel="prev" title="4. Functions" href="functions.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pypdfplot
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.6
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">1. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">2. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">4. Functions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Packing &amp; unpacking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#packing-files">5.1. Packing files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unpacking-files">5.2. Unpacking files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multiple.html">6. Multiple plots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="specification.html">7. PyPDF file specification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">8. Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pypdfplot</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>5. Packing &amp; unpacking</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/packing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="packing-unpacking">
+<span id="packing"></span><h1>5. Packing &amp; unpacking<a class="headerlink" href="#packing-unpacking" title="Permalink to this headline">¶</a></h1>
+<p>In many cases you may want to plot data that is stored in a separate external file.
+In order for this to work, the external data file must be included, which can be achieved by packing and unpacking the data into the PyPDF file.</p>
+<div class="section" id="packing-files">
+<span id="packing2"></span><h2>5.1. Packing files<a class="headerlink" href="#packing-files" title="Permalink to this headline">¶</a></h2>
+<p>In this section we show how to write a script that opens data from an external Excel file and reads the title and axis label from an extrnal text file, where both files are embedded in the PyPDF file.</p>
+<p>Create an excel file <code class="docutils literal notranslate"><span class="pre">data.xlsx</span></code> and fill the Excel file with data, e.g. the first 10 numbers of the Fibonacci sequence:</p>
+<img alt="_images/excel_data.png" src="_images/excel_data.png" />
+<p>Next, create a text file <code class="docutils literal notranslate"><span class="pre">title.txt</span></code> and add names for the plot title and axes:</p>
+<img alt="_images/notepad_title.png" src="_images/notepad_title.png" />
+<p>Finally, create a new python file <code class="docutils literal notranslate"><span class="pre">packing.py</span></code> that looks as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pypdfplot.backend.unpack</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;data.xlsx&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;title.txt&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">ylabel</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;packing.pdf&#39;</span><span class="p">,</span>
+            <span class="n">pack_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;data.xlsx&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;title.txt&#39;</span><span class="p">],</span>
+            <span class="n">cleanup</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+<p>By appending the filenames <code class="docutils literal notranslate"><span class="pre">data.xlsx</span></code> and <code class="docutils literal notranslate"><span class="pre">title.txt</span></code> to the <code class="docutils literal notranslate"><span class="pre">pack_list</span></code> list, the files will be embedded in the output PyPDF file.</p>
+<p>Note that in order for this script to work, the next time it is ran these files must be extracted <em>before</em> Python attempts to open them. To make sure they are extracted before they are referenced, the PyPDF file can be unpacked immediately when the <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> backend is loaded, by importing <code class="docutils literal notranslate"><span class="pre">pypdfplot.backend.unpack</span></code> instead of importing just <code class="docutils literal notranslate"><span class="pre">pypdfplot.backend</span></code>.</p>
+<p>Finally, the keyword <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">True</span></code> was passed to <code class="docutils literal notranslate"><span class="pre">savefig()</span></code> to toggle whether the external files will be removed (<code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">True</span></code>, <em>default</em>) or not (<code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Warning</dt>
+<dd class="field-odd"><p>By passing <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">True</span></code> (<em>which is the default!</em>), the local files are removed. If the original Python script <em>without</em> the files embedded is now ran again, an exception will be raised because the local files no longer exist. Therefore when <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">True</span></code> is passed, the only way the script can be ran again is by opening the output PyPDF file, which has the external files embedded.</p>
+</dd>
+</dl>
+<p>After running the script, the <code class="docutils literal notranslate"><span class="pre">packing.py</span></code> file is replaced by the output PyPDF file <code class="docutils literal notranslate"><span class="pre">packing.pdf</span></code>:</p>
+<img alt="_images/packing_plot.png" src="_images/packing_plot.png" />
+<p>As can be seen in the “Attachments” list, the external files <code class="docutils literal notranslate"><span class="pre">data.xlsx</span></code> and <code class="docutils literal notranslate"><span class="pre">title.txt</span></code> have been embedded in the PyPDF file, in addition to the generating Python script.</p>
+</div>
+<div class="section" id="unpacking-files">
+<h2>5.2. Unpacking files<a class="headerlink" href="#unpacking-files" title="Permalink to this headline">¶</a></h2>
+<p>A PyPDF file that has files embedded must always be unpacked at the beginning of the script (see <a class="reference internal" href="#packing2"><span class="std std-ref">Packing files</span></a>), so unpacking files is just a matter of <em>not removing the files</em> after they have been extracted.</p>
+<p>This is done by simply passing the keyword argument <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="multiple.html" class="btn btn-neutral float-right" title="6. Multiple plots" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="functions.html" class="btn btn-neutral float-left" title="4. Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Dirk van den Bekerom
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
