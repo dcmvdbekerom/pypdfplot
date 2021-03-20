@@ -80,6 +80,10 @@ def add_page(pw,write_plot_func,**kwargs):
 def remove_file(fname,verbose = True):
 
     success = False
+
+    # Prevent the case when is editing the generate ".pdf" to be deleted
+    if not fname.endswith('.py'):
+        return success
     
     if os.path.isfile(fname):
         if verbose: print('-> Removing ' + fname + '...', end = '')
