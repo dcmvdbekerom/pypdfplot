@@ -3,6 +3,10 @@
 Changelog
 *********
 
+v0.6.3
+======
+- Fix compatibility with PyPDF4 v1.27.0
+
 v0.6.2
 ======
 - Fix missing installation of backend

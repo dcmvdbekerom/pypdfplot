@@ -179,7 +179,7 @@ class PyPdfFileReader(PdfFileReader):
 
     def extractEmbeddedFiles(self,verbose = True):
         
-        root_obj = self._trailer['/Root']
+        root_obj = (self.trailer if legacy else self._trailer)['/Root']
         file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
         
         pyname = root_obj['/PyFile']
