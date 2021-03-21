@@ -80,10 +80,6 @@ def add_page(pw,write_plot_func,**kwargs):
 def remove_file(fname,verbose = True):
 
     success = False
-
-    # Prevent the case when is editing the generate ".pdf" to be deleted
-    if not fname.endswith('.py'):
-        return success
     
     if os.path.isfile(fname):
         if verbose: print('-> Removing ' + fname + '...', end = '')
@@ -218,8 +214,9 @@ def finalize_pypdf(pw,
 
     ## Remove the generating python file or create a new purely Python one:
     if cleanup or not _pure_py:
-        if remove_file(_pypdf_fname, verbose=verbose):
-            warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
+        if os.path.splitext(_pypdf_fname)[1] == '.py':
+            if remove_file(_pypdf_fname, verbose=verbose):
+                warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
 
     ## Write the Python file if needed, and remove it if not:
     if cleanup:
