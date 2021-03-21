@@ -32,6 +32,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+debug = False
+
 try:
     from pypdf import PdfFileWriter,PdfFileReader
     from pypdf.generic import *
@@ -116,6 +118,9 @@ class PyPdfFileReader(PdfFileReader):
         super(PyPdfFileReader,self).__init__(in_stream)
 
     def sanitizePDF(self,read_buf,output = None):
+
+        #TO-DO: Add correction for LF/CRLF mixup
+
         first1k = read_buf[:1024]
         py_obj = int(first1k.split()[1])
 
@@ -130,11 +135,12 @@ class PyPdfFileReader(PdfFileReader):
         br = io.BytesIO(read_buf)
 
         # Update object length:
+        # TO-DO: replace with RE
         br.seek(0,0)
         line = br.readline()
         i1 = line.rfind(b_('/Length'))+len(b_('/Length'))
         i2 = line.rfind(b_('>>'))
-        length_len = i2-i1
+        length_len = i2 - i1
         br.seek(i1)
         obj_length = int(br.read(length_len))
         new_length = obj_length + offset
@@ -167,7 +173,7 @@ class PyPdfFileReader(PdfFileReader):
         br.truncate()
         br.seek(0,0)
 
-        ## Save to output
+        ## Save to output (TO-DO: why is this even here?)
         if output != None:
             
             output_buf = br.read()
@@ -212,7 +218,10 @@ class PyPdfFileReader(PdfFileReader):
 
 
 class PyPdfFileWriter(PdfFileWriter):
-    def __init__(self, after_page_append=None): # in_stream,  out_stream, 
+    def __init__(self, after_page_append=None): # in_stream,  out_stream,
+
+        if debug:
+            print('Legacy = ' + str(legacy))
 
         if legacy:
             super(PyPdfFileWriter,self).__init__()
@@ -234,7 +243,7 @@ class PyPdfFileWriter(PdfFileWriter):
             :param writer_pageref (PDF page reference): Reference to the page just
                 appended to the document.
         '''
-        debug = False
+
         if debug:
             print("Number of Objects: %d" % len(self._objects))
             for obj in self._objects:
@@ -271,10 +280,21 @@ class PyPdfFileWriter(PdfFileWriter):
         major_str, minor_str = version.split('.')[:2]
         self.major_pypdf_version = int(major_str)
         self.minor_pypdf_version = int(minor_str)
-        self._rootObject[NameObject('/PyPDFVersion')] = createStringObject(version)
+
+        if legacy:
+            root_dict = dict(self._rootObject)
+            root_dict[NameObject('/PyPDFVersion')] = createStringObject(version)
+            self._rootObject = DictionaryObject(root_dict)
+        else:
+            self._rootObject[NameObject('/PyPDFVersion')] = createStringObject(version)
 
 ##    def setNewlineChar(self,newline_char):
 ##        self._rootObject[NameObject('/PyPDFNewlineChar')] = createStringObject(newline_char)
+
+    def cloneReaderDocumentRoot(self, reader):
+        super(PyPdfFileWriter,self).cloneReaderDocumentRoot(reader)
+        if legacy:
+            self._rootObject = reader.trailer['/Root']
 
     def write(self,fstream):
         """
@@ -285,7 +305,6 @@ class PyPdfFileWriter(PdfFileWriter):
         """
         if hasattr(self._stream, 'mode') and 'b' not in self._stream.mode:
             warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
-        debug = False
 
         if not self._root:
             self._root = self._addObject(self._rootObject)
@@ -360,7 +379,7 @@ class PyPdfFileWriter(PdfFileWriter):
 
             if i == py_oi:
                 
-                ##decode if necessary:
+                ##decode if necessary (in case of severed PyPDF file):
                 if isinstance(obj,EncodedStreamObject):
                     obj.getData()
                     obj = obj.decodedSelf
@@ -383,8 +402,7 @@ class PyPdfFileWriter(PdfFileWriter):
                 del obj["/Length"]
                 self._stream.write(b_(" stream\n"))
                 data = obj._data
-##                if encryption_key:
-##                    data = RC4_encrypt(encryption_key, data)
+                
                 self._stream.write(data)
                 self._stream.write(b_("\nendstream"))
                 self._stream.write(b_("\nendobj\n"))
