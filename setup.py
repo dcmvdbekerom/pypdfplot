@@ -12,7 +12,8 @@ try:
         index_text = f.read()
 
     doc = ''
-    for fname in [f+'.rst' for f in re.findall('    (\w+)',index_text)]:
+    fnames = [f+'.rst' for f in re.findall('    (\w+)',index_text)]
+    for fname in fnames:
         with open(doc_folder + fname,'r') as f:
            doc += f.read() + '\n'
 
