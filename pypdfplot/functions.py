@@ -43,6 +43,7 @@ def unpack(fname = None,
         fname = os.path.basename(sys.argv[0])
     
     with open(fname,'rb') as fr:
+        #TO-DO: byte level operations should go to classes.py
         read_buf = fr.read()
         first1k = read_buf[:1024]
         pdf_start = first1k.find(b_("%PDF"))
@@ -126,7 +127,7 @@ def finalize_pypdf(pw,
 
     ## Name the output file
     if output_fname == None:
-        output_fname = os.path.splitext(_pypdf_fname)[0] + '.pdf' #DO-DO: Make sure to prevent self-deletion!!
+        output_fname = os.path.splitext(_pypdf_fname)[0] + '.pdf' #TO-DO: Make sure to prevent self-deletion!!
     elif os.path.splitext(output_fname)[-1] == '':
         output_fname += '.pdf'
     elif os.path.splitext(output_fname)[1] not in ['.pdf','.py']: #TO-DO: Shouldn't this be just '.pdf'?
@@ -162,7 +163,8 @@ def finalize_pypdf(pw,
                   b"plt.savefig('" + output_fname.encode() + b"',",
                   b"            pack_list = ['" + fig_fname.encode() + b"'])",
                   b"",
-                  b'"""']
+                  b'"""',
+                  b'--- Do not edit below ---']
         
         fdata = b'\n'.join(flines) 
         pw.addAttachment(_py_packed_fname,fdata)
@@ -177,7 +179,7 @@ def finalize_pypdf(pw,
 
         if verbose: print('-> Attaching ' + _py_packed_fname)
 
-        fdata = _py_file + b_('\n"""')
+        fdata = _py_file + b_('\n"""\n--- Do not edit below ---')
         pw.addAttachment(_py_packed_fname,fdata)
     
     pw.setPyFile(_py_packed_fname)
@@ -240,15 +242,18 @@ def finalize_pypdf(pw,
 
 def write_pypdf(write_plot_func,
                 output_fname     = None,
-                pack_list       = [],
-                cleanup          = True,
+                pack_list        = [],    # TO-DO: add boolean flags for CLI: 
+                cleanup          = True,  # -k, --keep_files
                 multiple         = ['pickle','add_page','finalize'][0],
-                force_pickle     = False,
-                verbose          = True,
-                prompt_overwrite = False,
+                force_pickle     = False, # -f, --force_pickle
+                verbose          = True,  # -s, --silent
+                prompt_overwrite = False, # -p, --prompt_overwrite
                 **kwargs):
 
     global pw, _py_file, _pypdf_fname, _iteration
+
+##    for arg in sys.argv:
+##        print('###:' + arg)
 
     ## Init PyPdfWriter:
     if multiple == 'pickle' or _iteration == 0:
@@ -290,7 +295,9 @@ def fix_pypdf(input_fname,
     
     pw = PyPdfFileWriter()
     temp_output = io.BytesIO()
-    with open(input_fname,'rb') as fr:
+    
+    #TO-DO: byte level operations should go to classes.py
+    with open(input_fname,'rb') as fr: 
         try:
             fr.seek(-1024,2)
             last1k = fr.read()
