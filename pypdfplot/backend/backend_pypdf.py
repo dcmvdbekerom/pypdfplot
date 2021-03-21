@@ -2,7 +2,6 @@ from matplotlib.backend_bases import _Backend, FigureManagerBase
 from matplotlib.backends.backend_pdf import (
     FigureCanvasPdf, PdfPages, PdfFile, RendererPdf)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-import matplotlib.pyplot as plt
 from pypdfplot.functions import write_pypdf
 
 def print_pdf(self, filename, *,

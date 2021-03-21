@@ -249,7 +249,7 @@ def write_pypdf(write_plot_func,
 
     global pw, _py_file, _pypdf_fname, _iteration
 
-    ## Init PyPpfWriter:
+    ## Init PyPdfWriter:
     if multiple == 'pickle' or _iteration == 0:
         
         if verbose: print('\nPreparing PyPDF file:')

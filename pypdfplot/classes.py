@@ -437,10 +437,9 @@ class PyPdfFileWriter(PdfFileWriter):
         eof = b_(eof.format(self._stream.tell()+len(eof)))
         self._stream.write(eof)
             
-        self._stream.seek(0)
-
         ## Write bytes object to fstream:
         col_width = 79
+        self._stream.seek(0)        
         for line in self._stream:
             while len(line) > col_width + 1:
                 i = line[:col_width].rfind(b_(' '))
