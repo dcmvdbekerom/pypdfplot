@@ -69,6 +69,7 @@ The ``plot2.pdf`` file looks as follows when opened in a text editor:
                 pack_list = ['plot2.pkl'])
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj

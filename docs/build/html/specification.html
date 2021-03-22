@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>7. PyPDF file specification &mdash; pypdfplot 0.6.1 documentation</title>
+  <title>7. PyPDF file specification &mdash; pypdfplot 0.6.3 documentation</title>
   
 
   
@@ -200,7 +200,7 @@
 <span class="o">&lt;&lt;</span> <span class="o">...</span> <span class="o">&gt;&gt;</span>
 </pre></div>
 </div>
-<p>The filestream of the generating script consists of the generating Python script itself, in addition to a line with triple quotes (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;&quot;</span></code>), followed by a linebreak, so that all PDF blocks that follow are read as a comment block by the Python interpreter:</p>
+<p>The filestream of the generating script consists of the generating Python script itself, in addition to a line with triple quotes (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;&quot;</span></code>), followed by a linebreak, so that all PDF blocks that follow are read as a comment block by the Python interpreter, optionally followed by a warning string that warns the user against edits in the comment block:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#%PDF-1.4 24 0 obj &lt;&lt; /Type /EmbeddedFile /Length        187 &gt;&gt; stream</span>
 <span class="kn">import</span> <span class="nn">pypdfplot.backend</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -213,6 +213,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;example.pdf&#39;</span><span class="p">)</span>
 
 <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">--- Do not edit below ---</span>
 <span class="s2">endstream</span>
 <span class="s2">endobj</span>
 <span class="s2">1 0 obj</span>
@@ -321,6 +322,7 @@
 <tr class="row-even"><td><p><strong>PDF</strong>
 <strong>remainder</strong></p></td>
 <td><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">--- Do not edit below ---</span>
 <span class="s2">endstream</span>
 <span class="s2">endobj</span>
 
