@@ -6,38 +6,27 @@ import re
 
 try:
     #If building package, complile README.rst
-    files = []
     doc_folder = 'docs/source/'
     
     with open(doc_folder + 'index.rst','r') as f:
         index_text = f.read()
-    files = [f+'.rst' for f in re.findall('    (\w+)',index_text)]
-    
+
     doc = ''
-    for fname in files:
+    fnames = [f+'.rst' for f in re.findall('    (\w+)',index_text)]
+    for fname in fnames:
         with open(doc_folder + fname,'r') as f:
-           doc += f.read()
-           doc += '\n'
+           doc += f.read() + '\n'
 
     img_link = 'https://pypdfplot.readthedocs.io/en/latest/_images/'
-    doc = doc.replace('.. image:: _static/',
-                      '.. image:: ' + img_link)
-
+    doc = doc.replace('.. image:: _static/', '.. image:: ' + img_link)
     doc = re.sub(r':ref:(`[\w ]+`)', r'\1_', doc) 
 
     with open('README.rst','w') as f:
         f.write(doc)
 
 
-##    ## Update version number in __init__ file:
-##    with open('pypdfplot/__init__.py','w+b') as f:
-##        buf = f.read()
-##        buf[15:21] = version
-##        f.seek(0)
-##        f.write(buf)
-    
 except:
-    print('Rebuilding README failed!')
+    print('Skip rebuilding README.rst...')
     # Otherwise, just load the readme:
     with open('README.rst','r') as f:
         doc = f.read()
@@ -49,7 +38,7 @@ setup(name='pypdfplot',
     author_email='dcmvdbekerom@gmail.com',
     license='GPLv3',
     packages=['pypdfplot','pypdfplot/backend'],
-    install_requires=['matplotlib','PyPDF4','numpy'],
+    install_requires=['matplotlib','PyPDF4'],
     project_urls={
         'Documentation': 'https://pypdfplot.readthedocs.io/',
         'GitHub': 'https://github.com/dcmvdbekerom/pypdfplot'}, 

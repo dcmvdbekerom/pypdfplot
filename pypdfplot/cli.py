@@ -31,6 +31,13 @@ def main():
               #args.verbose, #Might as well have it always on
               )
 
+#TO-DO:
+# CLI should have three ways to run:
+# python example.py [arguments]
+# python -m pypdfplot [arguments]
+# pypdfplot [arguments]
+#
+# flags passed to [arguments] should overrule the settings in the document
 
 if __name__ == '__main__':
     main()
