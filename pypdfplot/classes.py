@@ -203,7 +203,8 @@ class PyPdfFileReader(PdfFileReader):
                 fobj = fobj.getObject()
 
             if fname == pyname:
-                pyfile = fobj.getData()[:-4]
+                pyfile = fobj.getData()
+                pyfile = pyfile[:pyfile.rfind(b'\n"""')]
                 if verbose: print('-> Extracting generating script: ' + fname)
                 
             else:  

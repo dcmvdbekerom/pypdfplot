@@ -44,6 +44,7 @@ The script can be accessed by renaming ``example.pdf`` back to ``example.py`` an
     plt.savefig('example.pdf')
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj
@@ -79,6 +80,7 @@ For example, let's add another plot, e.g. a sine function:
     plt.savefig('example.pdf')
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj

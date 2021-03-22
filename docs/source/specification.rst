@@ -44,7 +44,7 @@ The file now looks as follows:
 
     << ... >>
     
-The filestream of the generating script consists of the generating Python script itself, in addition to a line with triple quotes (``"""``), followed by a linebreak, so that all PDF blocks that follow are read as a comment block by the Python interpreter:
+The filestream of the generating script consists of the generating Python script itself, in addition to a line with triple quotes (``"""``), followed by a linebreak, so that all PDF blocks that follow are read as a comment block by the Python interpreter, optionally followed by a warning string that warns the user against edits in the comment block:
 
 .. code:: python
 
@@ -60,6 +60,7 @@ The filestream of the generating script consists of the generating Python script
     plt.savefig('example.pdf')
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj
@@ -161,6 +162,7 @@ The following table identifies each of these elements in the example PyPDF file:
 |**PDF**       | .. code:: python                                                               |
 |**remainder** |                                                                                |
 |              |     """                                                                        |
+|              |     --- Do not edit below ---                                                  |
 |              |     endstream                                                                  |
 |              |     endobj                                                                     |
 |              |                                                                                |

@@ -2,6 +2,12 @@
 *********
 Changelog
 *********
+v0.6.5
+- Previous patch introduced a new problem with the "Do not edit below" string. This is now solved.
+
+v0.6.4
+- Prevent deletion of output when input is .pdf
+- Fixes additional PyPDF4 compatibility issues
 
 v0.6.3
 ======
