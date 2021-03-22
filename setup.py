@@ -23,7 +23,7 @@ try:
 
     with open('README.rst','w') as f:
         f.write(doc)
-
+    print('Rebuilt README.rst...!')
 
 except:
     print('Skip rebuilding README.rst...')

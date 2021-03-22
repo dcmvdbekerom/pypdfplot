@@ -84,6 +84,7 @@ The script can be accessed by renaming ``example.pdf`` back to ``example.py`` an
     plt.savefig('example.pdf')
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj
@@ -119,6 +120,7 @@ For example, let's add another plot, e.g. a sine function:
     plt.savefig('example.pdf')
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj
@@ -382,6 +384,7 @@ The ``plot2.pdf`` file looks as follows when opened in a text editor:
                 pack_list = ['plot2.pkl'])
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj
@@ -484,7 +487,7 @@ The file now looks as follows:
 
     << ... >>
     
-The filestream of the generating script consists of the generating Python script itself, in addition to a line with triple quotes (``"""``), followed by a linebreak, so that all PDF blocks that follow are read as a comment block by the Python interpreter:
+The filestream of the generating script consists of the generating Python script itself, in addition to a line with triple quotes (``"""``), followed by a linebreak, so that all PDF blocks that follow are read as a comment block by the Python interpreter, optionally followed by a warning string that warns the user against edits in the comment block:
 
 .. code:: python
 
@@ -500,6 +503,7 @@ The filestream of the generating script consists of the generating Python script
     plt.savefig('example.pdf')
 
     """
+    --- Do not edit below ---
     endstream
     endobj
     1 0 obj
@@ -601,6 +605,7 @@ The following table identifies each of these elements in the example PyPDF file:
 |**PDF**       | .. code:: python                                                               |
 |**remainder** |                                                                                |
 |              |     """                                                                        |
+|              |     --- Do not edit below ---                                                  |
 |              |     endstream                                                                  |
 |              |     endobj                                                                     |
 |              |                                                                                |
@@ -673,6 +678,12 @@ The different compliance types and how they can be converted into fully complian
 *********
 Changelog
 *********
+v0.6.5
+- Previous patch introduced a new problem with the "Do not edit below" string. This is now solved.
+
+v0.6.4
+- Prevent deletion of output when input is .pdf
+- Fixes additional PyPDF4 compatibility issues
 
 v0.6.3
 ======
