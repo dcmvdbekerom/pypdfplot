@@ -33,8 +33,8 @@ def available_filename(fname):
 
 
 def unpack(fname = None,
-            verbose = True,
-            ):
+           verbose = True,
+           ):
     
     global _pure_py,_py_file
     _pypdf_fname = fname

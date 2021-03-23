@@ -67,7 +67,7 @@ The filestream of the generating script consists of the generating Python script
 
     << ... >>
     
-Because the use of non-ASCII binary characters is precluded in the PyPDF file, all stream objects in the PDF file must be encoded with one of the ASCII filters (either ``/ASCIIHexDecode`` filter or ``/ASCII85Decode`` filter). 
+Because the use of non-ASCII binary characters is precluded in the PyPDF file, all stream objects in the PDF file must be encoded with the ``/ASCIIHexDecode`` filter. ``/ASCII85Decode`` is not allowed since it could produce a triple double quote, ending the comment block prematurely. 
 
 Moreover, to remain PEP-compliant, lines may not exceed the length of 79 characters.
 
@@ -134,7 +134,7 @@ The PyPDF file can thus be considered as comprised of the following consecutive 
 
 :Generating script: The Python script that produces the PyPDF output. This element is itself a regular Python file without any PDF components. The generating script must end with a linebreak.
 
-:PDF remainder: The remainder of the PDF document, starting from the triple quotes as part of the filestream of the generating script, and ending at the ``%%EOF`` PDF end-of-file marker. By appending the PyPDF header, generating script, and the PDF remainder, not including the initial ``#``, a regular PDF file is obtained. The PDF ``/Root`` object should contain ``/PyFile`` and ``/PyPDFVersion`` entries specifying the generating script and PyPDF version.
+:PDF remainder: The remainder of the PDF document, starting from the triple quotes as part of the filestream of the generating script, and ending at the ``%%EOF`` PDF end-of-file marker. All streams must be ASCIIHex encoded. By appending the PyPDF header, generating script, and the PDF remainder, not including the initial ``#``, a regular PDF file is obtained. The PDF ``/Root`` object should contain ``/PyFile`` and ``/PyPDFVersion`` entries specifying the generating script and PyPDF version.
 
 :PyPDF trailer: A line with the 10-digit filesize in bytes including leading zeros, followed by a string specifying what linebreak character  was used (``LF``/``CRLF``), followed by a new line with the PyPDF version number in the format ``PyPDF-#.#``, followed by a new line with triple quotes, ending with a linebreak. 
 
