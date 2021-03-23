@@ -9,7 +9,6 @@ import subprocess
 import io
 import pickle
 
-__PYPDFVERSION__ = '1.0'
 
 _packlist = []
 _py_file = b_('')
@@ -149,25 +148,23 @@ def finalize_pypdf(pw,
         fdata = pickle.dumps(fig)
         pw.addAttachment(fig_fname,fdata)
 
-        flines = [b"import pypdfplot.backend.unpack",
-                  b"import matplotlib.pyplot as plt",
-                  b"from pickle import load",
-                  b"",
-                  b"with open('" + fig_fname.encode() + b"','rb') as f:",
-                  b"    fig = load(f)",
-                  b"",
-                  b"plt.figure(fig.number)",
-                  b"",
-                  b"## Plot customizations go here...",
-                  b"",
-                  b"plt.savefig('" + output_fname.encode() + b"',",
-                  b"            pack_list = ['" + fig_fname.encode() + b"'])",
-                  b"",
-                  b'"""',
-                  b'--- Do not edit below ---']
+        flines = ["import pypdfplot.backend.unpack",
+                  "import matplotlib.pyplot as plt",
+                  "from pickle import load",
+                  "",
+                  "with open('" + fig_fname + "','rb') as f:",
+                  "    fig = load(f)",
+                  "",
+                  "plt.figure(fig.number)",
+                  "",
+                  "## Plot customizations go here...",
+                  "",
+                  "plt.savefig('" + output_fname + "',",
+                  "            pack_list = ['" + fig_fname + "'])",
+                  ""]
         
-        fdata = b'\n'.join(flines) 
-        pw.addAttachment(_py_packed_fname,fdata)
+        fdata = '\n'.join(flines).encode() 
+        pw.addPyFile(_py_packed_fname,fdata)
         
     else:
         
@@ -178,13 +175,8 @@ def finalize_pypdf(pw,
                 pw.addAttachment(fname,fdata)
 
         if verbose: print('-> Attaching ' + _py_packed_fname)
-
-        fdata = _py_file + b_('\n"""\n--- Do not edit below ---')
-        pw.addAttachment(_py_packed_fname,fdata)
+        pw.addPyFile(_py_packed_fname,_py_file)
     
-    pw.setPyFile(_py_packed_fname)
-    pw.setPyPDFVersion(__PYPDFVERSION__)
-
     ## If the output file already exists, try to remove it:
     if os.path.isfile(output_fname):
         do_overwrite = False
@@ -313,7 +305,6 @@ def fix_pypdf(input_fname,
         
         pr = PdfFileReader(fr)     
         pw.cloneReaderDocumentRoot(pr)
-        pw.setPyPDFVersion(__PYPDFVERSION__)
         pw.write(temp_output)
 
     do_write = True

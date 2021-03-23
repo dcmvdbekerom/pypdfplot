@@ -54,6 +54,9 @@ import io
 import os
 import struct
 
+__PYPDFVERSION__ = '1.0'
+_pyfile_appendix = b_('\n"""\n--- Do not edit below ---')
+
 def ASCIIHexEncode(self,col_width = 79):
 
     hexdata = hexlify(self._data) + b_('>')
@@ -271,7 +274,8 @@ class PyPdfFileWriter(PdfFileWriter):
         self._rootObject[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
         self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
 
-    def setPyFile(self,fname):
+    def addPyFile(self,fname,fdata):
+        self.addAttachment(fname,fdata + _pyfile_appendix)
         self._rootObject[NameObject('/PyFile')] = createStringObject(fname)
 
     def setPyPDFVersion(self,version):
@@ -292,6 +296,7 @@ class PyPdfFileWriter(PdfFileWriter):
 ##    def setNewlineChar(self,newline_char):
 ##        self._rootObject[NameObject('/PyPDFNewlineChar')] = createStringObject(newline_char)
 
+
     def cloneReaderDocumentRoot(self, reader):
         super(PyPdfFileWriter,self).cloneReaderDocumentRoot(reader)
         if legacy:
@@ -304,6 +309,9 @@ class PyPdfFileWriter(PdfFileWriter):
         :param stream: An object to write the file to.  The object must support
             the write method and the tell method, similar to a file object.
         """
+
+        self.setPyPDFVersion(__PYPDFVERSION__)
+        
         if hasattr(self._stream, 'mode') and 'b' not in self._stream.mode:
             warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
 
