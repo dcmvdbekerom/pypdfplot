@@ -42,7 +42,7 @@ Alternatively, the source files can be downloaded directly from the GitHub `repo
 Anaconda/Spyder
 ===============
 
-In order for ``pypdfplot`` to work in an Anaconda/Spyder environment, the package has to be installed from source with the "editable" option.
+In order for ``pypdfplot`` to work in an Anaconda/Spyder environment, the package has to be installed from source with the "`editable`" option.
 
 Download the source code following the instructions above. Open an Anaconda prompt and navigate to the directory with the source code.
 Now install the package by typing in the Anaconda prompt:
@@ -51,7 +51,11 @@ Now install the package by typing in the Anaconda prompt:
 
     pip install -e .
 
-Next, you must change the backend settings in Spyder to ``Automatic``. This option can be found by navigating to ``Tools`` > ``Preferences`` > ``IPython console`` > ``Graphics`` > ``Backend`` in Spyder.
+Installing the package with the "`editable`" option guarantees that the libraries are reloaded each time the code is ran. 
+
+This will produce a warning in the IPyhton console, which can be turned off by unchecking the "`Show reloaded module list`" box in the ``Tools`` > ``Preferences`` > ``Python interpreter`` menu in Spyder.
+
+Next, navigate to the ``Graphics`` tab in the ``Tools`` > ``Preferences`` > ``IPython console`` menu and set the backend to "`Automatic`".
 
 It is further recommended to save the figure with the keyword ``cleanup`` = ``'False'``, see :ref:`savefig()`.    
 .. _Quickstart:
