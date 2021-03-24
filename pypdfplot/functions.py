@@ -9,7 +9,6 @@ import subprocess
 import io
 import pickle
 
-
 _packlist = []
 _py_file = b_('')
 _pypdf_fname = ''
@@ -116,7 +115,7 @@ def finalize_pypdf(pw,
                    output_fname,
                    pack_list,
                    cleanup,
-                   pickle_figure,
+                   do_pickle,
                    verbose,
                    prompt_overwrite,
                    **kwargs):
@@ -136,7 +135,7 @@ def finalize_pypdf(pw,
     _py_packed_fname = output_fname[:-3] + 'py'
 
     ## Attach Python file and auxiliary files:
-    if pickle_figure:
+    if do_pickle:
         if verbose: print('-> Pickling figure...')
                 
         if len(pack_list):
@@ -243,7 +242,7 @@ def write_pypdf(write_plot_func,
                 **kwargs):
 
     global pw, _py_file, _pypdf_fname, _iteration
-
+    print('ITERATION: ',_iteration)
 ##    for arg in sys.argv:
 ##        print('###:' + arg)
 
@@ -258,7 +257,7 @@ def write_pypdf(write_plot_func,
             _pypdf_fname = unpack()
 
     ## Add a page with the plot to the PyPPDF file:
-    pickle_figure = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
+    do_pickle = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
     if multiple != 'finalize':
         if verbose: print('Adding page...')
         add_page(pw,write_plot_func,**kwargs)
@@ -269,10 +268,11 @@ def write_pypdf(write_plot_func,
                        output_fname,
                        pack_list,
                        cleanup,
-                       pickle_figure,
+                       do_pickle,
                        verbose,
                        prompt_overwrite,
                        **kwargs)
+        
     _iteration += 1
 
 
