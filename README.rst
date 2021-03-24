@@ -57,7 +57,9 @@ This will produce a warning in the IPyhton console, which can be turned off by u
 
 Next, navigate to the ``Graphics`` tab in the ``Tools`` > ``Preferences`` > ``IPython console`` menu and set the backend to "`Automatic`".
 
-It is further recommended to save the figure with the keyword ``cleanup`` = ``'False'``, see :ref:`savefig()`.    
+It is further recommended to save the figure with the keyword ``cleanup`` = ``'False'``, see :ref:`savefig()`.  
+
+  
 .. _Quickstart:
 
 **********
