@@ -2,6 +2,8 @@
 Functions
 *********
 
+.. _savefig():
+
 savefig()
 =========
 

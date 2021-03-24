@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>2. Installation &mdash; pypdfplot 0.6.3 documentation</title>
+  <title>2. Installation &mdash; pypdfplot 0.6.5 documentation</title>
   
 
   
@@ -91,6 +91,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">2. Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#pypi-repository">2.1. PyPI repository</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#github-or-download">2.2. Github or download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#anaconda-spyder">2.3. Anaconda/Spyder</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">3. Quickstart</a></li>
@@ -179,6 +180,19 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python setup.py install
 </pre></div>
 </div>
+</div>
+<div class="section" id="anaconda-spyder">
+<h2>2.3. Anaconda/Spyder<a class="headerlink" href="#anaconda-spyder" title="Permalink to this headline">¶</a></h2>
+<p>In order for <code class="docutils literal notranslate"><span class="pre">pypdfplot</span></code> to work in an Anaconda/Spyder environment, the package has to be installed from source with the “<cite>editable</cite>” option.</p>
+<p>Download the source code following the instructions above. Open an Anaconda prompt and navigate to the directory with the source code.
+Now install the package by typing in the Anaconda prompt:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
+</pre></div>
+</div>
+<p>Installing the package with the “<cite>editable</cite>” option guarantees that the libraries are reloaded each time the code is ran.</p>
+<p>This will produce a warning in the IPyhton console, which can be turned off by unchecking the “<cite>Show reloaded module list</cite>” box in the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">Preferences</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">interpreter</span></code> menu in Spyder.</p>
+<p>Next, navigate to the <code class="docutils literal notranslate"><span class="pre">Graphics</span></code> tab in the <code class="docutils literal notranslate"><span class="pre">Tools</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">Preferences</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">IPython</span> <span class="pre">console</span></code> menu and set the backend to “<cite>Automatic</cite>”.</p>
+<p>It is further recommended to save the figure with the keyword <code class="docutils literal notranslate"><span class="pre">cleanup</span></code> = <code class="docutils literal notranslate"><span class="pre">'False'</span></code>, see <a class="reference internal" href="functions.html#savefig"><span class="std std-ref">savefig()</span></a>.</p>
 </div>
 </div>
 

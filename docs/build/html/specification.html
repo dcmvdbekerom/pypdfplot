@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>7. PyPDF file specification &mdash; pypdfplot 0.6.3 documentation</title>
+  <title>7. PyPDF file specification &mdash; pypdfplot 0.6.5 documentation</title>
   
 
   
@@ -221,7 +221,7 @@
 <span class="s2">&lt;&lt; ... &gt;&gt;</span>
 </pre></div>
 </div>
-<p>Because the use of non-ASCII binary characters is precluded in the PyPDF file, all stream objects in the PDF file must be encoded with one of the ASCII filters (either <code class="docutils literal notranslate"><span class="pre">/ASCIIHexDecode</span></code> filter or <code class="docutils literal notranslate"><span class="pre">/ASCII85Decode</span></code> filter).</p>
+<p>Because the use of non-ASCII binary characters is precluded in the PyPDF file, all stream objects in the PDF file must be encoded with the <code class="docutils literal notranslate"><span class="pre">/ASCIIHexDecode</span></code> filter. <code class="docutils literal notranslate"><span class="pre">/ASCII85Decode</span></code> is not allowed since it could produce a triple double quote, ending the comment block prematurely.</p>
 <p>Moreover, to remain PEP-compliant, lines may not exceed the length of 79 characters.</p>
 <p>Finally, at the end of the PyPDF file some lines are added in addition to those specified by the PDF specification. A normal PDF file will end with the end-of-file marker <code class="docutils literal notranslate"><span class="pre">%%EOF</span></code>. The EOF marker must appear within the last 1024 bytes of the document, so it is allowed within the PDF specification to add a couple of lines after that.</p>
 <p>Specifically, three lines are added after the PDF EOF marker:</p>
@@ -279,7 +279,7 @@
 <dd class="field-even"><p>The Python script that produces the PyPDF output. This element is itself a regular Python file without any PDF components. The generating script must end with a linebreak.</p>
 </dd>
 <dt class="field-odd">PDF remainder</dt>
-<dd class="field-odd"><p>The remainder of the PDF document, starting from the triple quotes as part of the filestream of the generating script, and ending at the <code class="docutils literal notranslate"><span class="pre">%%EOF</span></code> PDF end-of-file marker. By appending the PyPDF header, generating script, and the PDF remainder, not including the initial <code class="docutils literal notranslate"><span class="pre">#</span></code>, a regular PDF file is obtained. The PDF <code class="docutils literal notranslate"><span class="pre">/Root</span></code> object should contain <code class="docutils literal notranslate"><span class="pre">/PyFile</span></code> and <code class="docutils literal notranslate"><span class="pre">/PyPDFVersion</span></code> entries specifying the generating script and PyPDF version.</p>
+<dd class="field-odd"><p>The remainder of the PDF document, starting from the triple quotes as part of the filestream of the generating script, and ending at the <code class="docutils literal notranslate"><span class="pre">%%EOF</span></code> PDF end-of-file marker. All streams must be ASCIIHex encoded. By appending the PyPDF header, generating script, and the PDF remainder, not including the initial <code class="docutils literal notranslate"><span class="pre">#</span></code>, a regular PDF file is obtained. The PDF <code class="docutils literal notranslate"><span class="pre">/Root</span></code> object should contain <code class="docutils literal notranslate"><span class="pre">/PyFile</span></code> and <code class="docutils literal notranslate"><span class="pre">/PyPDFVersion</span></code> entries specifying the generating script and PyPDF version.</p>
 </dd>
 <dt class="field-even">PyPDF trailer</dt>
 <dd class="field-even"><p>A line with the 10-digit filesize in bytes including leading zeros, followed by a string specifying what linebreak character  was used (<code class="docutils literal notranslate"><span class="pre">LF</span></code>/<code class="docutils literal notranslate"><span class="pre">CRLF</span></code>), followed by a new line with the PyPDF version number in the format <code class="docutils literal notranslate"><span class="pre">PyPDF-#.#</span></code>, followed by a new line with triple quotes, ending with a linebreak.</p>

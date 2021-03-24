@@ -38,6 +38,22 @@ Alternatively, the source files can be downloaded directly from the GitHub `repo
 .. code:: bash
 
     python setup.py install
+    
+Anaconda/Spyder
+===============
+
+In order for ``pypdfplot`` to work in an Anaconda/Spyder environment, the package has to be installed from source with the "editable" option.
+
+Download the source code following the instructions above. Open an Anaconda prompt and navigate to the directory with the source code.
+Now install the package by typing in the Anaconda prompt:
+
+.. code:: bash
+
+    pip install -e .
+
+Next, you must change the backend settings in Spyder to ``Automatic``. This option can be found by navigating to ``Tools`` > ``Preferences`` > ``IPython console`` > ``Graphics`` > ``Backend`` in Spyder.
+
+It is further recommended to save the figure with the keyword ``cleanup`` = ``'False'``, see :ref:`savefig()`.    
 .. _Quickstart:
 
 **********
@@ -143,6 +159,8 @@ After running ``example.py``, the file is again replaced by our updated ``exampl
 *********
 Functions
 *********
+
+.. _savefig():
 
 savefig()
 =========
@@ -510,7 +528,7 @@ The filestream of the generating script consists of the generating Python script
 
     << ... >>
     
-Because the use of non-ASCII binary characters is precluded in the PyPDF file, all stream objects in the PDF file must be encoded with one of the ASCII filters (either ``/ASCIIHexDecode`` filter or ``/ASCII85Decode`` filter). 
+Because the use of non-ASCII binary characters is precluded in the PyPDF file, all stream objects in the PDF file must be encoded with the ``/ASCIIHexDecode`` filter. ``/ASCII85Decode`` is not allowed since it could produce a triple double quote, ending the comment block prematurely. 
 
 Moreover, to remain PEP-compliant, lines may not exceed the length of 79 characters.
 
@@ -577,7 +595,7 @@ The PyPDF file can thus be considered as comprised of the following consecutive 
 
 :Generating script: The Python script that produces the PyPDF output. This element is itself a regular Python file without any PDF components. The generating script must end with a linebreak.
 
-:PDF remainder: The remainder of the PDF document, starting from the triple quotes as part of the filestream of the generating script, and ending at the ``%%EOF`` PDF end-of-file marker. By appending the PyPDF header, generating script, and the PDF remainder, not including the initial ``#``, a regular PDF file is obtained. The PDF ``/Root`` object should contain ``/PyFile`` and ``/PyPDFVersion`` entries specifying the generating script and PyPDF version.
+:PDF remainder: The remainder of the PDF document, starting from the triple quotes as part of the filestream of the generating script, and ending at the ``%%EOF`` PDF end-of-file marker. All streams must be ASCIIHex encoded. By appending the PyPDF header, generating script, and the PDF remainder, not including the initial ``#``, a regular PDF file is obtained. The PDF ``/Root`` object should contain ``/PyFile`` and ``/PyPDFVersion`` entries specifying the generating script and PyPDF version.
 
 :PyPDF trailer: A line with the 10-digit filesize in bytes including leading zeros, followed by a string specifying what linebreak character  was used (``LF``/``CRLF``), followed by a new line with the PyPDF version number in the format ``PyPDF-#.#``, followed by a new line with triple quotes, ending with a linebreak. 
 
@@ -679,9 +697,11 @@ The different compliance types and how they can be converted into fully complian
 Changelog
 *********
 v0.6.5
+======
 - Previous patch introduced a new problem with the "Do not edit below" string. This is now solved.
 
 v0.6.4
+======
 - Prevent deletion of output when input is .pdf
 - Fixes additional PyPDF4 compatibility issues
 
