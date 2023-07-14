@@ -69,9 +69,7 @@ def unpack(fname = None,
     return fname
 
 
-def add_page(pw,write_plot_func,**kwargs):
-    plot_bytes = io.BytesIO()
-    write_plot_func(plot_bytes,**kwargs)
+def add_page(pw, plot_bytes, **kwargs):
     pr = PdfFileReader(plot_bytes)
     pw.appendPagesFromReader(pr)
 
@@ -231,7 +229,7 @@ def finalize_pypdf(pw,
             warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
             
 
-def write_pypdf(write_plot_func,
+def write_pypdf(plot_bytes,
                 output_fname     = None,
                 pack_list        = [],    # TO-DO: add boolean flags for CLI: 
                 cleanup          = True,  # -k, --keep_files
@@ -242,7 +240,7 @@ def write_pypdf(write_plot_func,
                 **kwargs):
 
     global pw, _py_file, _pypdf_fname, _iteration
-    print('ITERATION: ',_iteration)
+##    print('ITERATION: ',_iteration)
 ##    for arg in sys.argv:
 ##        print('###:' + arg)
 
@@ -256,14 +254,14 @@ def write_pypdf(write_plot_func,
         if _py_file == b_(''):
             _pypdf_fname = unpack()
 
-    ## Add a page with the plot to the PyPPDF file:
+    ## Add a page with the plot to the PyPDF file:
     do_pickle = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
-    if multiple != 'finalize':
+    if multiple in ['pickle', 'add_page']:
         if verbose: print('Adding page...')
-        add_page(pw,write_plot_func,**kwargs)
+        add_page(pw, plot_bytes, **kwargs)     
 
     ## Write output:
-    if multiple != 'add_page':
+    if multiple in ['pickle', 'finalize']:
         finalize_pypdf(pw,
                        output_fname,
                        pack_list,
