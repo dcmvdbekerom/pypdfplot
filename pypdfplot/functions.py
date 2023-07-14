@@ -67,48 +67,56 @@ def unpack(fname = None,
             _pure_py = True
 
     return fname
+            
+
+def write_pypdf(plot_bytes,
+                output_fname     = None,
+                pack_list        = [],    # TO-DO: add boolean flags for CLI: 
+                cleanup          = True,  # -k, --keep_files
+                multiple         = ['pickle','add_page','finalize'][0],
+                force_pickle     = False, # -f, --force_pickle
+                verbose          = True,  # -s, --silent
+                prompt_overwrite = False, # -p, --prompt_overwrite
+                **kwargs):
+
+    global pw, _py_file, _pypdf_fname, _iteration
+##    print('ITERATION: ',_iteration)
+##    for arg in sys.argv:
+##        print('###:' + arg)
+
+    ## Init PyPdfWriter:
+    if multiple == 'pickle' or _iteration == 0:
+        
+        if verbose: print('\nPreparing PyPDF file:')
+        pw = PyPdfFileWriter()
+
+        ## If input PyPDF file hasn't been read yet, do that now:
+        if _py_file == b_(''):
+            _pypdf_fname = unpack()
+
+    ## Add a page with the plot to the PyPDF file:
+    do_pickle = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
+    if multiple in ['pickle', 'add_page']:
+        if verbose: print('Adding page...')
+        add_page(pw, plot_bytes, **kwargs)     
+
+    ## Write output:
+    if multiple in ['pickle', 'finalize']:
+        finalize_pypdf(pw,
+                       output_fname,
+                       pack_list,
+                       cleanup,
+                       do_pickle,
+                       verbose,
+                       prompt_overwrite,
+                       **kwargs)
+        
+    _iteration += 1
 
 
-def add_page(pw,write_plot_func,**kwargs):
-    plot_bytes = io.BytesIO()
-    write_plot_func(plot_bytes,**kwargs)
+def add_page(pw, plot_bytes, **kwargs):
     pr = PdfFileReader(plot_bytes)
     pw.appendPagesFromReader(pr)
-
-
-def remove_file(fname,verbose = True):
-
-    success = False
-    
-    if os.path.isfile(fname):
-        if verbose: print('-> Removing ' + fname + '...', end = '')
-        if normcase(realpath(fname)) != normcase(realpath(__file__)): 
-            try:
-                os.remove(fname)
-                success = True
-            except:
-                try:
-                    ## Removing files via command line sometimes helps if os.remove doesn't work:
-                    del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(fname)
-                    subprocess.Popen(del_script)
-                    success = True
-                    
-                except:
-                    warnings.warn('Unable to remove ' + fname + '...!')
-                    success = False
-        else:
-            warnings.warn('Attempt to delete __init__ file was prevented')
-            success = False
-
-        if verbose:
-            if success:
-                print(' Done!')
-            else:
-                print(' FAILED!')
-    else:
-        success = True
-
-    return success
 
 
 def finalize_pypdf(pw,
@@ -229,51 +237,41 @@ def finalize_pypdf(pw,
                 remove_file(fname, verbose=verbose)
         else:
             warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
-            
 
-def write_pypdf(write_plot_func,
-                output_fname     = None,
-                pack_list        = [],    # TO-DO: add boolean flags for CLI: 
-                cleanup          = True,  # -k, --keep_files
-                multiple         = ['pickle','add_page','finalize'][0],
-                force_pickle     = False, # -f, --force_pickle
-                verbose          = True,  # -s, --silent
-                prompt_overwrite = False, # -p, --prompt_overwrite
-                **kwargs):
 
-    global pw, _py_file, _pypdf_fname, _iteration
-    print('ITERATION: ',_iteration)
-##    for arg in sys.argv:
-##        print('###:' + arg)
+def remove_file(fname,verbose = True):
 
-    ## Init PyPdfWriter:
-    if multiple == 'pickle' or _iteration == 0:
-        
-        if verbose: print('\nPreparing PyPDF file:')
-        pw = PyPdfFileWriter()
+    success = False
+    
+    if os.path.isfile(fname):
+        if verbose: print('-> Removing ' + fname + '...', end = '')
+        if normcase(realpath(fname)) != normcase(realpath(__file__)): 
+            try:
+                os.remove(fname)
+                success = True
+            except:
+                try:
+                    ## Removing files via command line sometimes helps if os.remove doesn't work:
+                    del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(fname)
+                    subprocess.Popen(del_script)
+                    success = True
+                    
+                except:
+                    warnings.warn('Unable to remove ' + fname + '...!')
+                    success = False
+        else:
+            warnings.warn('Attempt to delete __init__ file was prevented')
+            success = False
 
-        ## If input PyPDF file hasn't been read yet, do that now:
-        if _py_file == b_(''):
-            _pypdf_fname = unpack()
+        if verbose:
+            if success:
+                print(' Done!')
+            else:
+                print(' FAILED!')
+    else:
+        success = True
 
-    ## Add a page with the plot to the PyPPDF file:
-    do_pickle = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
-    if multiple != 'finalize':
-        if verbose: print('Adding page...')
-        add_page(pw,write_plot_func,**kwargs)
-
-    ## Write output:
-    if multiple != 'add_page':
-        finalize_pypdf(pw,
-                       output_fname,
-                       pack_list,
-                       cleanup,
-                       do_pickle,
-                       verbose,
-                       prompt_overwrite,
-                       **kwargs)
-        
-    _iteration += 1
+    return success
 
 
 def fix_pypdf(input_fname,
