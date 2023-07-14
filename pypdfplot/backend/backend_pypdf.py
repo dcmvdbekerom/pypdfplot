@@ -15,7 +15,6 @@ def print_pypdf(self, filename, *vargs,
               bbox_inches_restore=bbox_inches_restore,
               metadata=metadata)
 
-    print('-> Calling write_pypdf()...',filename)
     write_pypdf(plot_bytes,
                 output_fname = filename,
                 **kwargs)
