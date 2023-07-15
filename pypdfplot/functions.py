@@ -16,7 +16,7 @@ if sys.version_info[0] < 3:
 class PyPdfHandler:
 
     def __init__(self):
-        self.packlist = []
+        self.pack_list = []
         self.py_file = b_('')
         self.pypdf_fname = ''
         self.iteration = 0
@@ -60,38 +60,38 @@ class PyPdfHandler:
                     output_fname     = None,
                     pack_list        = [],    # TO-DO: add boolean flags for CLI: 
                     cleanup          = True,  # -k, --keep_files
-                    multiple         = ['pickle','add_page','finalize'][0],
                     force_pickle     = False, # -f, --force_pickle
                     verbose          = True,  # -s, --silent
                     prompt_overwrite = False, # -p, --prompt_overwrite
                     **kwargs):
 
-        self.output_fname = output_fname
-        self.pack_list = pack_list
+
+        self.output_fname = output_fname #TODO: some testing (different fname) and warings needed
+        self.pack_list += pack_list
         self.cleanup = cleanup
-        self.multiple = multiple
         self.force_pickle = force_pickle
         self.verbose = verbose
+        self.prompt_overwrite = prompt_overwrite
         self.kwargs = kwargs
 
         ## Init PyPdfWriter:
-        if multiple == 'pickle' or self.iteration == 0:
+        if self.iteration == 0:
             
             if verbose: print('\nPreparing PyPDF file:')
             self.pw = PyPdfFileWriter()
+            self.pypdf_file_open = True
 
             ## If input PyPDF file hasn't been read yet, do that now:
             if self.py_file == b_(''):
                 self.unpack()
 
         ## Add a page with the plot to the PyPDF file:
-        self.do_pickle = (force_pickle if multiple != 'pickle' or self.iteration == 0 else True)
-        if multiple in ['pickle', 'add_page']:
-            if verbose: print('Adding page...')
-            self.add_page(plot_bytes)     
+        if verbose: print('Adding page...')
+        self.add_page(plot_bytes)     
 
         ## Write output:
-        if multiple in ['pickle', 'finalize']:
+        self.do_pickle = force_pickle
+        if self.do_pickle:
             self.finalize_pypdf()
             
         self.iteration += 1
@@ -214,7 +214,18 @@ class PyPdfHandler:
             else:
                 warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
 
+        self.pack_list = []
+        self.pypdf_file_open = False
+        
+    def at_exit(self):
+        print('EXITING')
+        if self.pypdf_file_open:
+            self.finalize_pypdf()
 
+handler = PyPdfHandler()
+write_pypdf = handler.write_pypdf
+unpack = handler.unpack
+atexit.register(handler.at_exit)
 
 
 
@@ -230,12 +241,10 @@ def available_filename(fname):
 
 
 
-            
+         
 
 
-handler = PyPdfHandler()
-write_pypdf = handler.write_pypdf
-unpack = handler.unpack
+
 
 
 def remove_file(fname,verbose = True):
