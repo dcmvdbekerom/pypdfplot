@@ -8,15 +8,214 @@ from os.path import normcase, realpath
 import subprocess
 import io
 import pickle
-
-_packlist = []
-_py_file = b_('')
-_pypdf_fname = ''
-_iteration = 0
-
+import atexit
 
 if sys.version_info[0] < 3:
     input = raw_input
+
+class PyPdfHandler:
+
+    def __init__(self):
+        self.packlist = []
+        self.py_file = b_('')
+        self.pypdf_fname = ''
+        self.iteration = 0
+        self.verbose = False
+
+
+    def unpack(self):
+
+        self.pypdf_fname = os.path.basename(sys.argv[0])
+
+        with open(self.pypdf_fname, 'rb') as fr:
+
+            #TO-DO: byte level operations should go to classes.py
+            read_buf = fr.read()
+            first1k = read_buf[:1024]
+            pdf_start = first1k.find(b_("%PDF"))
+
+            #try:
+            if pdf_start >= 0:
+                            
+                pr = PyPdfFileReader(read_buf[pdf_start:])
+                
+                if self.verbose: print('Extracting embedded files:')
+                self.py_file = pr.extractEmbeddedFiles()
+
+                if self.verbose: print('\nPypdfplot loaded from mixed PyPDF file')
+                self.pure_py = False
+
+            #except:
+            else:
+                            
+                fr.seek(0)
+                self.py_file = fr.read().replace(b_('\r\n'),b_('\n'))
+
+                if self.verbose: print('\nPypdfplot loaded from Python-only file')
+                self.pure_py = True
+
+
+    def write_pypdf(self,
+                    plot_bytes,
+                    output_fname     = None,
+                    pack_list        = [],    # TO-DO: add boolean flags for CLI: 
+                    cleanup          = True,  # -k, --keep_files
+                    multiple         = ['pickle','add_page','finalize'][0],
+                    force_pickle     = False, # -f, --force_pickle
+                    verbose          = True,  # -s, --silent
+                    prompt_overwrite = False, # -p, --prompt_overwrite
+                    **kwargs):
+
+        self.output_fname = output_fname
+        self.pack_list = pack_list
+        self.cleanup = cleanup
+        self.multiple = multiple
+        self.force_pickle = force_pickle
+        self.verbose = verbose
+        self.kwargs = kwargs
+
+        ## Init PyPdfWriter:
+        if multiple == 'pickle' or self.iteration == 0:
+            
+            if verbose: print('\nPreparing PyPDF file:')
+            self.pw = PyPdfFileWriter()
+
+            ## If input PyPDF file hasn't been read yet, do that now:
+            if self.py_file == b_(''):
+                self.unpack()
+
+        ## Add a page with the plot to the PyPDF file:
+        self.do_pickle = (force_pickle if multiple != 'pickle' or self.iteration == 0 else True)
+        if multiple in ['pickle', 'add_page']:
+            if verbose: print('Adding page...')
+            self.add_page(plot_bytes)     
+
+        ## Write output:
+        if multiple in ['pickle', 'finalize']:
+            self.finalize_pypdf()
+            
+        self.iteration += 1
+
+
+    def add_page(self, plot_bytes):
+        pr = PdfFileReader(plot_bytes)
+        self.pw.appendPagesFromReader(pr)
+
+
+    def finalize_pypdf(self):
+
+        writesuccess = False
+
+        ## Name the output file
+        if self.output_fname == None:
+            #DvdB: When does this happen?
+            self.output_fname = os.path.splitext(self.pypdf_fname)[0] + '.pdf' #TO-DO: Make sure to prevent self-deletion!!
+        elif os.path.splitext(self.output_fname)[-1] == '':
+            self.output_fname += '.pdf'
+        elif os.path.splitext(self.output_fname)[1] not in ['.pdf','.py']: #TO-DO: Shouldn't this be just '.pdf'?
+            self.output_fname = os.path.splitext(self.output_fname)[0] + '.pdf'
+            warnings.warn('Invalid extension, saving as {:s}'.format(self.output_fname))
+        
+        self.py_packed_fname = self.output_fname[:-3] + 'py'
+
+        ## Attach Python file and auxiliary files:
+        if self.do_pickle:
+            if self.verbose: print('-> Pickling figure...')
+                    
+            if len(self.pack_list):
+                warnings.warn('pack_list will be ignored when pickling figure!')
+
+            fig_fname = output_fname[:-3] + 'pkl'
+            fig = plt.gcf()
+            fig.canvas = plt.figure().canvas
+            fdata = pickle.dumps(fig)
+            self.pw.addAttachment(fig_fname, fdata)
+
+            flines = ["import pypdfplot.backend.unpack",
+                      "import matplotlib.pyplot as plt",
+                      "from pickle import load",
+                      "",
+                      "with open('" + fig_fname + "','rb') as f:",
+                      "    fig = load(f)",
+                      "",
+                      "plt.figure(fig.number)",
+                      "",
+                      "## Plot customizations go here...",
+                      "",
+                      "plt.savefig('" + self.output_fname + "',",
+                      "            pack_list = ['" + fig_fname + "'])",
+                      ""]
+            
+            fdata = '\n'.join(flines).encode() 
+            self.pw.addPyFile(self.py_packed_fname, fdata)
+            
+        else:
+            
+            for fname in self.pack_list:
+                if self.verbose: print('-> Attaching '+ fname)
+                with open(fname, 'rb') as fa:
+                    fdata = fa.read()
+                    self.pw.addAttachment(fname, fdata)
+
+            if self.verbose: print('-> Attaching ' + self.py_packed_fname)
+            self.pw.addPyFile(self.py_packed_fname, self.py_file)
+        
+        ## If the output file already exists, try to remove it:
+        if os.path.isfile(self.output_fname):
+            do_overwrite = False
+            if self.prompt_overwrite:
+                warnings.warn('Local copy of ' + self.output_fname + ' found\nOverwrite file? (y/n)')
+                yes_no = input('')
+                if yes_no.strip().lower()[0] == 'y':
+                    do_overwrite = True
+                else:
+                    self.output_fname = available_filename(self.output_fname)
+                    warnings.warn('Publishing as {:s} instead'.format(self.output_fname))
+            else:
+                do_overwrite = True
+
+            if do_overwrite:
+                try:
+                    os.remove(output_fname)
+                except:
+                    warnings.warn('Unable to overwrite local file ' + self.output_fname)
+                    self.output_fname = available_filename(self.output_fname)
+                    warnings.warn('Publishing as {:s} instead'.format(self.output_fname))
+        
+        ## Write the output file:
+        if self.verbose: print('\nSaving ' + self.output_fname + '...\n')
+        with open(self.output_fname,'wb+') as fw:
+            self.pw.write(fw)
+
+        write_success = True
+
+        ## Remove the generating python file or create a new purely Python one:
+        if self.cleanup or not self.pure_py:
+            if os.path.splitext(self.pypdf_fname)[1] == '.py':
+                if remove_file(self.pypdf_fname, verbose=self.verbose):
+                    warnings.warn(self.pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
+
+        ## Write the Python file if needed, and remove it if not:
+        if self.cleanup:
+            # Remove the local copy of the packed Python file if it happens to be present
+            # TO-DO: This might be overzealous, consider removing...
+            remove_file(self.py_packed_fname, verbose=self.verbose)
+        else:
+            if not self.pure_py:
+                with open(self.py_packed_fname, 'wb') as fw:
+                    fw.write(self.py_file)
+
+        ## Cleanup files if needed:
+        if self.cleanup:
+            if write_success:
+                if self.verbose and len(self.pack_list): print('\nCleaning up attached files:')
+                for fname in self.pack_list:
+                    remove_file(fname, verbose=self.verbose)
+            else:
+                warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
+
+
+
 
 
 def available_filename(fname):
@@ -30,213 +229,13 @@ def available_filename(fname):
     return fname
 
 
-def unpack(fname = None,
-           verbose = True,
-           ):
-    
-    global _pure_py,_py_file
-    _pypdf_fname = fname
 
-    if fname == None:
-        fname = os.path.basename(sys.argv[0])
-    
-    with open(fname,'rb') as fr:
-        #TO-DO: byte level operations should go to classes.py
-        read_buf = fr.read()
-        first1k = read_buf[:1024]
-        pdf_start = first1k.find(b_("%PDF"))
-
-        #try:
-        if pdf_start >= 0:
-                        
-            pr = PyPdfFileReader(read_buf[pdf_start:])
-            
-            if verbose: print('Extracting embedded files:')
-            _py_file = pr.extractEmbeddedFiles()
-
-            if verbose: print('\nPypdfplot loaded from mixed PyPDF file')
-            _pure_py = False
-
-        #except:
-        else:
-                        
-            fr.seek(0)
-            _py_file = fr.read().replace(b_('\r\n'),b_('\n'))
-
-            if verbose: print('\nPypdfplot loaded from Python-only file')
-            _pure_py = True
-
-    return fname
             
 
-def write_pypdf(plot_bytes,
-                output_fname     = None,
-                pack_list        = [],    # TO-DO: add boolean flags for CLI: 
-                cleanup          = True,  # -k, --keep_files
-                multiple         = ['pickle','add_page','finalize'][0],
-                force_pickle     = False, # -f, --force_pickle
-                verbose          = True,  # -s, --silent
-                prompt_overwrite = False, # -p, --prompt_overwrite
-                **kwargs):
 
-    global pw, _py_file, _pypdf_fname, _iteration
-##    print('ITERATION: ',_iteration)
-##    for arg in sys.argv:
-##        print('###:' + arg)
-
-    ## Init PyPdfWriter:
-    if multiple == 'pickle' or _iteration == 0:
-        
-        if verbose: print('\nPreparing PyPDF file:')
-        pw = PyPdfFileWriter()
-
-        ## If input PyPDF file hasn't been read yet, do that now:
-        if _py_file == b_(''):
-            _pypdf_fname = unpack()
-
-    ## Add a page with the plot to the PyPDF file:
-    do_pickle = (force_pickle if multiple != 'pickle' or _iteration == 0 else True)
-    if multiple in ['pickle', 'add_page']:
-        if verbose: print('Adding page...')
-        add_page(pw, plot_bytes, **kwargs)     
-
-    ## Write output:
-    if multiple in ['pickle', 'finalize']:
-        finalize_pypdf(pw,
-                       output_fname,
-                       pack_list,
-                       cleanup,
-                       do_pickle,
-                       verbose,
-                       prompt_overwrite,
-                       **kwargs)
-        
-    _iteration += 1
-
-
-def add_page(pw, plot_bytes, **kwargs):
-    pr = PdfFileReader(plot_bytes)
-    pw.appendPagesFromReader(pr)
-
-
-def finalize_pypdf(pw,
-                   output_fname,
-                   pack_list,
-                   cleanup,
-                   do_pickle,
-                   verbose,
-                   prompt_overwrite,
-                   **kwargs):
-
-    global _py_file, _pypdf_fname
-    writesuccess = False
-
-    ## Name the output file
-    if output_fname == None:
-        output_fname = os.path.splitext(_pypdf_fname)[0] + '.pdf' #TO-DO: Make sure to prevent self-deletion!!
-    elif os.path.splitext(output_fname)[-1] == '':
-        output_fname += '.pdf'
-    elif os.path.splitext(output_fname)[1] not in ['.pdf','.py']: #TO-DO: Shouldn't this be just '.pdf'?
-        output_fname = os.path.splitext(output_fname)[0] + '.pdf'
-        warnings.warn('Invalid extension, saving as {:s}'.format(output_fname))
-    
-    _py_packed_fname = output_fname[:-3] + 'py'
-
-    ## Attach Python file and auxiliary files:
-    if do_pickle:
-        if verbose: print('-> Pickling figure...')
-                
-        if len(pack_list):
-            warnings.warn('pack_list will be ignored when pickling figure!')
-
-        fig_fname = output_fname[:-3] + 'pkl'
-        fig = plt.gcf()
-        fig.canvas = plt.figure().canvas
-        fdata = pickle.dumps(fig)
-        pw.addAttachment(fig_fname,fdata)
-
-        flines = ["import pypdfplot.backend.unpack",
-                  "import matplotlib.pyplot as plt",
-                  "from pickle import load",
-                  "",
-                  "with open('" + fig_fname + "','rb') as f:",
-                  "    fig = load(f)",
-                  "",
-                  "plt.figure(fig.number)",
-                  "",
-                  "## Plot customizations go here...",
-                  "",
-                  "plt.savefig('" + output_fname + "',",
-                  "            pack_list = ['" + fig_fname + "'])",
-                  ""]
-        
-        fdata = '\n'.join(flines).encode() 
-        pw.addPyFile(_py_packed_fname,fdata)
-        
-    else:
-        
-        for fname in pack_list:
-            if verbose: print('-> Attaching '+ fname)
-            with open(fname,'rb') as fa:
-                fdata = fa.read()
-                pw.addAttachment(fname,fdata)
-
-        if verbose: print('-> Attaching ' + _py_packed_fname)
-        pw.addPyFile(_py_packed_fname,_py_file)
-    
-    ## If the output file already exists, try to remove it:
-    if os.path.isfile(output_fname):
-        do_overwrite = False
-        if prompt_overwrite:
-            warnings.warn('Local copy of ' + output_fname + ' found\nOverwrite file? (y/n)')
-            yes_no = input('')
-            if yes_no.strip().lower()[0] == 'y':
-                do_overwrite = True
-            else:
-                output_fname = available_filename(output_fname)
-                warnings.warn('Publishing as {:s} instead'.format(output_fname))
-        else:
-            do_overwrite = True
-
-        if do_overwrite:
-            try:
-                os.remove(output_fname)
-            except:
-                warnings.warn('Unable to overwrite local file ' + output_fname)
-                output_fname = available_filename(output_fname)
-                warnings.warn('Publishing as {:s} instead'.format(output_fname))
-    
-    ## Write the output file:
-    if verbose: print('\nSaving ' + output_fname + '...\n')
-    with open(output_fname,'wb+') as fw:
-        pw.write(fw)
-
-    write_success = True
-
-    ## Remove the generating python file or create a new purely Python one:
-    if cleanup or not _pure_py:
-        if os.path.splitext(_pypdf_fname)[1] == '.py':
-            if remove_file(_pypdf_fname, verbose=verbose):
-                warnings.warn(_pypdf_fname + ' removed:\nSaving script in editor will make it reappear...!\n')
-
-    ## Write the Python file if needed, and remove it if not:
-    if cleanup:
-        # Remove the local copy of the packed Python file if it happens to be present
-        # TO-DO: This might be overzealous, consider removing...
-        remove_file(_py_packed_fname, verbose=verbose)
-    else:
-        if not _pure_py:
-            with open(_py_packed_fname,'wb') as fw:
-                fw.write(_py_file)
-
-    ## Cleanup files if needed:
-    if cleanup:
-        if write_success:
-            if verbose and len(pack_list): print('\nCleaning up attached files:')
-            for fname in pack_list:
-                remove_file(fname, verbose=verbose)
-        else:
-            warnings.warn("Files weren't packed into PyPDF file yet, aborting cleanup")
+handler = PyPdfHandler()
+write_pypdf = handler.write_pypdf
+unpack = handler.unpack
 
 
 def remove_file(fname,verbose = True):
