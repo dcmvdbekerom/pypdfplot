@@ -248,10 +248,6 @@ class PyPdfFileWriter(PdfWriter):
 ##        self._root_object[NameObject('/PyPDFNewlineChar')] = create_string_object(newline_char)
 
 
-    def cloneReaderDocumentRoot(self, reader):
-        super(PyPdfFileWriter,self).cloneReaderDocumentRoot(reader)
-        self._root_object = reader.trailer['/Root']
-
     def write(self,fstream):
         """
         Writes the collection of pages added to this object out as a PDF file.
