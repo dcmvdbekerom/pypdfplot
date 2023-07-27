@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from pypdfplot.classes import (PyPdfFileReader, PyPdfFileWriter,
-                               PdfFileReader, b_, warnings)
+                               PdfReader)
+import warnings
 from pypdfplot._version import __version__
 import sys
 import os
@@ -8,7 +9,6 @@ from os.path import normcase, realpath
 import subprocess
 import io
 import pickle
-import atexit
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -17,7 +17,7 @@ class PyPdfHandler:
 
     def __init__(self):
         self.packlist = []
-        self.py_file = b_('')
+        self.py_file = b''
         self.pypdf_fname = ''
         self.iteration = 0
         self.verbose = False
@@ -32,7 +32,7 @@ class PyPdfHandler:
             #TO-DO: byte level operations should go to classes.py
             read_buf = fr.read()
             first1k = read_buf[:1024]
-            pdf_start = first1k.find(b_("%PDF"))
+            pdf_start = first1k.find(b"%PDF")
 
             #try:
             if pdf_start >= 0:
@@ -49,7 +49,7 @@ class PyPdfHandler:
             else:
                             
                 fr.seek(0)
-                self.py_file = fr.read().replace(b_('\r\n'),b_('\n'))
+                self.py_file = fr.read().replace(b'\r\n',b'\n')
 
                 if self.verbose: print('\nPypdfplot loaded from Python-only file')
                 self.pure_py = True
@@ -72,6 +72,7 @@ class PyPdfHandler:
         self.multiple = multiple
         self.force_pickle = force_pickle
         self.verbose = verbose
+        self.prompt_overwrite = prompt_overwrite
         self.kwargs = kwargs
 
         ## Init PyPdfWriter:
@@ -81,7 +82,7 @@ class PyPdfHandler:
             self.pw = PyPdfFileWriter()
 
             ## If input PyPDF file hasn't been read yet, do that now:
-            if self.py_file == b_(''):
+            if self.py_file == b'':
                 self.unpack()
 
         ## Add a page with the plot to the PyPDF file:
@@ -98,8 +99,8 @@ class PyPdfHandler:
 
 
     def add_page(self, plot_bytes):
-        pr = PdfFileReader(plot_bytes)
-        self.pw.appendPagesFromReader(pr)
+        pr = PdfReader(plot_bytes)
+        self.pw.append_pages_from_reader(pr)
 
 
     def finalize_pypdf(self):
@@ -129,7 +130,7 @@ class PyPdfHandler:
             fig = plt.gcf()
             fig.canvas = plt.figure().canvas
             fdata = pickle.dumps(fig)
-            self.pw.addAttachment(fig_fname, fdata)
+            self.pw.add_attachment(fig_fname, fdata)
 
             flines = ["import pypdfplot.backend.unpack",
                       "import matplotlib.pyplot as plt",
@@ -155,7 +156,7 @@ class PyPdfHandler:
                 if self.verbose: print('-> Attaching '+ fname)
                 with open(fname, 'rb') as fa:
                     fdata = fa.read()
-                    self.pw.addAttachment(fname, fdata)
+                    self.pw.add_attachment(fname, fdata)
 
             if self.verbose: print('-> Attaching ' + self.py_packed_fname)
             self.pw.addPyFile(self.py_packed_fname, self.py_file)
@@ -300,7 +301,7 @@ def fix_pypdf(input_fname,
         except(IndexError):
             pass
         
-        pr = PdfFileReader(fr)     
+        pr = PdfReader(fr)     
         pw.cloneReaderDocumentRoot(pr)
         pw.write(temp_output)
 

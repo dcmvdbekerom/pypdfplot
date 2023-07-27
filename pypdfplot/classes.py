@@ -34,19 +34,15 @@
 
 debug = False
 
-try:
-    from pypdf import PdfFileWriter,PdfFileReader
-    from pypdf.generic import *
-    from pypdf.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
-    import pypdf.utils as utils
-    legacy = False
-    
-except(ModuleNotFoundError):
-    from PyPDF4 import PdfFileWriter,PdfFileReader
-    from PyPDF4.generic import *
-    from PyPDF4.utils import isString,formatWarning,PdfReadError,readUntilWhitespace
-    import PyPDF4.utils as utils
-    legacy = True
+
+from pypdf import PdfWriter, PdfReader
+from pypdf.generic import *
+from pypdf.errors import PdfReadError
+from pypdf._utils import read_until_whitespace as readUntilWhitespace
+import pypdf._utils as utils
+import warnings
+legacy = True
+   
 
 from binascii import hexlify,unhexlify
 import sys
@@ -55,15 +51,22 @@ import os
 import struct
 
 __PYPDFVERSION__ = '1.0'
-_pyfile_appendix = b_('\n"""\n--- Do not edit below ---')
+_pyfile_appendix = b'\n"""\n--- Do not edit below ---'
+
+## Legacy wrappers:
+def isString(s):
+    return instance(s, str)
+
+def formatWarning(*vargs, **kwargs):
+    pass
 
 def ASCIIHexEncode(self,col_width = 79):
 
-    hexdata = hexlify(self._data) + b_('>')
+    hexdata = hexlify(self._data) + b'>'
 
-    temp = b_('')
+    temp = b''
     while len(hexdata) > col_width:
-        temp += hexdata[:col_width] + b_('\n')
+        temp += hexdata[:col_width] + b'\n'
         hexdata = hexdata[col_width:]
     temp += hexdata
     self._data = temp
@@ -99,19 +102,19 @@ StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
 
 def decode(data, decodeParms=None):
-    bdata = data[:-1].replace(b_('\n'),b_(''))
+    bdata = data[:-1].replace(b'\n',b'')
     return unhexlify(bdata)
 
-if legacy:
-    from PyPDF4.filters import ASCIIHexDecode
-    ASCIIHexDecode.decode = staticmethod(decode)
+#if legacy:
+from pypdf.filters import ASCIIHexDecode
+ASCIIHexDecode.decode = staticmethod(decode)
 
-else:
-    from pypdf.filters import ASCIIHexCodec
-    ASCIIHexCodec.decode = staticmethod(decode)
+# else:
+    # from pypdf.filters import ASCIIHexCodec
+    # ASCIIHexCodec.decode = staticmethod(decode)
 
 
-class PyPdfFileReader(PdfFileReader):
+class PyPdfFileReader(PdfReader):
     
     def __init__(self, read_buf):
         ##Fix XREF table, obj length, etc.:
@@ -128,8 +131,8 @@ class PyPdfFileReader(PdfFileReader):
         py_obj = int(first1k.split()[1])
 
         last1k = read_buf[-1024:]
-        startxref_addr = last1k.rfind(b_('startxref'))+len(b_('startxref\n'))
-        filesize_addr = last1k.rfind(b_('%%EOF'))+len(b_('%%EOF\n'))
+        startxref_addr = last1k.rfind(b'startxref')+len(b'startxref\n')
+        filesize_addr = last1k.rfind(b'%%EOF')+len(b'%%EOF\n')
 
         old_size = int(last1k[filesize_addr:].split()[0])
         offset = len(read_buf) - old_size + 1 
@@ -141,14 +144,14 @@ class PyPdfFileReader(PdfFileReader):
         # TO-DO: replace with RE
         br.seek(0,0)
         line = br.readline()
-        i1 = line.rfind(b_('/Length'))+len(b_('/Length'))
-        i2 = line.rfind(b_('>>'))
+        i1 = line.rfind(b'/Length')+len(b'/Length')
+        i2 = line.rfind(b'>>')
         length_len = i2 - i1
         br.seek(i1)
         obj_length = int(br.read(length_len))
         new_length = obj_length + offset
         br.seek(i1)
-        length_str = b_((' {:'+'{:d}'.format(length_len-2)+'d} ').format(new_length)) 
+        length_str = (' {:'+'{:d}'.format(length_len-2)+'d} ').format(new_length).encode()
         br.write(length_str)
 
         #Update xref table:
@@ -164,7 +167,7 @@ class PyPdfFileReader(PdfFileReader):
             if i != py_obj:
                 obj_addr += offset
                 br.seek(addr,0)
-                br.write(b_("{:010d}".format(obj_addr)))
+                br.write("{:010d}".format(obj_addr).encode())
 
             br.readline()
 
@@ -172,7 +175,7 @@ class PyPdfFileReader(PdfFileReader):
         br.seek(-1024,2)
         br.seek(startxref_addr,1)
         addr = br.tell()
-        br.write(b_("{:d}\n%%EOF\n".format(startxref)))
+        br.write("{:d}\n%%EOF\n".format(startxref).encode())
         br.truncate()
         br.seek(0,0)
 
@@ -198,21 +201,21 @@ class PyPdfFileReader(PdfFileReader):
             fobjh = file_dict[i+1]
 
             if isinstance(fobjh,IndirectObject):
-                fobjh = fobjh.getObject()
+                fobjh = fobjh.get_object()
 
             fobj = fobjh['/EF']['/F']
 
             if isinstance(fobj,IndirectObject):
-                fobj = fobj.getObject()
+                fobj = fobj.get_object()
 
             if fname == pyname:
-                pyfile = fobj.getData()
+                pyfile = fobj.get_data()
                 pyfile = pyfile[:pyfile.rfind(b'\n"""')]
                 if verbose: print('-> Extracting generating script: ' + fname)
                 
             else:  
                 if not os.path.isfile(fname):
-                    fdata = fobj.getData()
+                    fdata = fobj.get_data()
                     with open(fname,'wb') as fw:
                         fw.write(fdata)
                         if verbose: print('-> Extracing ' + fname)
@@ -221,7 +224,7 @@ class PyPdfFileReader(PdfFileReader):
         return pyfile
 
 
-class PyPdfFileWriter(PdfFileWriter):
+class PyPdfFileWriter(PdfWriter):
     def __init__(self, after_page_append=None): # in_stream,  out_stream,
 
         if debug:
@@ -257,26 +260,28 @@ class PyPdfFileWriter(PdfFileWriter):
 
 ##        reader = PdfFileReader(in_stream)   
 ##        self.appendPagesFromReader(reader)
-                
-    def addAttachment(self,fname,fdata):
-        ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
-        try:
-            old_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"] 
-        except(KeyError):
-            old_list = ArrayObject([])
+    
+    ## Let's see if we can now use the one from pypdf...
+    
+    # def add_attachment(self,fname,fdata):
+        # ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
+        # try:
+            # old_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"] 
+        # except(KeyError):
+            # old_list = ArrayObject([])
         
-        super(PyPdfFileWriter,self).addAttachment(fname,fdata)
+        # super(PyPdfFileWriter,self).add_attachment(fname,fdata)
         
-        new_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
-        if not isinstance(new_list[1],IndirectObject):
-            new_list[1] = self._addObject(new_list[1])
-        file_list = ArrayObject(old_list + new_list)
-        self._rootObject[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
-        self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
+        # new_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
+        # if not isinstance(new_list[1],IndirectObject):
+            # new_list[1] = self._addObject(new_list[1])
+        # file_list = ArrayObject(old_list + new_list)
+        # self._rootObject[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
+        # self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
 
     def addPyFile(self,fname,fdata):
-        self.addAttachment(fname,fdata + _pyfile_appendix)
-        self._rootObject[NameObject('/PyFile')] = createStringObject(fname)
+        self.add_attachment(fname,fdata + _pyfile_appendix)
+        self._rootObject[NameObject('/PyFile')] = create_string_object(fname)
 
     def setPyPDFVersion(self,version):
         
@@ -288,13 +293,13 @@ class PyPdfFileWriter(PdfFileWriter):
 
         if legacy:
             root_dict = dict(self._rootObject)
-            root_dict[NameObject('/PyPDFVersion')] = createStringObject(version)
+            root_dict[NameObject('/PyPDFVersion')] = create_string_object(version)
             self._rootObject = DictionaryObject(root_dict)
         else:
-            self._rootObject[NameObject('/PyPDFVersion')] = createStringObject(version)
+            self._rootObject[NameObject('/PyPDFVersion')] = create_string_object(version)
 
 ##    def setNewlineChar(self,newline_char):
-##        self._rootObject[NameObject('/PyPDFNewlineChar')] = createStringObject(newline_char)
+##        self._rootObject[NameObject('/PyPDFNewlineChar')] = create_string_object(newline_char)
 
 
     def cloneReaderDocumentRoot(self, reader):
@@ -347,22 +352,22 @@ class PyPdfFileWriter(PdfFileWriter):
 
         self.stack = []
         if debug: print(("ERM:", externalReferenceMap, "root:", self._root))
-        self._sweepIndirectReferences(externalReferenceMap, self._root)
+        self._sweep_indirect_references(self._root)
         del self.stack
 
         # Begin writing:
         offsets = {}
-        self._header = b_("%PDF-1.4")
-        self._stream.write(b_('#') + self._header + b_(" "))
+        self._header = b"%PDF-1.4"
+        self._stream.write(b'#' + self._header + b" ")
 
         ## Find the object number of the Python script and rearrange write order
 
         oi = list(range(len(self._objects)))
         try:
             pyname = self._rootObject['/PyFile']
-            name_list = self._root.getObject()["/Names"]["/EmbeddedFiles"]["/Names"]
+            name_list = self._root.get_object()["/Names"]["/EmbeddedFiles"]["/Names"]
             name_dict = dict(zip(name_list[0::2],name_list[1::2]))
-            py_oi = list(name_dict[pyname].getObject()['/EF'].values())[0].idnum - 1
+            py_oi = list(name_dict[pyname].get_object()['/EF'].values())[0].idnum - 1
             
             oi.pop(py_oi)
             oi = [py_oi] + oi
@@ -390,34 +395,34 @@ class PyPdfFileWriter(PdfFileWriter):
                 
                 ##decode if necessary (in case of severed PyPDF file):
                 if isinstance(obj,EncodedStreamObject):
-                    obj.getData()
+                    obj.get_data()
                     obj = obj.decodedSelf
                 
-                self._stream.write(b_(str(idnum) + " 0 obj "))
+                self._stream.write(str(idnum).encode() + b" 0 obj ")
 
                 obj[NameObject("/Length")] = NumberObject(len(obj._data))
                 
-                self._stream.write(b_("<< "))
+                self._stream.write(b"<< ")
                 for key, value in list(obj.items()):
-                    key.writeToStream(self._stream, encryption_key)
-                    self._stream.write(b_(" "))
+                    key.write_to_stream(self._stream, encryption_key)
+                    self._stream.write(b" ")
                     if key == '/Length':
                         space = 10 - len(str(value))
-                        self._stream.write(b_(space*" "))
-                    value.writeToStream(self._stream, encryption_key)
-                    self._stream.write(b_(" "))
-                self._stream.write(b_(">>"))
+                        self._stream.write(space*b" ")
+                    value.write_to_stream(self._stream, encryption_key)
+                    self._stream.write(b" ")
+                self._stream.write(b">>")
 
                 del obj["/Length"]
-                self._stream.write(b_(" stream\n"))
+                self._stream.write(b" stream\n")
                 data = obj._data
                 
                 self._stream.write(data)
-                self._stream.write(b_("\nendstream"))
-                self._stream.write(b_("\nendobj\n"))
+                self._stream.write(b"\nendstream")
+                self._stream.write(b"\nendobj\n")
 
             else:
-                self._stream.write(b_(str(idnum) + " 0 obj\n"))
+                self._stream.write(str(idnum).encode() + b" 0 obj\n")
 
                 # Try to compress every object:
                 if type(obj) == DecodedStreamObject:
@@ -433,19 +438,19 @@ class PyPdfFileWriter(PdfFileWriter):
                         #TO-DO: upgrade to /ASCII85Encode at some point
                         obj.ASCIIHexEncode()
             
-                obj.writeToStream(self._stream, encryption_key)
-                self._stream.write(b_("\nendobj\n"))
+                obj.write_to_stream(self._stream, encryption_key)
+                self._stream.write(b"\nendobj\n")
 
         # xref table
         xref_location = self._stream.tell()-1
-        self._stream.write(b_("xref\n"))
-        self._stream.write(b_("0 %s\n" % (len(self._objects) + 1)))
-        self._stream.write(b_("%010d %05d f \n" % (0, 65535)))
+        self._stream.write(b"xref\n")
+        self._stream.write(("0 %s\n" % (len(self._objects) + 1)).encode())
+        self._stream.write(("%010d %05d f \n" % (0, 65535)).encode())
         for i in range(len(self._objects)):
-            self._stream.write(b_("%010d %05d n \n" % (offsets[i]-1, 0)))
+            self._stream.write(("%010d %05d n \n" % (offsets[i]-1, 0)).encode())
 
         # trailer
-        self._stream.write(b_("trailer\n"))
+        self._stream.write(b"trailer\n")
         trailer = DictionaryObject()
         trailer.update({
                 NameObject("/Size"): NumberObject(len(self._objects) + 1),
@@ -456,12 +461,12 @@ class PyPdfFileWriter(PdfFileWriter):
             trailer[NameObject("/ID")] = self._ID
         if hasattr(self, "_encrypt"):
             trailer[NameObject("/Encrypt")] = self._encrypt
-        trailer.writeToStream(self._stream, None)
+        trailer.write_to_stream(self._stream, None)
 
         eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
         eof += '\n{:000010d} LF\nPyPDF-' + self.pypdf_version
         eof += '\n"""\n'
-        eof = b_(eof.format(self._stream.tell()+len(eof)))
+        eof = eof.format(self._stream.tell()+len(eof)).encode()
         self._stream.write(eof)
             
         ## Write bytes object to fstream:
@@ -469,8 +474,8 @@ class PyPdfFileWriter(PdfFileWriter):
         self._stream.seek(0)        
         for line in self._stream:
             while len(line) > col_width + 1:
-                i = line[:col_width].rfind(b_(' '))
-                fstream.write(line[:i]+b_('\n'))
+                i = line[:col_width].rfind(b' ')
+                fstream.write(line[:i]+b'\n')
                 line = line[i+1:]
             fstream.write(line)
 
