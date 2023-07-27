@@ -426,7 +426,7 @@ class PyPdfFileWriter(PdfWriter):
 
                 # Try to compress every object:
                 if type(obj) == DecodedStreamObject:
-                    obj = obj.flateEncode()
+                    obj = obj.flate_encode()
 
                 # Hex encode object to make it compatible with Python interpreter:
                 if type(obj) == EncodedStreamObject: #TO-DO: isn't this always True?
