@@ -38,8 +38,6 @@ debug = False
 from pypdf import PdfWriter, PdfReader
 from pypdf.generic import *
 from pypdf.errors import PdfReadError
-from pypdf._utils import read_until_whitespace as readUntilWhitespace
-import pypdf._utils as utils
 import warnings
 
 from binascii import hexlify
@@ -427,6 +425,4 @@ class PyPdfFileWriter(PdfWriter):
                 fstream.write(line[:i]+b'\n')
                 line = line[i+1:]
             fstream.write(line)
-
-
 
