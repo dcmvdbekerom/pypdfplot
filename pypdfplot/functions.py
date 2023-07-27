@@ -126,7 +126,7 @@ class PyPdfHandler:
             if len(self.pack_list):
                 warnings.warn('pack_list will be ignored when pickling figure!')
 
-            fig_fname = output_fname[:-3] + 'pkl'
+            fig_fname = self.output_fname[:-3] + 'pkl'
             fig = plt.gcf()
             fig.canvas = plt.figure().canvas
             fdata = pickle.dumps(fig)
@@ -302,7 +302,7 @@ def fix_pypdf(input_fname,
             pass
         
         pr = PdfReader(fr)     
-        pw.cloneReaderDocumentRoot(pr)
+        pw.clone_reader_document_root(pr)
         pw.write(temp_output)
 
     do_write = True
