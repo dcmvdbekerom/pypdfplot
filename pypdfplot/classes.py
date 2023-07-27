@@ -44,7 +44,7 @@ import warnings
 legacy = True
    
 
-from binascii import hexlify,unhexlify
+from binascii import hexlify, unhexlify
 import sys
 import io
 import os
@@ -52,13 +52,6 @@ import struct
 
 __PYPDFVERSION__ = '1.0'
 _pyfile_appendix = b'\n"""\n--- Do not edit below ---'
-
-## Legacy wrappers:
-def isString(s):
-    return instance(s, str)
-
-def formatWarning(*vargs, **kwargs):
-    pass
 
 def ASCIIHexEncode(self,col_width = 79):
 
