@@ -41,8 +41,6 @@ from pypdf.errors import PdfReadError
 from pypdf._utils import read_until_whitespace as readUntilWhitespace
 import pypdf._utils as utils
 import warnings
-legacy = True
-   
 
 from binascii import hexlify, unhexlify
 import sys
@@ -98,14 +96,8 @@ def decode(data, decodeParms=None):
     bdata = data[:-1].replace(b'\n',b'')
     return unhexlify(bdata)
 
-#if legacy:
 from pypdf.filters import ASCIIHexDecode
 ASCIIHexDecode.decode = staticmethod(decode)
-
-# else:
-    # from pypdf.filters import ASCIIHexCodec
-    # ASCIIHexCodec.decode = staticmethod(decode)
-
 
 class PyPdfFileReader(PdfReader):
     
@@ -184,7 +176,7 @@ class PyPdfFileReader(PdfReader):
 
     def extractEmbeddedFiles(self,verbose = True):
         
-        root_obj = (self.trailer if legacy else self._trailer)['/Root']
+        root_obj = self.trailer['/Root']
         file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
         
         pyname = root_obj['/PyFile']
@@ -220,15 +212,9 @@ class PyPdfFileReader(PdfReader):
 class PyPdfFileWriter(PdfWriter):
     def __init__(self, after_page_append=None): # in_stream,  out_stream,
 
-        if debug:
-            print('Legacy = ' + str(legacy))
-
-        if legacy:
-            super(PyPdfFileWriter,self).__init__()
-            self._stream = io.BytesIO()
-        else:
-            stream = io.BytesIO()
-            super(PyPdfFileWriter,self).__init__(stream)
+       
+        super(PyPdfFileWriter,self).__init__()
+        self._stream = io.BytesIO()
 
         '''
         Create a copy (clone) of a document from a PDF file reader
@@ -267,12 +253,9 @@ class PyPdfFileWriter(PdfWriter):
         self.major_pypdf_version = int(major_str)
         self.minor_pypdf_version = int(minor_str)
 
-        if legacy:
-            root_dict = dict(self._root_object)
-            root_dict[NameObject('/PyPDFVersion')] = create_string_object(version)
-            self._root_object = DictionaryObject(root_dict)
-        else:
-            self._root_object[NameObject('/PyPDFVersion')] = create_string_object(version)
+        root_dict = dict(self._root_object)
+        root_dict[NameObject('/PyPDFVersion')] = create_string_object(version)
+        self._root_object = DictionaryObject(root_dict)
 
 ##    def setNewlineChar(self,newline_char):
 ##        self._root_object[NameObject('/PyPDFNewlineChar')] = create_string_object(newline_char)
@@ -280,8 +263,7 @@ class PyPdfFileWriter(PdfWriter):
 
     def cloneReaderDocumentRoot(self, reader):
         super(PyPdfFileWriter,self).cloneReaderDocumentRoot(reader)
-        if legacy:
-            self._root_object = reader.trailer['/Root']
+        self._root_object = reader.trailer['/Root']
 
     def write(self,fstream):
         """
