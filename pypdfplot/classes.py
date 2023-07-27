@@ -42,7 +42,7 @@ from pypdf._utils import read_until_whitespace as readUntilWhitespace
 import pypdf._utils as utils
 import warnings
 
-from binascii import hexlify, unhexlify
+from binascii import hexlify
 import sys
 import io
 import os
@@ -51,16 +51,9 @@ import struct
 __PYPDFVERSION__ = '1.0'
 _pyfile_appendix = b'\n"""\n--- Do not edit below ---'
 
-def ASCIIHexEncode(self,col_width = 79):
+def ASCIIHexEncode(self):
 
-    hexdata = hexlify(self._data) + b'>'
-
-    temp = b''
-    while len(hexdata) > col_width:
-        temp += hexdata[:col_width] + b'\n'
-        hexdata = hexdata[col_width:]
-    temp += hexdata
-    self._data = temp
+    self._data = hexlify(self._data) + b'>'
  
     f = self["/Filter"]
     if isinstance(f, ArrayObject):
@@ -86,7 +79,7 @@ def ASCIIHexEncode(self,col_width = 79):
             
         self[NameObject("/DecodeParms")] = p
         
-    except(KeyError):
+    except(KeyError): #TODO: when does this happen? Doesn't look safe..
         pass
    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
@@ -208,6 +201,7 @@ class PyPdfFileWriter(PdfWriter):
        
         super(PyPdfFileWriter,self).__init__()
         self._stream = io.BytesIO()
+        self.col_width = 79 #TODO: make this cusomizable by user
 
         '''
         Create a copy (clone) of a document from a PDF file reader
@@ -388,6 +382,14 @@ class PyPdfFileWriter(PdfWriter):
                     if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
                         #TO-DO: upgrade to /ASCII85Encode at some point
                         obj.ASCIIHexEncode()
+                        
+                        #Cut it up to fit the 80 columns PEP requirement
+                        temp = b''
+                        while len(obj._data) > self.col_width:
+                            temp += obj._data[:self.col_width] + b'\n'
+                            obj._data = obj._data[self.col_width:]
+                        temp += obj._data
+                        obj._data = temp
             
                 obj.write_to_stream(self._stream, encryption_key)
                 self._stream.write(b"\nendobj\n")
@@ -421,11 +423,11 @@ class PyPdfFileWriter(PdfWriter):
         self._stream.write(eof)
             
         ## Write bytes object to fstream:
-        col_width = 79
+        
         self._stream.seek(0)        
         for line in self._stream:
-            while len(line) > col_width + 1:
-                i = line[:col_width].rfind(b' ')
+            while len(line) > self.col_width + 1:
+                i = line[:self.col_width].rfind(b' ')
                 fstream.write(line[:i]+b'\n')
                 line = line[i+1:]
             fstream.write(line)
