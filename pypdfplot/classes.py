@@ -233,7 +233,6 @@ class PyPdfFileWriter(PdfWriter):
         if legacy:
             super(PyPdfFileWriter,self).__init__()
             self._stream = io.BytesIO()
-            self._rootObject = self._root_object
         else:
             stream = io.BytesIO()
             super(PyPdfFileWriter,self).__init__(stream)
@@ -264,8 +263,8 @@ class PyPdfFileWriter(PdfWriter):
 
     def addPyFile(self,fname,fdata):
         self.add_attachment(fname,fdata + _pyfile_appendix)
-        self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
-        self._rootObject[NameObject('/PyFile')] = create_string_object(fname)
+        self._root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
+        self._root_object[NameObject('/PyFile')] = create_string_object(fname)
 
     def setPyPDFVersion(self,version):
         
@@ -276,20 +275,20 @@ class PyPdfFileWriter(PdfWriter):
         self.minor_pypdf_version = int(minor_str)
 
         if legacy:
-            root_dict = dict(self._rootObject)
+            root_dict = dict(self._root_object)
             root_dict[NameObject('/PyPDFVersion')] = create_string_object(version)
-            self._rootObject = DictionaryObject(root_dict)
+            self._root_object = DictionaryObject(root_dict)
         else:
-            self._rootObject[NameObject('/PyPDFVersion')] = create_string_object(version)
+            self._root_object[NameObject('/PyPDFVersion')] = create_string_object(version)
 
 ##    def setNewlineChar(self,newline_char):
-##        self._rootObject[NameObject('/PyPDFNewlineChar')] = create_string_object(newline_char)
+##        self._root_object[NameObject('/PyPDFNewlineChar')] = create_string_object(newline_char)
 
 
     def cloneReaderDocumentRoot(self, reader):
         super(PyPdfFileWriter,self).cloneReaderDocumentRoot(reader)
         if legacy:
-            self._rootObject = reader.trailer['/Root']
+            self._root_object = reader.trailer['/Root']
 
     def write(self,fstream):
         """
@@ -305,7 +304,7 @@ class PyPdfFileWriter(PdfWriter):
             warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
 
         if not self._root:
-            self._root = self._addObject(self._rootObject)
+            self._root = self._add_object(self._root_object)
 
         externalReferenceMap = {}
 
@@ -348,7 +347,7 @@ class PyPdfFileWriter(PdfWriter):
 
         oi = list(range(len(self._objects)))
         try:
-            pyname = self._rootObject['/PyFile']
+            pyname = self._root_object['/PyFile']
             name_list = self._root.get_object()["/Names"]["/EmbeddedFiles"]["/Names"]
             name_dict = dict(zip(name_list[0::2],name_list[1::2]))
             py_oi = list(name_dict[pyname].get_object()['/EF'].values())[0].idnum - 1
@@ -380,7 +379,7 @@ class PyPdfFileWriter(PdfWriter):
                 ##decode if necessary (in case of severed PyPDF file):
                 if isinstance(obj,EncodedStreamObject):
                     obj.get_data()
-                    obj = obj.decodedSelf
+                    obj = obj.decoded_self
                 
                 self._stream.write(str(idnum).encode() + b" 0 obj ")
 
