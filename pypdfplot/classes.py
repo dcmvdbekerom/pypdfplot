@@ -260,27 +260,11 @@ class PyPdfFileWriter(PdfWriter):
 
 ##        reader = PdfFileReader(in_stream)   
 ##        self.appendPagesFromReader(reader)
-    
-    ## Let's see if we can now use the one from pypdf...
-    
-    # def add_attachment(self,fname,fdata):
-        # ## This method fixes updating the EmbeddedFile dictionary when multiple files are attached
-        # try:
-            # old_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"] 
-        # except(KeyError):
-            # old_list = ArrayObject([])
-        
-        # super(PyPdfFileWriter,self).add_attachment(fname,fdata)
-        
-        # new_list = self._rootObject["/Names"]["/EmbeddedFiles"]["/Names"][-2:]
-        # if not isinstance(new_list[1],IndirectObject):
-            # new_list[1] = self._addObject(new_list[1])
-        # file_list = ArrayObject(old_list + new_list)
-        # self._rootObject[NameObject("/Names")][NameObject("/EmbeddedFiles")][NameObject("/Names")] = file_list
-        # self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
+   
 
     def addPyFile(self,fname,fdata):
         self.add_attachment(fname,fdata + _pyfile_appendix)
+        self._rootObject[NameObject("/PageMode")] = NameObject("/UseAttachments")
         self._rootObject[NameObject('/PyFile')] = create_string_object(fname)
 
     def setPyPDFVersion(self,version):
