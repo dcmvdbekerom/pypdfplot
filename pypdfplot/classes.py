@@ -92,13 +92,6 @@ def ASCIIHexEncode(self,col_width = 79):
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
 
-def decode(data, decodeParms=None):
-    bdata = data[:-1].replace(b'\n',b'')
-    return unhexlify(bdata)
-
-from pypdf.filters import ASCIIHexDecode
-ASCIIHexDecode.decode = staticmethod(decode)
-
 class PyPdfFileReader(PdfReader):
     
     def __init__(self, read_buf):
