@@ -5,6 +5,7 @@ import warnings
 from pypdfplot._version import __version__
 import sys
 import os
+from pypdf.generic import *
 from os.path import normcase, realpath
 import subprocess
 import io
@@ -305,7 +306,7 @@ def fix_pypdf(input_fname,
         
         pr = PdfReader(fr)     
         pw.clone_reader_document_root(pr)
-        pw.add_metadata({}) #TODO: this is supposed to remove the xpacket in fix_pypdf result, but not working
+        #pw.add_metadata(DictionaryObject({})) #TODO: this is supposed to remove the xpacket in fix_pypdf result, but not working
         pw.write(temp_output)
 
     do_write = True
