@@ -126,7 +126,7 @@ class PyPdfHandler:
             if len(self.pack_list):
                 warnings.warn('pack_list will be ignored when pickling figure!')
 
-            fig_fname = self.output_fname[:-3] + 'pkl'
+            fig_fname = self.output_fname[:-3] + 'pkl' #TODO: use splitext
             fig = plt.gcf()
             fig.canvas = plt.figure().canvas
             fdata = pickle.dumps(fig)
@@ -177,7 +177,7 @@ class PyPdfHandler:
 
             if do_overwrite:
                 try:
-                    os.remove(output_fname)
+                    os.remove(self.output_fname)
                 except:
                     warnings.warn('Unable to overwrite local file ' + self.output_fname)
                     self.output_fname = available_filename(self.output_fname)
