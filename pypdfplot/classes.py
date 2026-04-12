@@ -90,12 +90,12 @@ StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
 class PyPdfFileReader(PdfReader):
     
-    def __init__(self, read_buf):
+    def __init__(self, read_buf, **kwargs):
         ##Fix XREF table, obj length, etc.:
         in_stream = self.sanitizePDF(read_buf)
 
         ##From this point we have a plain old regular PDF file
-        super(PyPdfFileReader,self).__init__(in_stream)
+        super(PyPdfFileReader,self).__init__(in_stream, **kwargs)
 
     def sanitizePDF(self,read_buf,output = None):
 
@@ -164,12 +164,11 @@ class PyPdfFileReader(PdfReader):
 
 
     def extractEmbeddedFiles(self,verbose = True):
-        
+
         root_obj = self.trailer['/Root']
         file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
         
         pyname = root_obj['/PyFile']
-        
         for i in range(0,len(file_dict),2):
             fname = file_dict[i]
             fobjh = file_dict[i+1]
@@ -257,7 +256,7 @@ class PyPdfFileWriter(PdfWriter):
         
         self.setPyPDFVersion(__PYPDFVERSION__)
         
-        object_positions = []
+        object_positions = len(self._objects)*[None]
         free_objects = []
         stream.write(b'#' + self.pdf_header.encode() + b" ")
         # stream.write(b"%\xE2\xE3\xCF\xD3 ") # not required
@@ -276,9 +275,9 @@ class PyPdfFileWriter(PdfWriter):
             return
 
         # Write PyFile first:
-        py_obj = self._objects[py_idnum - 1]
+        py_obj = self._objects[py_idnum - 1] 
         
-        object_positions.append(stream.tell())
+        object_positions[py_idnum - 1] = stream.tell() - 1 # -1 to account for the '#' at the start of PyPDF file
         stream.write(f"{py_idnum} 0 obj ".encode())
 
         py_obj[NameObject("/Length")] = NumberObject(len(py_obj._data))
@@ -303,12 +302,12 @@ class PyPdfFileWriter(PdfWriter):
             obj = self._objects[idnum-1]
             
             if obj is not None:
-                object_positions.append(stream.tell() - 1) # -1 to account for the '#' at the start of PyPDF file
+                object_positions[idnum - 1] = stream.tell() - 1 # -1 to account for the '#' at the start of PyPDF file
                 stream.write(f"{idnum} 0 obj\n".encode())
                 if self._encryption and obj != self._encrypt_entry:
                     obj = self._encryption.encrypt_object(obj, idnum, 0)
                 
-                #PyPDF: decode all encoded objects
+                #PyPDF: decode all encoded objects & encode them as flate + ascii
                 if isinstance(obj, EncodedStreamObject):
                     obj.get_data()
                     obj = obj.decoded_self
@@ -328,7 +327,7 @@ class PyPdfFileWriter(PdfWriter):
                     obj.write_to_stream(stream)
                     stream.write(b"\nendobj\n")
 
-                else:    
+                else:   # all other objects are cropped to fit column size
                     obj_stream = io.BytesIO()
                     obj.write_to_stream(obj_stream)
                     obj_stream.seek(0)        
@@ -357,10 +356,3 @@ class PyPdfFileWriter(PdfWriter):
         eof = eof.format(stream.tell()+len(eof)).encode()
         stream.write(eof)
             
-
-
-
-
-
-
-
