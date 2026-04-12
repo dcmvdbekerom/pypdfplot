@@ -203,7 +203,7 @@ class PyPdfFileWriter(PdfWriter):
 
        
         super(PyPdfFileWriter,self).__init__()
-        self._stream = io.BytesIO()
+        # self._stream = io.BytesIO()
         self.col_width = 79 #TODO: make this cusomizable by user
 
         '''
@@ -243,19 +243,25 @@ class PyPdfFileWriter(PdfWriter):
         self.major_pypdf_version = int(major_str)
         self.minor_pypdf_version = int(minor_str)
 
-        root_dict = dict(self._root_object)
-        root_dict[NameObject('/PyPDFVersion')] = create_string_object(version)
-        self._root_object = DictionaryObject(root_dict)
+        self.root_object[NameObject('/PyPDFVersion')] = create_string_object(version)
+
+
 ##    # TODO
 ##    def setNewlineChar(self,newline_char):
 ##        self._root_object[NameObject('/PyPDFNewlineChar')] = create_string_object(newline_char)
 
+
+
     #overwrite from pypdf:
     def _write_pdf_structure(self, stream: StreamType) -> tuple[list[int], list[int]]:
+        
+        self.setPyPDFVersion(__PYPDFVERSION__)
+        
         object_positions = []
         free_objects = []
         stream.write(b'#' + self.pdf_header.encode() + b" ")
         # stream.write(b"%\xE2\xE3\xCF\xD3 ") # not required
+        
         
         # Find PyFile obj:
         try:
@@ -333,8 +339,24 @@ class PyPdfFileWriter(PdfWriter):
         return object_positions, free_objects
 
 
+    def _write_trailer(self, stream: StreamType, xref_location: int) -> None:
+        
+        super()._write_trailer(stream, xref_location)
 
-
+        eof = '{:000010d} LF\nPyPDF-' + self.pypdf_version
+        eof += '\n"""\n'
+        eof = eof.format(stream.tell()+len(eof)).encode()
+        stream.write(eof)
+            
+        # ## Write bytes object to fstream:
+        
+        # self._stream.seek(0)        
+        # for line in self._stream:
+            # while len(line) > self.col_width + 1:
+                # i = line[:self.col_width].rfind(b' ')
+                # fstream.write(line[:i]+b'\n')
+                # line = line[i+1:]
+            # fstream.write(line)
 
 
 
