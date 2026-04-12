@@ -80,6 +80,8 @@ class PyPdfHandler:
             
             if verbose: print('\nPreparing PyPDF file:')
             self.pw = PyPdfFileWriter()
+            
+            print('incremental?', self.pw.incremental)
 
             ## If input PyPDF file hasn't been read yet, do that now:
             if self.py_file == b'':
@@ -303,6 +305,7 @@ def fix_pypdf(input_fname,
         
         pr = PdfReader(fr)     
         pw.clone_reader_document_root(pr)
+        pw.add_metadata({}) #TODO: this is supposed to remove the xpacket in fix_pypdf result, but not working
         pw.write(temp_output)
 
     do_write = True
