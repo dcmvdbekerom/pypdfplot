@@ -281,9 +281,6 @@ class PyPdfFileWriter(PdfWriter):
         object_positions.append(stream.tell())
         stream.write(f"{py_idnum} 0 obj ".encode())
 
-        # if self._encryption and obj != self._encrypt_entry:   #pyobj will never be encrypted
-            # py_obj = self._encryption.encrypt_object(py_obj, py_idnum, 0)
-
         py_obj[NameObject("/Length")] = NumberObject(len(py_obj._data))
         
         stream.write(b"<< ")
@@ -299,14 +296,14 @@ class PyPdfFileWriter(PdfWriter):
         stream.write(py_obj._data)
         stream.write(b"\nendstream\nendobj\n")
 
-
         # Write remaining objects
         idnums = list(range(1,len(self._objects)+1))
         idnums.pop(py_idnum-1)
         for idnum in idnums:
             obj = self._objects[idnum-1]
+            
             if obj is not None:
-                object_positions.append(stream.tell())
+                object_positions.append(stream.tell() - 1) # -1 to account for the '#' at the start of PyPDF file
                 stream.write(f"{idnum} 0 obj\n".encode())
                 if self._encryption and obj != self._encrypt_entry:
                     obj = self._encryption.encrypt_object(obj, idnum, 0)
@@ -327,10 +324,22 @@ class PyPdfFileWriter(PdfWriter):
                         obj._data = obj._data[self.col_width:]
                     temp += obj._data
                     obj._data = temp
-           
-                obj.write_to_stream(stream)
-                stream.write(b"\nendobj\n")
                 
+                    obj.write_to_stream(stream)
+                    stream.write(b"\nendobj\n")
+
+                else:    
+                    obj_stream = io.BytesIO()
+                    obj.write_to_stream(obj_stream)
+                    obj_stream.seek(0)        
+                    for line in obj_stream:
+                        while len(line) > self.col_width + 1:
+                            i = line[:self.col_width].rfind(b' ')
+                            stream.write(line[:i]+b'\n')
+                            line = line[i+1:]
+                        stream.write(line)
+                    stream.write(b"\nendobj\n")
+                    
             else:
                 object_positions.append(-1)
                 free_objects.append(idnum)
@@ -338,214 +347,20 @@ class PyPdfFileWriter(PdfWriter):
         free_objects.append(0)  # add 0 to loop in accordance with specification
         return object_positions, free_objects
 
-
+    #overwrite from pypdf:
     def _write_trailer(self, stream: StreamType, xref_location: int) -> None:
         
-        super()._write_trailer(stream, xref_location)
+        super()._write_trailer(stream, xref_location - 1) # -1 to account for the '#' at the start of PyPDF file
 
         eof = '{:000010d} LF\nPyPDF-' + self.pypdf_version
         eof += '\n"""\n'
         eof = eof.format(stream.tell()+len(eof)).encode()
         stream.write(eof)
             
-        # ## Write bytes object to fstream:
-        
-        # self._stream.seek(0)        
-        # for line in self._stream:
-            # while len(line) > self.col_width + 1:
-                # i = line[:self.col_width].rfind(b' ')
-                # fstream.write(line[:i]+b'\n')
-                # line = line[i+1:]
-            # fstream.write(line)
 
 
 
 
 
 
-
-
-
-
-
-
-    # def write(self,fstream):
-        # """
-        # Writes the collection of pages added to this object out as a PDF file.
-
-        # :param stream: An object to write the file to.  The object must support
-            # the write method and the tell method, similar to a file object.
-        # """
-
-        # self.setPyPDFVersion(__PYPDFVERSION__)
-        
-        # if hasattr(self._stream, 'mode') and 'b' not in self._stream.mode:
-            # warnings.warn("File <%s> to write to is not in binary mode. It may not be written to correctly." % self._stream.name)
-
-        # if not self._root:
-            # self._root = self._add_object(self._root_object)
-
-        # externalReferenceMap = {}
-
-        # # PDF objects sometimes have circular references to their /Page objects
-        # # inside their object tree (for example, annotations).  Those will be
-        # # indirect references to objects that we've recreated in this PDF.  To
-        # # address this problem, PageObject's store their original object
-        # # reference number, and we add it to the external reference map before
-        # # we sweep for indirect references.  This forces self-page-referencing
-        # # trees to reference the correct new object location, rather than
-        # # copying in a new copy of the page object.
-
-        # # BUT for pypdfplot we don't have to worry about this happening,
-        # # because we only ever get matplotlib outputs, which behave nicely.
-        
-# ##        for objIndex in range(len(self._objects)):
-# ##            obj = self._objects[objIndex]
-# ##            if isinstance(obj, PageObject) and obj.indirectRef != None:
-# ##                print 'case0'
-# ##                data = obj.indirectRef
-# ##                if data.pdf not in externalReferenceMap:
-# ##                    print 'case1'
-# ##                    externalReferenceMap[data.pdf] = {}
-# ##                if data.generation not in externalReferenceMap[data.pdf]:
-# ##                    print 'case2'
-# ##                    externalReferenceMap[data.pdf][data.generation] = {}
-# ##                externalReferenceMap[data.pdf][data.generation][data.idnum] = IndirectObject(objIndex + 1, 0, self)
-
-        # self.stack = []
-        # if debug: print(("ERM:", externalReferenceMap, "root:", self._root))
-        # self._sweep_indirect_references(self._root)
-        # del self.stack
-
-        # # Begin writing:
-        # offsets = {}
-        # self._header = b"%PDF-1.4"
-        # self._stream.write(b'#' + self._header + b" ")
-
-        # ## Find the object number of the Python script and rearrange write order
-
-        # oi = list(range(len(self._objects)))
-        # try:
-            # pyname = self._root_object['/PyFile']
-            # name_list = self._root.get_object()["/Names"]["/EmbeddedFiles"]["/Names"]
-            # name_dict = dict(zip(name_list[0::2],name_list[1::2]))
-            # py_oi = list(name_dict[pyname].get_object()['/EF'].values())[0].idnum - 1
-            
-            # oi.pop(py_oi)
-            # oi = [py_oi] + oi
-            
-        # except(KeyError):
-            # warnings.warn("/PyFile keyword not found, looks like a regular PDF file!")
-            # py_oi = -1
- 
-        # for i in oi:
-# ##        for i in list(range(len(self._objects))):
-            # idnum = i + 1
-            # obj = self._objects[i]
-            # offsets[i] = self._stream.tell()
-            # encryption_key = None
-            
-# ##            if hasattr(self, "_encrypt") and idnum != self._encrypt.idnum:
-# ##                pack1 = struct.pack("<i", i + 1)[:3]
-# ##                pack2 = struct.pack("<i", 0)[:2]
-# ##                key = self._encrypt_key + pack1 + pack2
-# ##                assert len(key) == (len(self._encrypt_key) + 5)
-# ##                md5_hash = md5(key).digest()
-# ##                key = md5_hash[:min(16, len(self._encrypt_key) + 5)]
-
-            # if i == py_oi:
-                
-                # ##decode if necessary (in case of severed PyPDF file):
-                # if isinstance(obj,EncodedStreamObject):
-                    # obj.get_data()
-                    # obj = obj.decoded_self
-                
-                # self._stream.write(str(idnum).encode() + b" 0 obj ")
-
-                # obj[NameObject("/Length")] = NumberObject(len(obj._data))
-                
-                # self._stream.write(b"<< ")
-                # for key, value in list(obj.items()):
-                    # key.write_to_stream(self._stream, encryption_key)
-                    # self._stream.write(b" ")
-                    # if key == '/Length':
-                        # space = 10 - len(str(value))
-                        # self._stream.write(space*b" ")
-                    # value.write_to_stream(self._stream, encryption_key)
-                    # self._stream.write(b" ")
-                # self._stream.write(b">>")
-
-                # del obj["/Length"]
-                # self._stream.write(b" stream\n")
-                # data = obj._data
-                
-                # self._stream.write(data)
-                # self._stream.write(b"\nendstream")
-                # self._stream.write(b"\nendobj\n")
-
-            # else:
-                # self._stream.write(str(idnum).encode() + b" 0 obj\n")
-
-                # # Try to compress every object:
-                # if type(obj) == DecodedStreamObject:
-                    # obj = obj.flate_encode()
-
-                # # Hex encode object to make it compatible with Python interpreter:
-                # if type(obj) == EncodedStreamObject: #TO-DO: isn't this always True?
-                    # f = obj["/Filter"]
-                    # if isinstance(f, ArrayObject):
-                        # f = f[0]
-
-                    # if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
-                        # #TO-DO: upgrade to /ASCII85Encode at some point
-                        # obj.ASCIIHexEncode()
-                        
-                        # #Cut it up to fit the 80 columns PEP requirement
-                        # temp = b''
-                        # while len(obj._data) > self.col_width:
-                            # temp += obj._data[:self.col_width] + b'\n'
-                            # obj._data = obj._data[self.col_width:]
-                        # temp += obj._data
-                        # obj._data = temp
-            
-                # obj.write_to_stream(self._stream, encryption_key)
-                # self._stream.write(b"\nendobj\n")
-
-        # # xref table
-        # xref_location = self._stream.tell()-1
-        # self._stream.write(b"xref\n")
-        # self._stream.write(("0 %s\n" % (len(self._objects) + 1)).encode())
-        # self._stream.write(("%010d %05d f \n" % (0, 65535)).encode())
-        # for i in range(len(self._objects)):
-            # self._stream.write(("%010d %05d n \n" % (offsets[i]-1, 0)).encode())
-
-        # # trailer
-        # self._stream.write(b"trailer\n")
-        # trailer = DictionaryObject()
-        # trailer.update({
-                # NameObject("/Size"): NumberObject(len(self._objects) + 1),
-                # NameObject("/Root"): self._root,
-                # NameObject("/Info"): self._info
-                # })
-        # if hasattr(self, "_ID"):
-            # trailer[NameObject("/ID")] = self._ID
-        # if hasattr(self, "_encrypt"):
-            # trailer[NameObject("/Encrypt")] = self._encrypt
-        # trailer.write_to_stream(self._stream, None)
-
-        # eof  = '\nstartxref\n{:d}\n%%EOF'.format(xref_location)
-        # eof += '\n{:000010d} LF\nPyPDF-' + self.pypdf_version
-        # eof += '\n"""\n'
-        # eof = eof.format(self._stream.tell()+len(eof)).encode()
-        # self._stream.write(eof)
-            
-        # ## Write bytes object to fstream:
-        
-        # self._stream.seek(0)        
-        # for line in self._stream:
-            # while len(line) > self.col_width + 1:
-                # i = line[:self.col_width].rfind(b' ')
-                # fstream.write(line[:i]+b'\n')
-                # line = line[i+1:]
-            # fstream.write(line)
 
