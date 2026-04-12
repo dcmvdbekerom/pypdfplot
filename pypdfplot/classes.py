@@ -55,17 +55,21 @@ __PYPDFVERSION__ = '1.0'
 _pyfile_appendix = b'\n"""\n--- Do not edit below ---'
 
 def ASCIIHexEncode(self):
-
+    #TODO: replace with pypdf version
     self._data = hexlify(self._data) + b'>'
- 
-    f = self["/Filter"]
-    if isinstance(f, ArrayObject):
-        f.insert(0, NameObject("/ASCIIHexDecode"))
-    else:
-        newf = ArrayObject()
-        newf.append(NameObject("/ASCIIHexDecode"))
-        newf.append(f)
-        f = newf
+    try:
+        f = self["/Filter"]
+        if isinstance(f, ArrayObject):
+            f.insert(0, NameObject("/ASCIIHexDecode"))
+        else:
+            newf = ArrayObject()
+            newf.append(NameObject("/ASCIIHexDecode"))
+            newf.append(f)
+            f = newf
+            
+    except(KeyError):
+        f = ArrayObject()
+        f.append(NameObject("/ASCIIHexDecode"))
 
     self[NameObject("/Filter")] = f
 
@@ -198,7 +202,7 @@ class PyPdfFileReader(PdfReader):
 
 
 class PyPdfFileWriter(PdfWriter):
-    def __init__(self, after_page_append=None): # in_stream,  out_stream,
+    def __init__(self, after_page_append=None, **kwargs): # in_stream,  out_stream,
 
        
         super(PyPdfFileWriter,self).__init__()
@@ -275,7 +279,10 @@ class PyPdfFileWriter(PdfWriter):
             return
 
         # Write PyFile first:
-        py_obj = self._objects[py_idnum - 1] 
+        py_obj = self._objects[py_idnum - 1]
+        if isinstance(py_obj, EncodedStreamObject):
+            py_obj.get_data()
+            py_obj = py_obj.decoded_self        
         
         object_positions[py_idnum - 1] = stream.tell() - 1 # -1 to account for the '#' at the start of PyPDF file
         stream.write(f"{py_idnum} 0 obj ".encode())
@@ -311,9 +318,26 @@ class PyPdfFileWriter(PdfWriter):
                 if isinstance(obj, EncodedStreamObject):
                     obj.get_data()
                     obj = obj.decoded_self
-                
-                    # Try to compress every object:
                     obj = obj.flate_encode()
+                    
+                needs_ascii = False
+                if isinstance(obj, EncodedStreamObject):
+                    f = obj["/Filter"]
+                    if isinstance(f, ArrayObject):
+                        f = f[0]
+
+                    if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
+                        needs_ascii = True 
+                else:    
+                    try:
+                        if obj['/Type'] == '/EmbeddedFile':
+                            needs_ascii = True    
+                    except(KeyError, TypeError):
+                        pass
+
+                if needs_ascii:
+
+                    #TO-DO: upgrade to /ASCII85Encode at some point
                     obj.ASCIIHexEncode()
 
                     #Cut it up to fit the 80 columns PEP requirement
@@ -337,6 +361,7 @@ class PyPdfFileWriter(PdfWriter):
                             stream.write(line[:i]+b'\n')
                             line = line[i+1:]
                         stream.write(line)
+                    # stream.write(obj_stream.read())
                     stream.write(b"\nendobj\n")
                     
             else:
