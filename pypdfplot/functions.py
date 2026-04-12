@@ -81,8 +81,6 @@ class PyPdfHandler:
             
             if verbose: print('\nPreparing PyPDF file:')
             self.pw = PyPdfFileWriter()
-            
-            print('incremental?', self.pw.incremental)
 
             ## If input PyPDF file hasn't been read yet, do that now:
             if self.py_file == b'':
