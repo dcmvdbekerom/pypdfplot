@@ -169,6 +169,8 @@ class PyPdfFileReader(PdfReader):
 
     def extractEmbeddedFiles(self,verbose = True):
 
+        #TODO: do this with: for name, file in pr.attachments.items(): 
+
         root_obj = self.trailer['/Root']
         file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
         
@@ -237,6 +239,19 @@ class PyPdfFileWriter(PdfWriter):
         self.add_attachment(fname,fdata + _pyfile_appendix)
         self.root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
         self.root_object[NameObject('/PyFile')] = create_string_object(fname)
+        
+        #add backup
+        backup_obj = DecodedStreamObject()
+        backup_obj.set_data(fdata + _pyfile_appendix)
+        
+        backup_obj = backup_obj.flate_encode()
+        backup_obj.ASCIIHexEncode()
+        
+        backup_ref = self._add_object(backup_obj)
+        
+        self.root_object[NameObject('/PyBackup')] = backup_ref
+        
+        
 
     def setPyPDFVersion(self,version):
         
@@ -268,7 +283,7 @@ class PyPdfFileWriter(PdfWriter):
         
         # Find PyFile obj:
         try:
-            pyname = self._root_object['/PyFile']
+            pyname = self.root_object['/PyFile']
             obj_list = self.root_object["/Names"]["/EmbeddedFiles"]["/Names"]
             obj_dict = dict(zip(obj_list[0::2],obj_list[1::2]))
             py_idnum = list(obj_dict[pyname]['/EF'].values())[0].idnum
@@ -337,7 +352,6 @@ class PyPdfFileWriter(PdfWriter):
 
                 if needs_ascii:
 
-                    #TO-DO: upgrade to /ASCII85Encode at some point
                     obj.ASCIIHexEncode()
 
                     #Cut it up to fit the 80 columns PEP requirement
