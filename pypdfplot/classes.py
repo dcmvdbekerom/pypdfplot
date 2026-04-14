@@ -329,7 +329,7 @@ class PyPdfFileWriter(PdfWriter):
                 if self._encryption and obj != self._encrypt_entry:
                     obj = self._encryption.encrypt_object(obj, idnum, 0)
                 
-                #PyPDF: decode all encoded objects & encode them as flate + ascii
+                #PyPDF: decode all encoded objects & encode them as flate
                 if isinstance(obj, EncodedStreamObject):
                     obj.get_data()
                     obj = obj.decoded_self
@@ -341,12 +341,16 @@ class PyPdfFileWriter(PdfWriter):
                     if isinstance(f, ArrayObject):
                         f = f[0]
 
-                    if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
+                    if f != '/ASCIIHexDecode':
                         needs_ascii = True 
                 else:    
                     try:
-                        if obj['/Type'] == '/EmbeddedFile':
+                        if obj['/Type'] == '/Metadata':
+                            obj = obj.flate_encode()
+                            
+                        if obj['/Type'] in ['/EmbeddedFile', '/Metadata']:
                             needs_ascii = True    
+                            
                     except(KeyError, TypeError):
                         pass
 
@@ -363,7 +367,6 @@ class PyPdfFileWriter(PdfWriter):
                     obj._data = temp
                 
                     obj.write_to_stream(stream)
-                    stream.write(b"\nendobj\n")
 
                 else:   # all other objects are cropped to fit column size
                     obj_stream = io.BytesIO()
@@ -375,8 +378,8 @@ class PyPdfFileWriter(PdfWriter):
                             stream.write(line[:i]+b'\n')
                             line = line[i+1:]
                         stream.write(line)
-                    # stream.write(obj_stream.read())
-                    stream.write(b"\nendobj\n")
+                
+                stream.write(b"\nendobj\n")
                     
             else:
                 object_positions.append(-1)
