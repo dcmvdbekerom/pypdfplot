@@ -285,11 +285,12 @@ def fix_pypdf(input_fname,
         output_fname = input_fname
     
     pw = PyPdfFileWriter()
-    temp_output = io.BytesIO()
-    
-    #TO-DO: byte level operations should go to classes.py
+
+    #The PyPDF line in the trailer will never survive a PDF save, 
+    #so if it's here, it's a guaranteed PyPDF file.
     with open(input_fname,'rb') as fr: 
         try:
+            #TO-DO: byte level operations should go to classes.py
             fr.seek(-1024,2)
             last1k = fr.read()
             eof_addr = last1k.rfind(b'%%EOF')
@@ -315,16 +316,15 @@ def fix_pypdf(input_fname,
                           "Restoring pyfile from backup...")
             
             backup_obj = pw.root_object['/PyBackup']
-            new_obj = backup_obj.clone(pw)
+            new_obj = backup_obj.clone(pw, force_duplicate=True)
+            py_obj[NameObject('/F')] = pw._add_object(new_obj)
+            
             new_obj[NameObject('/Type')] = NameObject('/EmbeddedFile')
-
-            if isinstance(new_obj, EncodedStreamObject):
+            if isinstance(new_obj, EncodedStreamObject): #should always be True
                 new_obj.get_data()
                 new_obj = new_obj.decoded_self  
                 
-            py_obj[NameObject('/F')] = pw._add_object(new_obj)
-
-        #pw.add_metadata(DictionaryObject({})) #TODO: this is supposed to remove the xpacket in fix_pypdf result, but not working
+        temp_output = io.BytesIO()
         pw.write(temp_output)
 
     do_write = True

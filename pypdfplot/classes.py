@@ -88,7 +88,9 @@ def ASCIIHexEncode(self):
         
     except(KeyError): #TODO: when does this happen? Doesn't look safe..
         pass
-   
+    #TODO: make a new decodedstreamobject and return it, to be consistent with pypdf
+    
+    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
 
@@ -103,7 +105,8 @@ class PyPdfFileReader(PdfReader):
 
     def sanitizePDF(self,read_buf,output = None):
 
-        #TO-DO: Add correction for LF/CRLF mixup
+        #TODO: Add correction for LF/CRLF mixup
+        #TODO: reuse pypdf Xref writer
 
         first1k = read_buf[:1024]
         py_obj = int(first1k.split()[1])
