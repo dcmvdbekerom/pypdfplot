@@ -304,6 +304,26 @@ def fix_pypdf(input_fname,
         
         pr = PdfReader(fr)     
         pw.clone_reader_document_root(pr)
+        
+        # Test if the data for the py_obj is still there
+        file_list = pw.root_object['/Names']['/EmbeddedFiles']['/Names']
+        file_dict = dict(zip(file_list[0::2], file_list[1::2]))
+        py_name = pw.root_object['/PyFile']
+        py_obj = file_dict[py_name]['/EF']
+        if not '/F' in py_obj:
+            warnings.warn("/PyFile keyword was found, but the pyfile itself was lost\n"+
+                          "Restoring pyfile from backup...")
+            
+            backup_obj = pw.root_object['/PyBackup']
+            new_obj = backup_obj.clone(pw)
+            new_obj[NameObject('/Type')] = NameObject('/EmbeddedFile')
+
+            if isinstance(new_obj, EncodedStreamObject):
+                new_obj.get_data()
+                new_obj = new_obj.decoded_self  
+                
+            py_obj[NameObject('/F')] = pw._add_object(new_obj)
+
         #pw.add_metadata(DictionaryObject({})) #TODO: this is supposed to remove the xpacket in fix_pypdf result, but not working
         pw.write(temp_output)
 
