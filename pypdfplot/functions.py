@@ -293,9 +293,9 @@ def fix_pypdf(input_fname,
             fr.seek(-1024,2)
             last1k = fr.read()
             eof_addr = last1k.rfind(b'%%EOF')
-            pypdf_str = last1k[eof_addr:].split()[2]
+            pypdf_str = last1k[eof_addr:].splitlines()[2]
 
-            if pypdf_str == b'PyPDF':
+            if pypdf_str[:5] == b'PyPDF':
                 warnings.warn(input_fname + ' is already compliant PyPDF-file, skipping!')
                 return
             
