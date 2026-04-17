@@ -242,37 +242,39 @@ unpack = handler.unpack
 
 def remove_file(fname,verbose = True):
 
-    success = False
-    
-    if os.path.isfile(fname):
-        if verbose: print('-> Removing ' + fname + '...', end = '')
-        if normcase(realpath(fname)) != normcase(realpath(__file__)): 
-            try:
-                os.remove(fname)
-                success = True
-            except:
-                try:
-                    ## Removing files via command line sometimes helps if os.remove doesn't work:
-                    del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(fname)
-                    subprocess.Popen(del_script)
-                    success = True
-                    
-                except:
-                    warnings.warn('Unable to remove ' + fname + '...!')
-                    success = False
-        else:
-            warnings.warn('Attempt to delete __init__ file was prevented')
-            success = False
-
+    if not os.path.isfile(fname):
         if verbose:
-            if success:
+            print("File doesn't exist, Done!")
+        return True 
+        
+    if verbose: print('-> Removing ' + fname + '...', end = '')
+    
+    if normcase(realpath(fname)) == normcase(realpath(__file__)):
+        warnings.warn('Attempt to delete __init__ file was prevented')
+        return False       
+    
+    try:
+        os.remove(fname)
+        if verbose:
+            print(' Done!')
+        return True
+        
+    except: #TODO: missing exception
+        try:
+            ## Removing files via command line sometimes helps if os.remove doesn't work:
+            del_script = "python -c \"import os, time; time.sleep(1); os.remove('{}');\"".format(fname)
+            subprocess.Popen(del_script)
+            if verbose:
                 print(' Done!')
-            else:
+            return True
+            
+        except:
+            warnings.warn('Unable to remove ' + fname + '...!')
+            if verbose:
                 print(' FAILED!')
-    else:
-        success = True
+            return False
 
-    return success
+    return False #Never get here
 
 
 def fix_pypdf(input_fname,
