@@ -88,7 +88,9 @@ def ASCIIHexEncode(self):
         
     except(KeyError): #TODO: when does this happen? Doesn't look safe..
         pass
-   
+    #TODO: make a new decodedstreamobject and return it, to be consistent with pypdf
+    
+    
 StreamObject.ASCIIHexEncode = ASCIIHexEncode
 
 
@@ -103,7 +105,8 @@ class PyPdfFileReader(PdfReader):
 
     def sanitizePDF(self,read_buf,output = None):
 
-        #TO-DO: Add correction for LF/CRLF mixup
+        #TODO: Add correction for LF/CRLF mixup
+        #TODO: reuse pypdf Xref writer
 
         first1k = read_buf[:1024]
         py_obj = int(first1k.split()[1])
@@ -169,6 +172,8 @@ class PyPdfFileReader(PdfReader):
 
     def extractEmbeddedFiles(self,verbose = True):
 
+        #TODO: do this with: for name, file in pr.attachments.items(): 
+
         root_obj = self.trailer['/Root']
         file_dict = root_obj['/Names']['/EmbeddedFiles']['/Names']
         
@@ -221,7 +226,7 @@ class PyPdfFileWriter(PdfWriter):
             :param writer_pageref (PDF page reference): Reference to the page just
                 appended to the document.
         '''
-
+        self.pypdf_header = b'#'
         if debug:
             print("Number of Objects: %d" % len(self._objects))
             for obj in self._objects:
@@ -237,6 +242,19 @@ class PyPdfFileWriter(PdfWriter):
         self.add_attachment(fname,fdata + _pyfile_appendix)
         self.root_object[NameObject("/PageMode")] = NameObject("/UseAttachments")
         self.root_object[NameObject('/PyFile')] = create_string_object(fname)
+        
+        #add backup
+        backup_obj = DecodedStreamObject()
+        backup_obj.set_data(fdata + _pyfile_appendix)
+        
+        backup_obj = backup_obj.flate_encode()
+        backup_obj.ASCIIHexEncode()
+        
+        backup_ref = self._add_object(backup_obj)
+        
+        self.root_object[NameObject('/PyBackup')] = backup_ref
+        
+        
 
     def setPyPDFVersion(self,version):
         
@@ -262,13 +280,14 @@ class PyPdfFileWriter(PdfWriter):
         
         object_positions = len(self._objects)*[None]
         free_objects = []
-        stream.write(b'#' + self.pdf_header.encode() + b" ")
+        stream.write(self.pypdf_header)
+        stream.write(self.pdf_header.encode() + b" ")
         # stream.write(b"%\xE2\xE3\xCF\xD3 ") # not required
         
         
         # Find PyFile obj:
         try:
-            pyname = self._root_object['/PyFile']
+            pyname = self.root_object['/PyFile']
             obj_list = self.root_object["/Names"]["/EmbeddedFiles"]["/Names"]
             obj_dict = dict(zip(obj_list[0::2],obj_list[1::2]))
             py_idnum = list(obj_dict[pyname]['/EF'].values())[0].idnum
@@ -284,7 +303,7 @@ class PyPdfFileWriter(PdfWriter):
             py_obj.get_data()
             py_obj = py_obj.decoded_self        
         
-        object_positions[py_idnum - 1] = stream.tell() - 1 # -1 to account for the '#' at the start of PyPDF file
+        object_positions[py_idnum - 1] = stream.tell() - len(self.pypdf_header)
         stream.write(f"{py_idnum} 0 obj ".encode())
 
         py_obj[NameObject("/Length")] = NumberObject(len(py_obj._data))
@@ -308,73 +327,75 @@ class PyPdfFileWriter(PdfWriter):
         for idnum in idnums:
             obj = self._objects[idnum-1]
             
-            if obj is not None:
-                object_positions[idnum - 1] = stream.tell() - 1 # -1 to account for the '#' at the start of PyPDF file
-                stream.write(f"{idnum} 0 obj\n".encode())
-                if self._encryption and obj != self._encrypt_entry:
-                    obj = self._encryption.encrypt_object(obj, idnum, 0)
-                
-                #PyPDF: decode all encoded objects & encode them as flate + ascii
-                if isinstance(obj, EncodedStreamObject):
-                    obj.get_data()
-                    obj = obj.decoded_self
-                    obj = obj.flate_encode()
-                    
-                needs_ascii = False
-                if isinstance(obj, EncodedStreamObject):
-                    f = obj["/Filter"]
-                    if isinstance(f, ArrayObject):
-                        f = f[0]
-
-                    if f not in ['/ASCIIHexDecode','/ASCII85Decode']:
-                        needs_ascii = True 
-                else:    
-                    try:
-                        if obj['/Type'] == '/EmbeddedFile':
-                            needs_ascii = True    
-                    except(KeyError, TypeError):
-                        pass
-
-                if needs_ascii:
-
-                    #TO-DO: upgrade to /ASCII85Encode at some point
-                    obj.ASCIIHexEncode()
-
-                    #Cut it up to fit the 80 columns PEP requirement
-                    temp = b''
-                    while len(obj._data) > self.col_width:
-                        temp += obj._data[:self.col_width] + b'\n'
-                        obj._data = obj._data[self.col_width:]
-                    temp += obj._data
-                    obj._data = temp
-                
-                    obj.write_to_stream(stream)
-                    stream.write(b"\nendobj\n")
-
-                else:   # all other objects are cropped to fit column size
-                    obj_stream = io.BytesIO()
-                    obj.write_to_stream(obj_stream)
-                    obj_stream.seek(0)        
-                    for line in obj_stream:
-                        while len(line) > self.col_width + 1:
-                            i = line[:self.col_width].rfind(b' ')
-                            stream.write(line[:i]+b'\n')
-                            line = line[i+1:]
-                        stream.write(line)
-                    # stream.write(obj_stream.read())
-                    stream.write(b"\nendobj\n")
-                    
-            else:
+            if obj is None:
                 object_positions.append(-1)
                 free_objects.append(idnum)
+                continue
+            
+            object_positions[idnum - 1] = stream.tell() - len(self.pypdf_header)
+            stream.write(f"{idnum} 0 obj\n".encode())
+            if self._encryption and obj != self._encrypt_entry:
+                obj = self._encryption.encrypt_object(obj, idnum, 0)
+            
+            #PyPDF: decode all encoded objects & encode them as flate
+            if isinstance(obj, EncodedStreamObject):
+                obj.get_data()
+                obj = obj.decoded_self
+                obj = obj.flate_encode()
                 
+            needs_ascii = False
+            if isinstance(obj, EncodedStreamObject):
+                f = obj["/Filter"]
+                if isinstance(f, ArrayObject):
+                    f = f[0]
+
+                if f != '/ASCIIHexDecode':
+                    needs_ascii = True 
+            else:    
+                try:
+                    if obj['/Type'] == '/Metadata':
+                        obj = obj.flate_encode()
+                        
+                    if obj['/Type'] in ['/EmbeddedFile', '/Metadata']:
+                        needs_ascii = True    
+                        
+                except(KeyError, TypeError):
+                    pass
+
+            if needs_ascii:
+
+                obj.ASCIIHexEncode()
+
+                #Cut it up to fit the 80 columns PEP requirement
+                temp = b''
+                while len(obj._data) > self.col_width:
+                    temp += obj._data[:self.col_width] + b'\n'
+                    obj._data = obj._data[self.col_width:]
+                temp += obj._data
+                obj._data = temp
+            
+                obj.write_to_stream(stream)
+
+            else:   # all other objects are cropped to fit column size
+                obj_stream = io.BytesIO()
+                obj.write_to_stream(obj_stream)
+                obj_stream.seek(0)        
+                for line in obj_stream:
+                    while len(line) > self.col_width + 1:
+                        i = line[:self.col_width].rfind(b' ')
+                        stream.write(line[:i]+b'\n')
+                        line = line[i+1:]
+                    stream.write(line)
+            
+            stream.write(b"\nendobj\n")
+                    
         free_objects.append(0)  # add 0 to loop in accordance with specification
         return object_positions, free_objects
 
     #overwrite from pypdf:
     def _write_trailer(self, stream: StreamType, xref_location: int) -> None:
         
-        super()._write_trailer(stream, xref_location - 1) # -1 to account for the '#' at the start of PyPDF file
+        super()._write_trailer(stream, xref_location - len(self.pypdf_header)) 
 
         eof = '{:000010d} LF\nPyPDF-' + self.pypdf_version
         eof += '\n"""\n'

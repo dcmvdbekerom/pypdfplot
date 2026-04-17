@@ -14,3 +14,4 @@ GitHubDesktop
 *.lnk
 *.bat
 PyPI distribution.txt
+/tests/temp

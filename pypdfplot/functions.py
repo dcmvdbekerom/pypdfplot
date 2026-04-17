@@ -285,17 +285,18 @@ def fix_pypdf(input_fname,
         output_fname = input_fname
     
     pw = PyPdfFileWriter()
-    temp_output = io.BytesIO()
-    
-    #TO-DO: byte level operations should go to classes.py
+
+    #The PyPDF line in the trailer will never survive a PDF save, 
+    #so if it's here, it's a guaranteed PyPDF file.
     with open(input_fname,'rb') as fr: 
         try:
+            #TO-DO: byte level operations should go to classes.py
             fr.seek(-1024,2)
             last1k = fr.read()
             eof_addr = last1k.rfind(b'%%EOF')
-            pypdf_str = last1k[eof_addr:].split()[2]
+            pypdf_str = last1k[eof_addr:].splitlines()[2]
 
-            if pypdf_str == b'PyPDF':
+            if pypdf_str[:5] == b'PyPDF':
                 warnings.warn(input_fname + ' is already compliant PyPDF-file, skipping!')
                 return
             
@@ -304,7 +305,26 @@ def fix_pypdf(input_fname,
         
         pr = PdfReader(fr)     
         pw.clone_reader_document_root(pr)
-        #pw.add_metadata(DictionaryObject({})) #TODO: this is supposed to remove the xpacket in fix_pypdf result, but not working
+        
+        # Test if the data for the py_obj is still there
+        file_list = pw.root_object['/Names']['/EmbeddedFiles']['/Names']
+        file_dict = dict(zip(file_list[0::2], file_list[1::2]))
+        py_name = pw.root_object['/PyFile']
+        py_obj = file_dict[py_name]['/EF']
+        if not '/F' in py_obj:
+            warnings.warn("/PyFile keyword was found, but the pyfile itself was lost\n"+
+                          "Restoring pyfile from backup...")
+            
+            backup_obj = pw.root_object['/PyBackup']
+            new_obj = backup_obj.clone(pw, force_duplicate=True)
+            py_obj[NameObject('/F')] = pw._add_object(new_obj)
+            
+            new_obj[NameObject('/Type')] = NameObject('/EmbeddedFile')
+            if isinstance(new_obj, EncodedStreamObject): #should always be True
+                new_obj.get_data()
+                new_obj = new_obj.decoded_self  
+                
+        temp_output = io.BytesIO()
         pw.write(temp_output)
 
     do_write = True
