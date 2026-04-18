@@ -2,6 +2,13 @@
 *********
 Changelog
 *********
+v0.7.0
+======
+- Switch to the new pypdf as dependency over PyPDF4.
+- Add backup of pyfile in the pypdf file, and read it if the original pyfile is lost.
+- Add tests that run with pytest
+- Fix issues with docs
+
 v0.6.5
 ======
 - Previous patch introduced a new problem with the "Do not edit below" string. This is now solved.
