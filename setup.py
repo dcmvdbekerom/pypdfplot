@@ -14,6 +14,7 @@ try:
     doc = ''
     fnames = ['overview.rst',
               'installation.rst',
+              'quickstart.rst',
               'changelog.rst',
               ]
               
