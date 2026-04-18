@@ -11,6 +11,6 @@ When the ``pypdfplot`` backend is loaded and a figure is saved with ``plt.savefi
 
 The resulting file is both a valid Python file and a valid PDF file, and is conveniently call a PyPDF file. The compatibility with both Python and PDF is achieved by arranging the data blocks in the PyPDF file in a very specific order, such that the PDF-part is read as comment block in Python, and the Python-part is seen as an embedded file by a PDF reader.
 
-To learn more about how to use ``pypdfplot``, continue with reading :ref:`Quickstart`, or check out the commented examples in the `examples folder <https://github.com/dcmvdbekerom/pypdfplot/tree/develop/examples>`__.
+To learn more about how to use ``pypdfplot``, read the full manual [here](https://pypdfplot.readthedocs.io/), or check out the commented examples in the `examples folder <https://github.com/dcmvdbekerom/pypdfplot/tree/develop/examples>`__.
 
 

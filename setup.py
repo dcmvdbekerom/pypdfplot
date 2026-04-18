@@ -8,11 +8,15 @@ try:
     #If building package, complile README.rst
     doc_folder = 'docs/source/'
     
-    with open(doc_folder + 'index.rst','r') as f:
-        index_text = f.read()
+    # with open(doc_folder + 'index.rst','r') as f:
+        # index_text = f.read()
 
     doc = ''
-    fnames = [f+'.rst' for f in re.findall('    (\w+)',index_text)]
+    fnames = ['overview.rst',
+              'installation.rst',
+              'changelog.rst',
+              ]
+              
     for fname in fnames:
         with open(doc_folder + fname,'r') as f:
            doc += f.read() + '\n'
