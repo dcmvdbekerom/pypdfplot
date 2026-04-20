@@ -1,3 +1,8 @@
+|badge_docs|
+
+.. |badge_docs| image:: https://readthedocs.org/projects/pypdfplot/badge/
+                :target: https://pypdfplot.readthedocs.io/
+                :alt: Documentation Status
 
 ************
 Overview
